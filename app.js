@@ -1333,6 +1333,9 @@ const GOOGLE_MAP_QUERIES = {
 };
 
 const CURATED_COMMONS_FILES = {
+  banff: ['Cascade Mountain Banff Avenue.jpg', 'Banff Avenue - Cascade Mountain.jpg'],
+  bowfalls: ['Bow Falls, Alberta.jpg', 'Bow falls Banff national park (12078491613).jpg'],
+  surprise: ['Surprise Corner (2407226128).jpg'],
   minnewanka: ['Lake Minnewanka Panorama.jpg', 'Lake Minnewanka 11092005.jpg'],
   twojack: ['Two Jack Lake - Banff.jpg', 'Two Jack Lake Banff.jpg'],
   gondola: ['Gondola Lift -- Sulphur Mountain Banff, Alberta Province (CA) September 2019 (49278742638).jpg', 'Banff from Sulphur Mountain 2020.jpg'],
@@ -1344,12 +1347,22 @@ const CURATED_COMMONS_FILES = {
   peyto: ['Peyto Lake, Banff National Park, Alberta, Canada.jpg', 'Classic view of a cloudfree Peyto Lake, Banff National Park, Alberta, Canada (4110933448).jpg'],
   icefield: ['Athabasca Glacier, Jasper National Park (7780237404).jpg'],
   icefield29: ['Athabasca Glacier, Jasper National Park (7780237404).jpg'],
+  mistaya: ['Mistaya canyon.jpg'],
+  sunwapta: ['Sunwapta Falls Jasper National Park Canada.jpg', 'The Sunwapta Falls.jpg'],
   athfalls: ['Jasper Athabasca Falls.jpg'],
   pyramid: ['Pyramid Lake (Alberta).jpg', 'Pyramid Lake 01.jpg'],
+  patricia: ['Patricia Lake.jpg', 'Patricia Lake, Jasper (7743170566).jpg'],
+  jasper: ['Jasper town from top of the mountain!.jpg'],
+  jasper29: ['Jasper town from top of the mountain!.jpg'],
+  annette: ['Lake Edith Jasper.jpg'],
   medicine: ['Medicine Lake, Jasper National Park, Canada (54880322287).jpg', 'Medicine Lake Alberta (1).jpg'],
   maligne: ['Spirit Island on Maligne Lake.jpg', 'Spirit Island, Maligne Lake, Jasper NP.jpg'],
+  valley5: ['Valley of the Five Lakes - No.4 - Jasper National Park.jpg'],
+  stutfield: ['Stutfield Glacier from Icefields Parkway.jpg', 'MK04426-27 Stutfield Glacier.jpg'],
+  waterfowl: ['Banff national park lake.jpg'],
   emerald: ['Emerald Lake - Yoho National Park, BC, Canada.jpg', 'Emerald Lake-Yoho.jpg'],
-  naturalbridge: ['Natural Bridge, Yoho NP, west view 20240825 3.jpg', 'Natural Bridge in Yoho National Park.jpg']
+  naturalbridge: ['Natural Bridge, Yoho NP, west view 20240825 3.jpg', 'Natural Bridge in Yoho National Park.jpg'],
+  canmore: ["Prince's Island Park, Calgary (48708020643).jpg"]
 };
 
 function googleMapsQueryForStop(s) {
