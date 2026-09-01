@@ -1022,6 +1022,10 @@ function getLeg(s1, s2) {
           renderOverview();
           renderDayCards();
           renderHero();
+          if (typeof window.renderProductPlan === 'function') {
+            const planView = document.getElementById('planview');
+            if (planView && planView.classList.contains('on')) window.renderProductPlan();
+          }
         }
       }
     }
@@ -1040,7 +1044,7 @@ function computeDayTimeline(d) {
 
   for (let i = 0; i < d.stops.length; i++) {
     const st = d.stops[i];
-    const isCut = st.priority === 'cut';
+    const isCut = !isStopActive(st);
     const plannedStay = getDefaultStayMin(st);
 
     if (isCut) {
@@ -1104,8 +1108,8 @@ function computeDayTimeline(d) {
   const sunriseMin = sun ? parseTimeToMinutes(sun.rise) : 7 * 60 + 35;
   return {
     items,
-    activeCount: d.stops.filter(s => s.priority !== 'cut').length,
-    cutCount: d.stops.filter(s => s.priority === 'cut').length,
+    activeCount: d.stops.filter(isStopActive).length,
+    cutCount: d.stops.filter(s => !isStopActive(s)).length,
     totalDistKm: (totalDistM / 1000).toFixed(1),
     totalDriveMin: Math.round(totalDriveSec / 60),
     totalStayMin,
@@ -1175,12 +1179,43 @@ function tripStopCode(dayOrDate, stopOrIndex) {
   if (stopIdx < 0 && stopOrIndex && stopOrIndex.id) stopIdx = day.stops.findIndex(s => s.id === stopOrIndex.id);
   return `D${dayIdx + 1}-${stopIdx + 1}`;
 }
+function isStopEnabled(stop) {
+  if (!stop) return false;
+  if (stop.enabled === false) return false;
+  if (stop.choiceGroup === 'sep29bonus' && (!S.decisions || S.decisions.sep29bonus === 'pending') && stop.enabled !== true) return false;
+  return true;
+}
+function isStopActive(stop) {
+  return !!stop && stop.priority !== 'cut' && isStopEnabled(stop);
+}
+function setOptionalStopEnabled(date, id, enabled) {
+  const found = findStop(date, id);
+  if (!found || !found.stop || found.stop.priority !== 'nice') return;
+
+  const stop = found.stop;
+  stop.enabled = !!enabled;
+
+  // A choice group stays NICE. Turning one on only disables sibling NICE
+  // alternatives so the route remains efficient. This is a planning toggle,
+  // not a final MCQ lock decision.
+  if (stop.choiceGroup && enabled) {
+    found.day.stops.forEach(function (other) {
+      if (other !== stop && other.priority === 'nice' && other.choiceGroup === stop.choiceGroup) {
+        other.enabled = false;
+      }
+    });
+  }
+
+  save();
+}
 function divIcon(stop, label, isCut = false) {
   const isHotel = stop.isHotel || /hotel|transit \/ overnight|Airport/i.test(getSpotInfo(stop).tag || '');
-  const c = isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[stop.priority] || COLORS.nice));
-  const border = isCut ? '2px dashed #f0c36a' : '2px solid #07131d';
-  const textColor = isCut ? '#f0c36a' : (isHotel ? '#ffffff' : '#07131d');
-  const dim = stop.done ? 'opacity:.45;' : (isCut ? 'opacity:.7;' : '');
+  const disabledNice = stop.priority === 'nice' && !isStopEnabled(stop);
+  const actualCut = stop.priority === 'cut';
+  const c = actualCut ? '#384754' : (disabledNice ? '#536a78' : (isHotel ? COLORS.hotel : (COLORS[stop.priority] || COLORS.nice)));
+  const border = actualCut ? '2px dashed #f0c36a' : (disabledNice ? '2px solid #7e95a2' : '2px solid #07131d');
+  const textColor = actualCut ? '#f0c36a' : (disabledNice ? '#e1e9ed' : (isHotel ? '#ffffff' : '#07131d'));
+  const dim = stop.done ? 'opacity:.45;' : ((actualCut || disabledNice) ? 'opacity:.68;' : '');
   const txt = typeof label === 'number' ? (label + 1) : String(label);
   const coded = /^D\d+-\d+$/.test(txt);
   const width = coded ? Math.max(40, 14 + txt.length * 6) : 26;
@@ -1195,7 +1230,7 @@ function divIcon(stop, label, isCut = false) {
 }
 
 function googleRouteUrl(stops) {
-  const active = stops.filter(s => s.priority !== 'cut');
+  const active = stops.filter(isStopActive);
   if (!active.length) return '';
   const origin = `${active[0].lat},${active[0].lng}`;
   const dest = `${active[active.length - 1].lat},${active[active.length - 1].lng}`;
@@ -1230,7 +1265,7 @@ function renderRouteLayer() {
     S.days.forEach((day, dayIdx) => {
       const activeStops = S.filterMustOnly
         ? day.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
-        : day.stops.filter(s => s.priority !== 'cut');
+        : day.stops.filter(isStopActive);
 
       for (let i = 0; i < activeStops.length - 1; i++) {
         const s1 = activeStops[i], s2 = activeStops[i + 1];
@@ -1251,7 +1286,7 @@ function renderRouteLayer() {
   const d = getDay();
   const activeStops = S.filterMustOnly
     ? d.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
-    : d.stops.filter(s => s.priority !== 'cut');
+    : d.stops.filter(isStopActive);
 
   for (let i = 0; i < activeStops.length - 1; i++) {
     const s1 = activeStops[i], s2 = activeStops[i + 1];
@@ -1333,7 +1368,7 @@ function renderMap() {
 
       stopsToRender.forEach((s, sIdx) => {
         const inf = getSpotInfo(s);
-        const isCut = s.priority === 'cut';
+        const isCut = !isStopActive(s);
         const label = tripStopCode(day, s);
         const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut), draggable: false }).addTo(markerLayer);
 
@@ -1365,7 +1400,7 @@ function renderMap() {
     if (S.showAllDays) {
       S.days.forEach(day => {
         if (day.date === d.date) return;
-        const active = day.stops.filter(s => s.priority !== 'cut');
+        const active = day.stops.filter(isStopActive);
         for (let i = 0; i < active.length - 1; i++) {
           const s1 = active[i], s2 = active[i + 1];
           const leg = getLeg(s1, s2);
@@ -1520,7 +1555,7 @@ function renderDayEditor() {
       totalKm += Number(tl.totalDistKm || 0);
       totalDriveMin += Number(tl.totalDriveMin || 0);
       totalMust += x.stops.filter(s => s.priority === 'must' && !s.isHotel).length;
-      totalStops += x.stops.filter(s => s.priority !== 'cut').length;
+      totalStops += x.stops.filter(isStopActive).length;
     });
 
     const filterMust = S.filterMustOnly;
@@ -1536,7 +1571,7 @@ function renderDayEditor() {
     S.days.forEach((d, dayIdx) => {
       const dayColorCode = dayColor(d.date);
       const dTl = computeDayTimeline(d);
-      const activeStops = d.stops.filter(s => s.priority !== 'cut');
+      const activeStops = d.stops.filter(isStopActive);
       const displayStops = filterMust
         ? d.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
         : d.stops;
@@ -1558,10 +1593,11 @@ function renderDayEditor() {
 
       displayStops.forEach(s => {
         const inf = getSpotInfo(s);
-        const isCut = s.priority === 'cut';
+        const isCut = !isStopActive(s);
         const isHotel = s.isHotel || /hotel|transit \/ overnight|Airport/i.test(inf.tag || '');
         const code = tripStopCode(d, s);
-        const stateLabel = isHotel ? 'BASE' : s.priority.toUpperCase();
+        const disabledNice = s.priority === 'nice' && !isStopEnabled(s);
+        const stateLabel = isHotel ? 'BASE' : (disabledNice ? 'NICE OFF' : s.priority.toUpperCase());
         const dwell = getDefaultStayMin(s);
 
         html += `<div class="alltrip-stop ${isCut ? 'is-cut' : ''}">
@@ -1614,12 +1650,13 @@ function renderDayEditor() {
   tl.items.forEach((it, i) => {
     const s = it.stop;
     const isCut = it.isCut;
+    const disabledNice = s.priority === 'nice' && !isStopEnabled(s);
     const inf = getSpotInfo(s);
     if (i > 0 && it.prevLeg) {
       html += `<div class="leg-bridge"><span>🚗 <b>${it.prevLeg.distKm} km</b></span><span>• ~<b>${it.prevLeg.durText}</b> drive from ${escapeHtml(it.prevLeg.fromName || 'prev')}</span></div>`;
     }
     const isHotel = s.isHotel || /hotel|transit \/ overnight|Airport/i.test(inf.tag || '');
-    const badgeColor = isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[s.priority] || COLORS.nice));
+    const badgeColor = disabledNice ? '#536a78' : (isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[s.priority] || COLORS.nice)));
     html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" draggable="true" data-i="${i}">
       <div class="stoprow-top">
         <div class="grip" title="Drag to reorder">☰</div>
@@ -1636,7 +1673,7 @@ function renderDayEditor() {
       </div>
       <div class="stoprow-sched">
         ${isCut 
-          ? `<span class="bypassed-pill">✂️ Bypassed from route</span>` 
+          ? (disabledNice ? `<span class="bypassed-pill nice-off-pill">NICE OFF • excluded from route</span>` : `<span class="bypassed-pill">CUT • bypassed from route</span>`) 
           : `<span class="time-pill">🕒 ${it.arrTime.display} → 🚪 ${it.depTime.display}</span>`
         }
         <span class="rating-pill" title="Visitor recommendation rating">⭐ ${inf.rating || '8.5/10'}</span>
@@ -1675,7 +1712,7 @@ function focusStopOnMap(lat, lng) {
 }
 
 function renameStop(i, v) { getDay().stops[i].name = v; save(); }
-function setPriority(i, v) { getDay().stops[i].priority = v; save(); }
+function setPriority(i, v) { const s = getDay().stops[i]; s.priority = v; if (v !== 'nice') delete s.enabled; save(); }
 function removeStop(i) { if (confirm('Remove this stop?')) { getDay().stops.splice(i, 1); save(); } }
 function setStopStay(a, b, c) {
   if (c !== undefined) {

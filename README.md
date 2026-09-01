@@ -193,3 +193,27 @@ Scrolling is centralized in `scroll-policy.js`, which is intentionally loaded **
 - Map remains a fixed-height interactive surface; its ETA panel and optional editor sit in normal page flow below it.
 
 A small diagnostic is available in the console as `getPlannerScrollState()` if a future CSS change causes another regression.
+
+
+## Route-safe NICE options
+
+The Plan page keeps classification separate from selection:
+
+- **MUST** — protected first-timer/core stop.
+- **NICE ON** — still `priority: nice`, but included in the live route/timeline.
+- **NICE OFF** — still `priority: nice`, shown muted and excluded from routing/timing.
+- **CUT** — actual fallback/removal bucket.
+
+Turning a NICE stop on never promotes it to MUST and turning it off never rewrites it to CUT. Its position in the day's stop array is preserved, so re-enabling it inserts it back into the same route-safe location.
+
+The verified preset starts only a small set of logistical NICE stops enabled by default (Banff quick lunch, Jasper quick fuel/food, and southbound Jasper fuel). Other NICE sightseeing options start off and can be tested from Plan.
+
+Each day card shows:
+
+- core MUST-only finish time
+- finish time with the currently enabled NICE stops
+- daylight remaining / after-sunset amount
+- each NICE option's approximate incremental route-time cost
+- a route-ordered ON/OFF switch
+
+Sep 29's Valley of Five Lakes / Icefield Adventure / Emerald Lake group remains mutually exclusive when experimenting: enabling one NICE option turns the sibling NICE options off, but does not lock the final MCQ decision until the user explicitly does so.

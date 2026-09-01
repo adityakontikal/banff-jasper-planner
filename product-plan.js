@@ -184,6 +184,60 @@
     });
   }
 
+  const DEFAULT_NICE_ON = new Set(['banff', 'jasper', 'jasper29']);
+
+  function normalizeNiceOptions() {
+    let changed = false;
+    (S.days || []).forEach(function (day) {
+      (day.stops || []).forEach(function (stop) {
+        if (stop.priority !== 'nice') return;
+        if (stop.enabled === undefined || stop.enabled === null) {
+          stop.enabled = DEFAULT_NICE_ON.has(stop.id);
+          changed = true;
+        }
+      });
+    });
+    return changed;
+  }
+
+  function dayWithNiceState(day, targetId, enabled) {
+    const clone = deepClone(day);
+    const target = clone.stops.find(function (s) { return s.id === targetId; });
+    if (!target) return clone;
+    target.enabled = !!enabled;
+    if (target.choiceGroup && enabled) {
+      clone.stops.forEach(function (other) {
+        if (other !== target && other.priority === 'nice' && other.choiceGroup === target.choiceGroup) {
+          other.enabled = false;
+        }
+      });
+    }
+    return clone;
+  }
+
+  function coreDay(day) {
+    const clone = deepClone(day);
+    clone.stops.forEach(function (s) {
+      if (s.priority === 'nice') s.enabled = false;
+    });
+    return clone;
+  }
+
+  function optionImpact(day, stop) {
+    const offTl = computeDayTimeline(dayWithNiceState(day, stop.id, false));
+    const onTl = computeDayTimeline(dayWithNiceState(day, stop.id, true));
+    return {
+      minutes: Math.max(0, Math.round(onTl.finishMin - offTl.finishMin)),
+      finish: onTl.finishTime.display
+    };
+  }
+
+  function daylightText(tl) {
+    const diff = Math.round(tl.sunsetMin - tl.finishMin);
+    if (diff >= 0) return formatDuration(diff) + ' daylight left';
+    return formatDuration(Math.abs(diff)) + ' after sunset';
+  }
+
   function renderChecklist() {
     const completed = BOOKING_GROUPS.filter(groupDone).length;
     const rows = BOOKING_GROUPS.map(function (g) {
@@ -236,29 +290,67 @@
 
   function renderDay(day, dayIndex) {
     const tl = computeDayTimeline(day);
-    const active = activePlanStops(day);
+    const coreTl = computeDayTimeline(coreDay(day));
     const cut = day.stops.filter(function (s) { return s.priority === 'cut'; });
-    const stops = active.map(function (it) {
-      const code = tripStopCode(day, it.stop);
-      return '<button class="pp-stop" onclick="openSpotModal(\'' + day.date + '\',\'' + escapeAttr(it.stop.id) + '\')">' +
-        '<span class="pp-stop-code">' + escapeHtml(code) + '</span>' +
-        '<span class="pp-stop-time">' + escapeHtml(it.arrTime.display) + '</span>' +
-        '<span class="pp-stop-name">' + escapeHtml(getSpotInfo(it.stop).title || it.stop.name) + '</span>' +
-        '<span class="pp-stop-stay">' + (it.stayMin ? escapeHtml(formatDuration(it.stayMin)) : '—') + '</span>' +
-      '</button>';
+    const liveItems = new Map();
+    tl.items.forEach(function (it) { liveItems.set(it.stop.id, it); });
+
+    const tiles = day.stops.filter(function (stop) {
+      return stop.priority !== 'cut';
+    }).map(function (stop) {
+      const code = tripStopCode(day, stop);
+      const info = getSpotInfo(stop);
+      const isNice = stop.priority === 'nice';
+      const enabled = !isNice || isStopEnabled(stop);
+      const item = liveItems.get(stop.id);
+      const isBase = stop.isHotel || /hotel|airport|park & ride/i.test(info.tag || '') || /Hotel|Airport/i.test(stop.name);
+      let impact = null;
+      if (isNice) impact = optionImpact(day, stop);
+
+      const status = isBase ? 'BASE' : (isNice ? (enabled ? 'NICE ON' : 'NICE OFF') : 'MUST');
+      const statusClass = isBase ? 'base' : (isNice ? (enabled ? 'nice-on' : 'nice-off') : 'must');
+
+      const timing = enabled && item && item.arrTime
+        ? item.arrTime.display + (item.stayMin ? ' • ' + formatDuration(item.stayMin) : '')
+        : (impact ? '+' + formatDuration(impact.minutes) + ' if enabled' : '');
+
+      const optionMeta = isNice
+        ? '<div class="pp-route-option-meta"><span>Route impact ~+' + escapeHtml(formatDuration(impact.minutes)) + '</span><span>Would finish ~' + escapeHtml(impact.finish) + '</span></div>'
+        : '';
+
+      const control = isNice
+        ? '<button class="pp-nice-switch ' + (enabled ? 'on' : '') + '" onclick="event.stopPropagation();setOptionalStopEnabled(\'' + day.date + '\',\'' + escapeAttr(stop.id) + '\',' + (!enabled) + ')" aria-pressed="' + (enabled ? 'true' : 'false') + '"><span></span>' + (enabled ? 'On' : 'Add') + '</button>'
+        : '<span class="pp-fixed-label">Fixed</span>';
+
+      return '<div class="pp-route-stop ' + statusClass + '" data-stop="' + escapeAttr(stop.id) + '">' +
+        '<div class="pp-route-stop-top"><span class="pp-route-code">' + escapeHtml(code) + '</span><span class="pp-route-status">' + escapeHtml(status) + '</span>' + control + '</div>' +
+        '<button class="pp-route-place" onclick="openSpotModal(\'' + day.date + '\',\'' + escapeAttr(stop.id) + '\')"><b>' + escapeHtml(info.title || stop.name) + '</b><small>' + escapeHtml(timing || 'Route stop') + '</small></button>' +
+        optionMeta +
+      '</div>';
     }).join('');
 
     const cutText = cut.length
-      ? '<div class="pp-cut-line"><b>Cut first:</b> ' + cut.map(function (s) { return tripStopCode(day, s) + ' ' + (getSpotInfo(s).title || s.name); }).map(escapeHtml).join(' • ') + '</div>'
+      ? '<details class="pp-cut-details"><summary>' + cut.length + ' cut / fallback stop' + (cut.length === 1 ? '' : 's') + '</summary><div>' +
+        cut.map(function (s) { return '<span>' + escapeHtml(tripStopCode(day, s) + ' ' + (getSpotInfo(s).title || s.name)) + '</span>'; }).join('') +
+        '</div></details>'
       : '';
 
-    return '<article class="pp-day">' +
+    const selectedNice = day.stops.filter(function (s) { return s.priority === 'nice' && isStopEnabled(s); }).length;
+    const totalNice = day.stops.filter(function (s) { return s.priority === 'nice'; }).length;
+
+    return '<article class="pp-day pp-route-day">' +
       '<div class="pp-day-head">' +
         '<div class="pp-day-index">D' + (dayIndex + 1) + '</div>' +
-        '<div class="pp-day-title"><small>' + escapeHtml(day.date) + '</small><b>' + escapeHtml(day.label) + '</b><span>' + escapeHtml(day.start) + ' → ~' + escapeHtml(tl.finishTime.display) + ' • ' + escapeHtml(tl.totalDistKm) + ' km • ' + escapeHtml(formatDuration(tl.totalDriveMin)) + ' driving</span></div>' +
-        '<div class="pp-day-actions"><button onclick="openDayGuide(\'' + day.date + '\')">Day details</button><button onclick="chooseDay(\'' + day.date + '\')">Edit route</button></div>' +
+        '<div class="pp-day-title"><small>' + escapeHtml(day.date) + '</small><b>' + escapeHtml(day.label) + '</b><span>Start ' + escapeHtml(day.start) + ' • selected finish ~' + escapeHtml(tl.finishTime.display) + ' • ' + escapeHtml(tl.totalDistKm) + ' km</span></div>' +
+        '<div class="pp-day-actions"><button onclick="openDayGuide(\'' + day.date + '\')">Details</button><button onclick="chooseDay(\'' + day.date + '\')">Map / edit</button></div>' +
       '</div>' +
-      '<div class="pp-stop-list">' + stops + '</div>' +
+      '<div class="pp-day-timebar">' +
+        '<span><b>Core</b> ~' + escapeHtml(coreTl.finishTime.display) + '</span>' +
+        '<span><b>Selected</b> ~' + escapeHtml(tl.finishTime.display) + '</span>' +
+        '<span class="' + (tl.afterSunset ? 'late' : '') + '"><b>Daylight</b> ' + escapeHtml(daylightText(tl)) + '</span>' +
+        (totalNice ? '<span><b>NICE</b> ' + selectedNice + '/' + totalNice + ' on</span>' : '') +
+      '</div>' +
+      '<div class="pp-route-grid">' + tiles + '</div>' +
       cutText +
     '</article>';
   }
@@ -271,6 +363,7 @@
   }
 
   function renderProductPlan() {
+    if (normalizeNiceOptions()) persist();
     const root = document.getElementById('planRoot');
     if (!root) return;
     const booked = BOOKING_GROUPS.filter(groupDone).length;
@@ -284,10 +377,10 @@
           '<div><small>Sep 25–30, 2026 • ' + S.settings.travellers + ' adults</small><h1>Banff → Jasper trip plan</h1><p>One place for bookings, decisions and the day-by-day route.</p></div>' +
           '<div class="pp-header-summary"><div><span>Budget</span><b>' + money(totalNow) + '</b><small>' + money(pp) + ' / person</small></div><div><span>Bookings</span><b>' + booked + '/' + BOOKING_GROUPS.length + '</b><small>' + unresolved + ' flexible decisions</small></div></div>' +
         '</header>' +
-        '<nav class="pp-subnav"><button onclick="scrollProductPlanTo(\'planChecklist\')">Checklist</button><button onclick="scrollProductPlanTo(\'planDecisions\')">Decisions</button><button onclick="scrollProductPlanTo(\'planItinerary\')">Itinerary</button></nav>' +
+        '<nav class="pp-subnav"><button onclick="scrollProductPlanTo(\'planItinerary\')">Route</button><button onclick="scrollProductPlanTo(\'planChecklist\')">Checklist</button><button onclick="scrollProductPlanTo(\'planDecisions\')">Decisions</button></nav>' +
+        renderItinerary() +
         renderChecklist() +
         renderDecisions() +
-        renderItinerary() +
       '</div>';
   }
 
@@ -449,6 +542,43 @@
       .pp-stop-name{font-size:11px;color:#c7d8e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .pp-stop-stay{text-align:right;font-size:9px;color:#839caa}
       .pp-cut-line{padding:8px 14px;background:#0a1821;color:#a79470;font-size:9px;border-top:1px solid rgba(255,255,255,.05)}
+
+      /* Route plan cards: MUST fixed, NICE stays optional in its route-safe slot. */
+      .pp-route-day{background:#0a1c28}
+      .pp-day-timebar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid var(--line);background:#081823;color:#91a8b6;font-size:9px}
+      .pp-day-timebar b{color:#cfdee6;font-weight:750}
+      .pp-day-timebar .late{color:#d8a47a}
+      .pp-route-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px 14px 14px}
+      .pp-route-stop{position:relative;min-width:0;min-height:108px;border:1px solid #294454;border-radius:9px;background:#0d2230;padding:9px;transition:border-color .15s,opacity .15s,background .15s}
+      .pp-route-stop.must{border-color:#3b715a;background:#0d241f}
+      .pp-route-stop.base{border-color:#5b5378;background:#171d2c}
+      .pp-route-stop.nice-on{border-color:#43738c;background:#102938}
+      .pp-route-stop.nice-off{border-color:#293b47;background:#0b1821;opacity:.56}
+      .pp-route-stop.nice-off:hover{opacity:.82}
+      .pp-route-stop-top{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center;margin-bottom:7px}
+      .pp-route-code{font-size:8px;color:#8baabd;font-weight:850}
+      .pp-route-status{justify-self:start;border-radius:999px;padding:2px 5px;font-size:6.8px;font-weight:850;letter-spacing:.02em;border:1px solid currentColor;color:#91a7b4}
+      .pp-route-stop.must .pp-route-status{color:#87c6a2}
+      .pp-route-stop.base .pp-route-status{color:#b8a7d4}
+      .pp-route-stop.nice-on .pp-route-status{color:#8ec9e7}
+      .pp-route-stop.nice-off .pp-route-status{color:#7b8c96}
+      .pp-route-place{display:block;width:100%;border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}
+      .pp-route-place b{display:block;font-size:11px;line-height:1.3;color:#d8e5eb}
+      .pp-route-place small{display:block;margin-top:5px;color:#819aa8;font-size:8.5px;line-height:1.25}
+      .pp-route-option-meta{display:flex;justify-content:space-between;gap:6px;margin-top:8px;color:#6f8795;font-size:7.5px}
+      .pp-route-option-meta span:last-child{text-align:right}
+      .pp-nice-switch{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:#7e929e;font-size:8px;cursor:pointer;padding:1px}
+      .pp-nice-switch>span{display:block;width:23px;height:13px;border-radius:999px;background:#31424c;position:relative}
+      .pp-nice-switch>span:after{content:'';position:absolute;width:9px;height:9px;top:2px;left:2px;border-radius:50%;background:#9aabb5;transition:transform .15s}
+      .pp-nice-switch.on{color:#9ed1e9}
+      .pp-nice-switch.on>span{background:#315f75}
+      .pp-nice-switch.on>span:after{transform:translateX(10px);background:#d6edf8}
+      .pp-fixed-label{color:#708692;font-size:7.5px}
+      .pp-cut-details{border-top:1px solid var(--line);padding:7px 14px 9px;color:#867b69;font-size:8.5px}
+      .pp-cut-details summary{cursor:pointer}
+      .pp-cut-details>div{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+      .pp-cut-details span{padding:3px 6px;border:1px solid #423d34;border-radius:6px;background:#0b171e}
+
       #stopList .stoprow-top{grid-template-columns:16px 46px minmax(0,1fr) 76px 24px 24px 24px!important}
       #stopList .stop-num-badge{width:auto!important;min-width:42px!important;height:22px!important;border-radius:7px!important;padding:0 5px!important;font-size:9px!important}
       #stopList .stop-num-badge:hover{transform:none!important}
@@ -504,6 +634,12 @@
         .pp-decision-options{display:grid;grid-template-columns:1fr 1fr}
         .pp-decision-options button{text-align:left;min-height:38px}
         .pp-day-head{grid-template-columns:36px 1fr;padding:10px}
+        .pp-route-grid{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px 10px 11px;gap:7px}
+        .pp-day-timebar{padding:7px 10px;gap:10px}
+        .pp-route-stop{min-height:104px;padding:8px}
+        .pp-route-option-meta{display:block}
+        .pp-route-option-meta span{display:block;margin-top:2px}
+        .pp-route-option-meta span:last-child{text-align:left}
         .pp-day-index{width:32px;height:32px}
         .pp-day-actions{grid-column:2;justify-content:flex-start;margin-top:3px}
         .pp-stop-list{padding:3px 10px 7px}
@@ -537,6 +673,7 @@
 
     const oldRenderAll = renderAll;
     renderAll = function () {
+      if (normalizeNiceOptions()) persist();
       oldRenderAll();
       decorateRouteClock();
       polishMobileQuick();
@@ -570,6 +707,7 @@
   window.scrollProductPlanTo = scrollToSection;
   window.renderProductPlan = renderProductPlan;
 
+  if (normalizeNiceOptions()) persist();
   renderProductPlan();
   decorateRouteClock();
   polishMobileQuick();
