@@ -298,7 +298,39 @@
         .lock-copy p{font-size:10px!important}
         .lock-choices{display:flex!important;overflow-x:auto;gap:5px!important}
         .lock-choice{min-width:76%;padding:8px!important}
-        .lock-choice.selected{order:-1;min-width:84%}
+        #lockview,#lockRoot,.lock-grid,.lock-timeline,.lock-step,.lock-copy{
+          touch-action:pan-y pinch-zoom!important;
+          overscroll-behavior-x:none!important;
+        }
+        #lockview.view.on{
+          display:block!important;
+          position:static!important;
+          width:100%!important;
+          height:auto!important;
+          max-height:none!important;
+          overflow:visible!important;
+          padding-bottom:90px!important;
+        }
+        #lockRoot,.lock-grid,.lock-timeline{
+          width:100%!important;
+          height:auto!important;
+          max-height:none!important;
+          overflow:visible!important;
+        }
+        .lock-choices{
+          display:block!important;
+          overflow:visible!important;
+          width:100%!important;
+          touch-action:pan-y!important;
+        }
+        .lock-choice{
+          width:100%!important;
+          min-width:0!important;
+          max-width:none!important;
+          margin:0 0 6px!important;
+          touch-action:manipulation!important;
+        }
+        .lock-choice.selected{order:initial!important;min-width:0!important}
         .lock-copy:not(.mobile-show-alts) .lock-choice:not(.selected){display:none!important}
         .lock-copy.mobile-show-alts .lock-choice{display:block!important;min-width:78%}
         .mobile-change-choice{margin-top:6px!important;min-height:34px!important;font-size:10px!important}
