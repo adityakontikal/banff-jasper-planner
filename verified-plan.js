@@ -109,6 +109,17 @@
     if (st) st.priority = priority;
   }
 
+  function patchDaylight() {
+    // Route-appropriate late-September daylight. Banff values come from Banff;
+    // Jasper-heavy days use Jasper values so the load meter is not overly optimistic.
+    SUN['Sep 25'] = { rise: '07:33', set: '19:33' };
+    SUN['Sep 26'] = { rise: '07:35', set: '19:30' };
+    SUN['Sep 27'] = { rise: '07:36', set: '19:15' }; // Banff/Louise sunrise; Jasper-side sunset
+    SUN['Sep 28'] = { rise: '07:23', set: '19:13' }; // Jasper
+    SUN['Sep 29'] = { rise: '07:24', set: '19:24' }; // Jasper start; southbound toward Banff/Yoho
+    SUN['Sep 30'] = { rise: '07:41', set: '19:21' };
+  }
+
   function patchBase() {
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
     BASE.settings.globalNote = 'Verified Aug 31, 2026. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Three drivers; long/night driving is acceptable. Protect 6–7h sleep / ~8–9h in-room time. Must = first-timer core; Nice = consider/choose; Cut = keep in data but sacrifice first.';
@@ -687,6 +698,7 @@
   }
 
   patchBase();
+  patchDaylight();
   patchInfo();
   injectCss();
   injectUi();
