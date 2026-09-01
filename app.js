@@ -955,9 +955,9 @@ function applyLockedWestJetFlights(state) {
   // Keep the route clock synchronized with the booked flight times.
   const d25 = (state.days || []).find(d => d.date === 'Sep 25');
   if (d25) {
-    d25.label = 'Toronto → Calgary Arrival → Cochrane';
+    d25.label = 'Toronto → Calgary → Rental pickup • no hotel';
     d25.start = '00:44';
-    d25.note = 'Booked WestJet arrives YYC at 12:44 AM on Sat Sep 26. Carry-on only; allow about 60 minutes for rental pickup, then drive to Cochrane. Expected hotel arrival is roughly 2:20–2:30 AM.';
+    d25.note = 'Booked WestJet arrives YYC at 12:44 AM on Sat Sep 26. No arrival-night hotel is planned; Ascent rental pickup is the next locked step.';
     const yyc = d25.stops && d25.stops.find(s => s.id === 'yyc25');
     if (yyc) {
       yyc.name = 'Calgary International Airport — WestJet arrival 12:44 AM';
@@ -967,16 +967,19 @@ function applyLockedWestJetFlights(state) {
 
   const d26 = (state.days || []).find(d => d.date === 'Sep 26');
   if (d26) {
-    d26.start = '10:30';
-    d26.note = 'Late-night arrival is now locked. Target a 10:30 AM departure from Cochrane to protect roughly 8 hours in the room / 6–7 hours of sleep while still preserving Minnewanka, Two Jack and Johnston Canyon.';
+    d26.start = '05:45';
+    d26.note = 'No Sep 25 hotel. Use the pre-dawn YYC window as buffer/rest time, then keep the Banff-first sightseeing order and finish at the booked Sep 26 Cochrane hotel.';
     const dep = d26.stops && d26.stops.find(s => s.id === 'cochrane26_dep');
-    if (dep) dep.name = 'Cochrane Hotel (Depart 10:30)';
+    if (dep) {
+      dep.name = 'YYC / Ascent rental — Depart 05:45 for Banff';
+      dep.lat = 51.1315; dep.lng = -114.0106; dep.isHotel = false;
+    }
   }
 
   const d30 = (state.days || []).find(d => d.date === 'Sep 30');
   if (d30) {
-    d30.label = 'Cochrane → Calgary Optional → YYC → Toronto';
-    d30.note = 'Booked WestJet departs YYC at 7:10 PM. Target rental return at about 4:45 PM, then keep the airport/terminal block through departure. Toronto arrival is 1:05 AM on Oct 1.';
+    d30.label = 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto';
+    d30.note = 'Booked WestJet departs YYC at 7:10 PM. The final hotel is already in Calgary; target rental return at about 4:45 PM, then keep the airport/terminal block through departure. Toronto arrival is 1:05 AM on Oct 1.';
     const yyc = d30.stops && d30.stops.find(s => s.id === 'yyc30');
     if (yyc) {
       yyc.name = 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM';
@@ -1017,7 +1020,7 @@ function applyLockedAscentRental(state) {
 
   const d25 = (state.days || []).find(d => d.date === 'Sep 25');
   if (d25) {
-    d25.note = 'WestJet arrives YYC at 12:44 AM Sep 26. Ascent rental pickup is booked for 1:30 AM at the YYC Economy Parking Lot (outside terminal). Pickup must be completed by 2:28 AM unless Ascent agrees to hold it longer. Expected Cochrane arrival remains roughly 2:20–2:40 AM.';
+    d25.note = 'WestJet arrives YYC at 12:44 AM Sep 26. Ascent rental pickup is booked for 1:30 AM at the YYC Economy Parking Lot (outside terminal). Pickup must be completed by 2:28 AM unless Ascent agrees to hold it longer. No Sep 25 hotel is planned; the early-morning gap is intentionally kept as a YYC-area buffer/rest window.';
     const yyc = d25.stops && d25.stops.find(s => s.id === 'yyc25');
     if (yyc) {
       yyc.name = 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM';
