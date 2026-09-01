@@ -729,35 +729,34 @@ const BASE = {
   checklists: {},
   days: [
     {
-      date: 'Sep 25', label: 'Toronto → Calgary (arrives Sep 26) → Cochrane', start: '00:44', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
-      note: 'Booked WestJet arrives YYC at 12:44 AM Sep 26. Carry-on only; allow about 60 min for rental pickup, then drive to Cochrane. Expected hotel arrival roughly 2:20–2:30 AM.',
-      hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 25', label: 'Toronto → Calgary → Rental pickup • no hotel', start: '00:44', drive: 'Arrival logistics', sleep: 'No hotel — overnight transition',
+      note: 'WestJet arrives YYC at 12:44 AM Sep 26 and Ascent pickup is 1:30 AM. No Sep 25 hotel by choice; keep the current south→north→south route.',
+      hotel: null,
       stops: [
-        { id: 'yyc25', name: 'Calgary International Airport — WestJet arrival 12:44 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 60 },
-        { id: 'cochrane25', name: 'Cochrane Hotel (Check-in & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'yyc25', name: 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 15, notBefore: '01:30' }
       ]
     },
     {
-      date: 'Sep 26', label: 'Cochrane → Banff Highlights → Cochrane', start: '10:30', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
-      note: 'Late-night flight arrival is locked. Depart Cochrane at 10:30 AM to protect roughly 8 hours in the room / 6–7 hours of sleep while preserving the core Banff stops.',
-      hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 26', label: 'YYC → Banff Highlights → Cochrane', start: '05:45', drive: '~240 km', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      note: 'No arrival-night hotel. Leave the YYC area around 5:45 AM, keep the Banff-first route, and finish at the booked Super 8 Cochrane.',
+      hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
-        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 10:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45 for Banff', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
         { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
         { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
         { id: 'banff', name: 'Banff Town (Lunch & Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 60 },
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 20 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 15 },
         { id: 'johnston', name: 'Johnston Canyon', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 90 },
-        { id: 'cochrane26_ret', name: 'Cochrane Hotel (Return & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton',
-      note: 'Hardest & most scenic day. Cochrane start, Moraine + Louise morning shuttles, full Icefields Parkway northbound, ending at Hinton hotel.',
-      hotel: { name: 'Ramada by Wyndham Hinton', lat: 53.399, lng: -117.586 },
+      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
+      note: 'Hardest & most scenic day. Depart the booked Super 8 Cochrane, do Moraine + Louise and the Icefields Parkway northbound, then check into Hinton Lodge.',
+      hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
-        { id: 'cochrane27', name: 'Cochrane Hotel (Depart 06:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart 06:00)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'parkride', name: 'Lake Louise Park & Ride (Shuttle Hub)', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
         { id: 'moraine', name: 'Moraine Lake & Rockpile', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 75 },
         { id: 'louise', name: 'Lake Louise Lakeshore', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 60 },
@@ -768,30 +767,30 @@ const BASE = {
         { id: 'icefield', name: 'Columbia Icefield (Athabasca Glacier)', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 45 },
         { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'must', stayMin: 35 },
         { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 35 },
-        { id: 'hinton27', name: 'Hinton Hotel (Sleep)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'hinton27', name: 'Hinton Lodge (Booked • Check-in)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton',
-      note: 'Jasper & Maligne core day. Starts from Hinton, explores Pyramid Lake, Jasper town, Medicine Lake, and Maligne Lake Cruise.',
-      hotel: { name: 'Ramada by Wyndham Hinton', lat: 53.399, lng: -117.586 },
+      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
+      note: 'Jasper & Maligne core day. Start and finish at the same booked Hinton Lodge room.',
+      hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
-        { id: 'hinton28a', name: 'Hinton Hotel (Depart 07:00)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'hinton28a', name: 'Hinton Lodge (Depart 07:00)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'pyramid', name: 'Pyramid Lake & Pyramid Island', lat: 52.9210, lng: -118.1040, priority: 'must', stayMin: 40 },
         { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 20 },
         { id: 'jasper', name: 'Jasper Town (Lunch, Fuel & Bakery)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 60 },
         { id: 'medicine', name: 'Medicine Lake Viewpoint', lat: 52.8640, lng: -117.8000, priority: 'must', stayMin: 25 },
         { id: 'maligne', name: 'Maligne Lake & Spirit Island Cruise', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 135 },
         { id: 'annette', name: 'Lake Annette & Lake Edith', lat: 52.8840, lng: -118.0450, priority: 'cut', stayMin: 30 },
-        { id: 'hinton28b', name: 'Hinton Hotel (Sleep)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'hinton28b', name: 'Hinton Lodge (Return & Sleep)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 29', label: 'Hinton → Southbound Parkway → Cochrane', start: '06:30', drive: '~500 km', sleep: 'Cochrane',
-      note: 'Southbound Icefields Parkway run. Valley of the 5 Lakes, Icefield second look, Yoho Emerald Lake detour, ending at Cochrane hotel.',
-      hotel: { name: 'Days Inn Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 29', label: 'Hinton → Southbound Parkway → Calgary Airport Hotel', start: '06:30', drive: '~540 km', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
+      note: 'Southbound Icefields Parkway run. Continue to the booked Holiday Inn Calgary-Airport after the final scenic / Yoho choice.',
+      hotel: { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 },
       stops: [
-        { id: 'hinton29', name: 'Hinton Hotel (Depart 06:30)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'jasper29', name: 'Jasper (Southbound Fuel & Snacks)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 25 },
         { id: 'valley5', name: 'Valley of the Five Lakes', lat: 52.8450, lng: -118.0550, priority: 'nice', stayMin: 80 },
         { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15 },
@@ -799,15 +798,15 @@ const BASE = {
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15 },
         { id: 'bowlake29', name: 'Bow Lake (Southbound viewpoint)', lat: 51.6827, lng: -116.4650, priority: 'nice', stayMin: 20 },
         { id: 'emerald', name: 'Emerald Lake & Natural Bridge (Yoho)', lat: 51.4436, lng: -116.5310, priority: 'cut', stayMin: 75 },
-        { id: 'cochrane29', name: 'Cochrane Hotel (Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 30', label: 'Cochrane → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
-      note: 'Booked WestJet departs YYC at 7:10 PM. Target rental return around 4:45 PM; Toronto arrival is 1:05 AM on Oct 1.',
+      date: 'Sep 30', label: 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~30 km', sleep: 'Home',
+      note: 'Wake up already in Calgary. Keep the 4:45 PM rental-return target for the 7:10 PM WestJet departure.',
       hotel: null,
       stops: [
-        { id: 'cochrane30', name: 'Cochrane Hotel (Depart 10:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane30', name: 'Holiday Inn Calgary-Airport by IHG (Depart 10:00)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if time)', lat: 51.0550, lng: -114.0700, priority: 'nice', stayMin: 90, enabled: false },
         { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
