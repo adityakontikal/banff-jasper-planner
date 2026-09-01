@@ -304,12 +304,17 @@
         }
         #lockview.view.on{
           display:block!important;
-          position:static!important;
+          position:relative!important;
           width:100%!important;
-          height:auto!important;
-          max-height:none!important;
-          overflow:visible!important;
-          padding-bottom:90px!important;
+          height:calc(100dvh - 118px)!important;
+          min-height:0!important;
+          max-height:calc(100dvh - 118px)!important;
+          overflow-x:hidden!important;
+          overflow-y:auto!important;
+          -webkit-overflow-scrolling:touch!important;
+          overscroll-behavior-y:contain!important;
+          touch-action:pan-y pinch-zoom!important;
+          padding-bottom:96px!important;
         }
         #lockRoot,.lock-grid,.lock-timeline{
           width:100%!important;
@@ -391,7 +396,6 @@
         #budget.view.on,
         #settings.view.on,
         #finalize.view.on,
-        #lockview.view.on,
         #mobilequick.view.on{
           height:auto!important;
           min-height:0!important;
@@ -449,6 +453,32 @@
         textarea,.textarea,#rawJson{
           touch-action:auto;
         }
+
+        /* Final authority for Lock: fixed app-height scroller on phones. */
+        #lockview.view.on{
+          display:block!important;
+          position:relative!important;
+          box-sizing:border-box!important;
+          width:100%!important;
+          height:calc(100dvh - 118px)!important;
+          min-height:0!important;
+          max-height:calc(100dvh - 118px)!important;
+          overflow-x:hidden!important;
+          overflow-y:scroll!important;
+          -webkit-overflow-scrolling:touch!important;
+          overscroll-behavior-y:contain!important;
+          touch-action:pan-y pinch-zoom!important;
+          padding-right:0!important;
+          padding-bottom:96px!important;
+        }
+        #lockview #lockRoot,
+        #lockview .lock-grid,
+        #lockview .lock-timeline{
+          height:auto!important;
+          min-height:0!important;
+          max-height:none!important;
+          overflow:visible!important;
+        }
       }
     `;
     document.head.appendChild(st);
@@ -484,7 +514,12 @@
         updateMobileNav(id);
         if (id === 'lockview') setTimeout(enhanceMobileLock, 0);
         requestAnimationFrame(function () {
-          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          if (id === 'lockview') {
+            const lock = document.getElementById('lockview');
+            if (lock) lock.scrollTop = 0;
+          } else {
+            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          }
         });
       }
     };
