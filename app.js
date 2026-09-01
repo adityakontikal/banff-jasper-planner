@@ -1690,7 +1690,27 @@ function setOptionalStopEnabled(date, id, enabled) {
 
   save();
 }
-function divIcon(stop, label, isCut = false) {
+function markerOffsetMap(stops) {
+  const groups = new Map();
+  (stops || []).forEach(stop => {
+    const key = Number(stop.lat).toFixed(5) + ',' + Number(stop.lng).toFixed(5);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(stop);
+  });
+  const offsets = new Map();
+  groups.forEach(group => {
+    const spacing = 46;
+    group.forEach((stop, i) => offsets.set(stop, (i - (group.length - 1) / 2) * spacing));
+  });
+  return offsets;
+}
+function sameMapPoint(a, b) {
+  return !!a && !!b && Math.abs(Number(a.lat) - Number(b.lat)) < 0.00001 && Math.abs(Number(a.lng) - Number(b.lng)) < 0.00001;
+}
+function dayHasStopAt(day, point) {
+  return !!day && !!point && (day.stops || []).some(stop => sameMapPoint(stop, point));
+}
+function divIcon(stop, label, isCut = false, xOffset = 0) {
   const isHotel = stop.isHotel || /hotel|transit \/ overnight|Airport/i.test(getSpotInfo(stop).tag || '');
   const disabledNice = stop.priority === 'nice' && !isStopEnabled(stop);
   const actualCut = stop.priority === 'cut';
@@ -1707,19 +1727,19 @@ function divIcon(stop, label, isCut = false) {
     className: '',
     html: `<div style="width:${width}px;height:26px;border-radius:${radius}px;background:${c};border:${border};color:${textColor};font-weight:900;display:grid;place-items:center;font-size:${fontSize};box-shadow:0 4px 12px #0007;${dim}">${txt}</div>`,
     iconSize: [width, 26],
-    iconAnchor: [width / 2, 13]
+    iconAnchor: [width / 2 + xOffset, 13]
   });
 }
 
 function googleRouteUrl(stops) {
   const active = stops.filter(isStopActive);
   if (!active.length) return '';
-  const origin = `${active[0].lat},${active[0].lng}`;
-  const dest = `${active[active.length - 1].lat},${active[active.length - 1].lng}`;
+  const origin = googleMapsQueryForStop(active[0]) || `${active[0].lat},${active[0].lng}`;
+  const dest = googleMapsQueryForStop(active[active.length - 1]) || `${active[active.length - 1].lat},${active[active.length - 1].lng}`;
   const mids = active.slice(1, -1);
   const capped = mids.slice(0, 10);
   let u = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=driving`;
-  if (capped.length) u += `&waypoints=${encodeURIComponent(capped.map(s => `${s.lat},${s.lng}`).join('|'))}`;
+  if (capped.length) u += `&waypoints=${encodeURIComponent(capped.map(s => googleMapsQueryForStop(s) || `${s.lat},${s.lng}`).join('|'))}`;
   return u;
 }
 
@@ -1843,6 +1863,10 @@ function renderMap() {
   renderPOILayer();
 
   if (isAllDays) {
+    const allVisibleStops = S.days.flatMap(day => S.filterMustOnly
+      ? day.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
+      : day.stops);
+    const allMarkerOffsets = markerOffsetMap(allVisibleStops);
     S.days.forEach((day, dayIdx) => {
       const stopsToRender = S.filterMustOnly
         ? day.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
@@ -1852,7 +1876,7 @@ function renderMap() {
         const inf = getSpotInfo(s);
         const isCut = !isStopActive(s);
         const label = tripStopCode(day, s);
-        const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut), draggable: false }).addTo(markerLayer);
+        const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut, allMarkerOffsets.get(s) || 0), draggable: false }).addTo(markerLayer);
 
         m.bindTooltip(`<b>${tripStopCode(day, s)} • ${day.date}: ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
 
@@ -1871,7 +1895,7 @@ function renderMap() {
         `);
       });
 
-      if (day.hotel) {
+      if (day.hotel && !dayHasStopAt(day, day.hotel)) {
         L.circleMarker([day.hotel.lat, day.hotel.lng], { radius: 8, color: '#07131d', weight: 2, fillColor: COLORS.hotel, fillOpacity: 1 })
           .addTo(hotelLayer)
           .bindPopup(`<b>Day ${dayIdx + 1} Base: ${escapeHtml(day.sleep)}</b><br>${escapeHtml(day.hotel.name)}<br><button class="btn small primary" style="margin-top:6px;" onclick="chooseDay('${day.date}')">Switch to Day ${dayIdx + 1}</button>`);
@@ -1879,6 +1903,10 @@ function renderMap() {
     });
   } else {
     const tl = computeDayTimeline(d);
+    const singleVisibleStops = tl.items
+      .map(it => it.stop)
+      .filter(s => !S.filterMustOnly || s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''));
+    const singleMarkerOffsets = markerOffsetMap(singleVisibleStops);
     if (S.showAllDays) {
       S.days.forEach(day => {
         if (day.date === d.date) return;
@@ -1897,7 +1925,7 @@ function renderMap() {
       const isCut = it.isCut;
       if (S.filterMustOnly && s.priority !== 'must' && !s.isHotel && !/hotel|airport/i.test(getSpotInfo(s).tag || '')) return;
       const inf = getSpotInfo(s);
-      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, tripStopCode(d, s), isCut), draggable: true }).addTo(markerLayer);
+      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, tripStopCode(d, s), isCut, singleMarkerOffsets.get(s) || 0), draggable: true }).addTo(markerLayer);
       if (isCut) {
         m.bindTooltip(`<b>${tripStopCode(d, s)}: ${escapeHtml(s.name)}</b><br><span style="color:#f0c36a;">✂️ Bypassed from route (Cut)</span> • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
         m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge cut">CUT (BYPASSED)</span> • ${tripStopCode(d, s)} • ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;color:#f0c36a;">⚠️ <b>This stop is currently bypassed from the driving route and timeline calculations.</b> Change priority to <b>Must</b> or <b>Nice</b> in the left panel to route through it.</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div>`);
@@ -1912,7 +1940,7 @@ function renderMap() {
         save();
       });
     });
-    if (d.hotel) {
+    if (d.hotel && !dayHasStopAt(d, d.hotel)) {
       L.circleMarker([d.hotel.lat, d.hotel.lng], { radius: 8, color: '#07131d', weight: 2, fillColor: COLORS.hotel, fillOpacity: 1 }).addTo(hotelLayer).bindPopup(`<b>Sleep: ${escapeHtml(d.sleep)}</b><br>${escapeHtml(d.hotel.name)}`);
     }
   }
