@@ -503,15 +503,6 @@
 
   const DECISION_FLOW = [
     {
-      id: 'hotel26', when: 'NOW • HOTEL', title: 'Where do you sleep Sep 26?',
-      detail: 'Budget wins unless the location upgrade is cheap enough. Cochrane → Lake Louise Ski Resort is about 1h57; Canmore → Ski Resort about 1h04.',
-      options: [
-        ['budget-rule', 'Cochrane unless mountain hotel ≤ +C$100', 'Recommended'],
-        ['mountain', 'Canmore / Dead Man\'s Flats if ≤ +C$100', 'Buys ~50 min+ on Sep 27 morning'],
-        ['pending', 'Still comparing', 'Do not lock route yet']
-      ]
-    },
-    {
       id: 'shuttle', when: 'SEP 25 • 8:00 AM MDT RELEASE', title: 'How are Moraine + Lake Louise locked?',
       detail: '60% of seats release at 8:00 AM MDT two days before Sep 27. Choose Moraine as first destination. Regular shuttles start 6:30 AM; plan at least 30 min waits.',
       options: [
@@ -603,7 +594,7 @@
       ['Outbound flight booked', isBooked('outbound')],
       ['Rental with workable late pickup booked', isBooked('rental')],
       ['Toronto airport parking booked', isBooked('yyzParking')],
-      ['All 5 hotel nights locked as 1 room / 3 adults / exact 2 Queens', ['h25','h26','h27','h28','h29'].every(isBooked)],
+      ['Hotel plan locked: no-hotel Sep 25 + all 4 booked nights confirmed for 3 adults / 2 Queens', ['h25','h26','h27','h28','h29'].every(isBooked)],
       ['Parks Canada admission handled', isBooked('park')],
       ['Moraine/Louise transport reservation locked', isBooked('shuttle') || S.decisions.shuttle === 'booked' || S.decisions.shuttle === 'backup'],
       ['Maligne Cruise decision locked', S.decisions.maligne === 'book' || S.decisions.maligne === 'skip'],
@@ -758,33 +749,6 @@
       return oldGoogleRouteUrl(filtered);
     };
 
-    const oldChooseHotel = chooseHotel;
-    chooseHotel = function (date, idx) {
-      oldChooseHotel(date, idx);
-      if (date !== 'Sep 26') return;
-      const h = S.hotels['Sep 26'];
-      const opt = h && h.options[idx];
-      const mountain = opt && /Mountain-area/.test(opt[0]);
-      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
-      const d27 = S.days.find(function (d) { return d.date === 'Sep 27'; });
-      const ret = d26 && d26.stops.find(function (s) { return s.id === 'cochrane26_ret'; });
-      const dep = d27 && d27.stops.find(function (s) { return s.id === 'cochrane27'; });
-      if (mountain) {
-        if (ret) { ret.name = 'Canmore / Dead Man\'s Flats Hotel (Return & Sleep)'; ret.lat = 51.089; ret.lng = -115.359; }
-        if (dep) { dep.name = 'Canmore / Dead Man\'s Flats Hotel (Depart 06:00)'; dep.lat = 51.089; dep.lng = -115.359; }
-        d26.sleep = 'Canmore / Dead Man\'s Flats (only because price delta ≤ C$100)';
-        d27.label = 'Canmore/Dead Man\'s Flats → Moraine/Louise → Icefields Parkway → Hinton';
-        if (S.decisions) S.decisions.hotel26 = 'mountain';
-      } else {
-        if (ret) { ret.name = 'Cochrane Hotel (Return & Sleep)'; ret.lat = 51.189; ret.lng = -114.467; }
-        if (dep) { dep.name = 'Cochrane Hotel (Depart 06:00)'; dep.lat = 51.189; dep.lng = -114.467; }
-        d26.sleep = 'Cochrane (Night 2 of 2)';
-        d27.label = 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton';
-        if (S.decisions) S.decisions.hotel26 = 'budget-rule';
-      }
-      persist();
-      renderAll();
-    };
   }
 
   patchBase();
