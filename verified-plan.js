@@ -133,6 +133,7 @@
     BASE.days = deepClone(VERIFIED_DAYS);
     BASE.decisions = deepClone(VERIFIED_DECISIONS);
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(BASE);
+    if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(BASE);
 
     // NICE classification is permanent; enabled only controls whether it participates
     // in the live route. Never promote a selected NICE stop to MUST.
@@ -406,6 +407,7 @@
     let next = configurePreset(deepClone(BASE), name);
     next = preserveProgress(next, S);
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(next);
+    if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(next);
     S = next;
     localStorage.setItem(PRESET_MARK, name);
     persist();

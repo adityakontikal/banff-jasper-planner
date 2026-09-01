@@ -395,24 +395,24 @@ const SPOT_INFO = {
   yyc25: {
     title: 'Calgary International Airport (YYC Arrival)', photoQuery: 'Calgary International Airport YYC', time: '45 min', rating: '10/10',
     timingOptions: [{ label: 'Landing & Rental Collect', min: 45 }],
-    parking: 'YYC Rental Car Return Center (Ground Floor parkade directly opposite terminal).',
-    parkingRating: 'Clear signs on Airport Trail', bestWindow: 'Night of Sep 25 arrival',
-    restrooms: 'Full airport terminal facilities', cell: 'Excellent (5G)', effort: 'Airport walk',
-    desc: 'Arrival point for the trip. Collect luggage, pick up rental SUV, and drive 10 min to airport hotel. No sightseeing on arrival night.',
-    todo: 'Follow "Rental Cars" signs on Ground Level, pick up vehicle keys, and proceed to airport hotel.',
-    reviews: '"Rental car center is attached directly to the main terminal parkade. Extremely convenient—no off-site shuttles needed." — Traveler Review',
+    parking: 'Ascent pickup is outside the terminal at YYC Economy Parking Lot, 2000 Airport Rd NE.',
+    parkingRating: 'Outside-terminal pickup', bestWindow: 'Booked pickup 1:30 AM Sep 26; voucher deadline 2:28 AM',
+    restrooms: 'Use terminal facilities before leaving', cell: 'Excellent (5G)', effort: 'Airport / parking-lot transfer',
+    desc: 'Booked Ascent Car Rental pickup after the 12:44 AM WestJet arrival. Vehicle class is Standard — Kia K4 or similar.',
+    todo: 'Go to the YYC Economy Parking Lot for Ascent pickup. If the flight is delayed, call +1 604 416 4600 before the 2:28 AM pickup deadline.',
+    reviews: 'Voucher-backed operational note: Ascent is outside the terminal in the YYC Economy Parking Lot and is listed as operating 00:00–23:59 daily.',
     cut: 'Mandatory flight arrival.',
     official: 'https://www.yyc.com/', tag: 'Airport Hub'
   },
   yyc30: {
     title: 'Calgary International Airport (YYC Return)', photoQuery: 'Calgary International Airport YYC', time: '60–90 min', rating: '10/10',
     timingOptions: [{ label: 'Fuel, Car Return & Security', min: 60 }],
-    parking: 'YYC Rental Car Return Parkade.',
-    parkingRating: 'Clear airport signs', bestWindow: 'Target rental return around 16:45 on Sep 30 for the booked 19:10 WestJet flight',
+    parking: 'Ascent drop-off location: YYC Economy Parking Lot, 2000 Airport Rd NE.',
+    parkingRating: 'Outside-terminal return', bestWindow: 'Planner target 16:45; voucher scheduled drop-off is 18:00',
     restrooms: 'Full airport terminal facilities', cell: 'Excellent (5G)', effort: 'Airport walk',
     desc: 'Final departure point. Booked WestJet departs YYC at 19:10 and lands YYZ at 01:05 on Oct 1. Target rental return around 16:45.',
-    todo: 'Fuel up at Shell/Petro-Canada on Airport Trail before entering return parkade, return keys, and proceed to security.',
-    reviews: '"Allow 30 minutes for rental return and bag drop before security." — Travel Tip',
+    todo: 'Refuel to full, follow Ascent drop-off instructions, photograph the car/fuel level, and proceed to the terminal. Confirm the early-return procedure when collecting the car.',
+    reviews: 'Voucher-backed operational note: scheduled drop-off is 6:00 PM, but the trip plan intentionally returns earlier for the 7:10 PM flight.',
     cut: 'Non-negotiable departure.',
     official: 'https://www.yyc.com/', tag: 'Airport Hub'
   },
@@ -715,7 +715,8 @@ const PACK_ITEMS = {
 
 const BOOK_TASKS = [
   { id: 'shuttle-alarm', title: 'Set the Moraine/Louise shuttle alarm', due: '2026-09-25T08:00:00-06:00', detail: 'Sep 25 at 8:00 AM Mountain / 10:00 AM Toronto. Remaining Parks Canada seats drop 48 hours before departure. Book from Toronto before you fly. Choose Moraine Lake as first destination so you are guaranteed that lake.', link: 'https://reservation.pc.gc.ca/', bookId: 'shuttle' },
-  { id: 'rental', title: 'Book the YYC rental', due: '2026-09-12T18:00:00-04:00', detail: 'Compact/standard SUV. Confirm after-hours pickup for a late landing and 3-adult coverage.', link: 'https://www.ca.kayak.com/Calgary-Airport-Car-Rentals.YYC.cap.ksp', bookId: 'rental' },
+  { id: 'rental-info', title: 'Complete Ascent rental file', due: '2026-09-03T18:00:00-04:00', detail: 'Voucher requires driver licence, payment-card and flight-number details within 48 hours or the booking is not guaranteed. Call +1 604 416 4600 or email info@ascentcarrental.com.', link: 'mailto:info@ascentcarrental.com', bookId: 'rental' },
+  { id: 'rental-drivers', title: 'Decide additional rental drivers', due: '2026-09-20T18:00:00-04:00', detail: 'Only the booked main driver is guaranteed. Additional drivers cost extra and all added drivers must be present with valid documents at pickup.', link: 'tel:+16044164600', bookId: 'rental' },
   { id: 'hotels', title: 'Book every 2-queen room', due: '2026-09-08T18:00:00-04:00', detail: 'Checkout must show 1 room • 3 adults • 2 Queen Beds. Do not accept “bed type assigned at check-in.” Prefer the same Hinton hotel Sep 27–28.', bookId: 'h26' },
   { id: 'maligne', title: 'Decide Maligne Lake Cruise', due: '2026-09-14T18:00:00-04:00', detail: 'Default paid highlight (~$348, 2.5 h). If yes, book a morning/midday sailing and protect Maligne Road time.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
   { id: 'parkpass', title: 'Buy Parks Canada Family/Group admission', due: '2026-09-26T10:00:00-06:00', detail: 'Daily family/group is $24.50 and covers the vehicle. Four park days ≈ $98. Discovery Pass family ($167.50) is worse value for this trip.', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/tarifs-fees', bookId: 'park' }
@@ -723,7 +724,7 @@ const BOOK_TASKS = [
 
 const BASE = {
   settings: { title: 'Banff → Jasper Road Trip', travellers: 3, startDate: '2026-09-25', endDate: '2026-09-30', globalNote: 'Protect the major natural sights first; add paid attractions only when time and weather justify them.', lunchMin: 40, bufferMin: 8 },
-  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 450, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
+  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 371.30, rentalLocked: true, rentalDeposit: 1000, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
   selectedDay: 'Sep 26', showAllDays: false, showFuel: false,
   checklists: {},
   days: [
@@ -839,7 +840,7 @@ const BASE = {
   bookings: [
     { id: 'outbound', p: 1, item: 'WestJet • YYZ 10:25 PM → YYC 12:44 AM +1 • Fri Sep 25', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 4h 19m • arrives Sat Sep 26', link: 'https://www.westjet.com/' },
     { id: 'return', p: 2, item: 'WestJet • YYC 7:10 PM → YYZ 1:05 AM +1 • Wed Sep 30', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 3h 55m • arrives Thu Oct 1', link: 'https://www.westjet.com/' },
-    { id: 'rental', p: 3, item: 'YYC rental — compact/standard SUV', estimate: 450, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.ca.kayak.com/Calgary-Airport-Car-Rentals.YYC.cap.ksp' },
+    { id: 'rental', p: 3, item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM', estimate: 371.30, status: 'Booked', actual: '', confirm: 'Stored in voucher', locked: true, bookingGroup: 'ascent-rental', detail: 'Outside terminal • YYC Economy Parking Lot • unlimited mileage • full-to-full • C$1,000 deposit • pay C$371.30 at pickup', link: 'tel:+16044164600' },
     { id: 'h25', p: 4, item: 'Hotel Sep 25–27 (2 Nights) — Days Inn Cochrane', estimate: 350, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
     { id: 'h26', p: 5, item: 'Hotel Sep 26 (Included in 2-night Cochrane booking)', estimate: 0, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
     { id: 'h27', p: 6, item: 'Hotel Sep 27 — Hinton', estimate: 149, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.expedia.ca/Hinton-Hotels-Ramada-By-Wyndham-Hinton.h9769746.Hotel-Information' },
@@ -986,6 +987,58 @@ function applyLockedWestJetFlights(state) {
 }
 
 applyLockedWestJetFlights(S);
+
+function applyLockedAscentRental(state) {
+  if (!state) return;
+  state.costs = state.costs || {};
+  state.costs.rental = 371.30;
+  state.costs.rentalLocked = true;
+  state.costs.rentalDeposit = 1000;
+
+  state.bookings = state.bookings || [];
+  let b = state.bookings.find(x => x.id === 'rental');
+  if (!b) {
+    b = { id: 'rental', p: 3, actual: '' };
+    state.bookings.push(b);
+  }
+  Object.assign(b, {
+    item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM',
+    estimate: 371.30,
+    status: 'Booked',
+    actual: '',
+    confirm: 'Stored in voucher',
+    locked: true,
+    bookingGroup: 'ascent-rental',
+    detail: 'Outside terminal • YYC Economy Parking Lot • unlimited mileage • full-to-full • C$1,000 deposit • pay C$371.30 at pickup',
+    link: 'tel:+16044164600'
+  });
+
+  const d25 = (state.days || []).find(d => d.date === 'Sep 25');
+  if (d25) {
+    d25.note = 'WestJet arrives YYC at 12:44 AM Sep 26. Ascent rental pickup is booked for 1:30 AM at the YYC Economy Parking Lot (outside terminal). Pickup must be completed by 2:28 AM unless Ascent agrees to hold it longer. Expected Cochrane arrival remains roughly 2:20–2:40 AM.';
+    const yyc = d25.stops && d25.stops.find(s => s.id === 'yyc25');
+    if (yyc) {
+      yyc.name = 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM';
+      yyc.notBefore = '01:30';
+      yyc.stayMin = 15;
+      yyc.note = 'Outside-terminal pickup at YYC Economy Parking Lot. Supplier is listed 24/7. Contact Ascent if delayed; voucher says pickup deadline is 2:28 AM.';
+    }
+  }
+
+  const d30 = (state.days || []).find(d => d.date === 'Sep 30');
+  if (d30) {
+    d30.note = 'Ascent booking lists a 6:00 PM drop-off, but the WestJet flight leaves at 7:10 PM. Keep the operational target at 4:45 PM and confirm early-return/drop-off instructions with Ascent at pickup.';
+    const yyc = d30.stops && d30.stops.find(s => s.id === 'yyc30');
+    if (yyc) {
+      yyc.name = 'Ascent rental return target 4:45 PM → WestJet 7:10 PM';
+      yyc.notBefore = '16:45';
+      yyc.stayMin = 145;
+      yyc.note = 'Voucher scheduled drop-off is 6:00 PM. Planner intentionally targets 4:45 PM for airport buffer; confirm early-return procedure at pickup.';
+    }
+  }
+}
+
+applyLockedAscentRental(S);
 lastSnap = JSON.stringify(S);
 persist();
 
@@ -1851,19 +1904,28 @@ function renderBookings() {
   const statuses = ['Not started', 'Ready to book', 'Decide', 'Waiting window', 'Booked', 'Paid', 'Done', 'Skip'];
   document.getElementById('bookingRows').innerHTML = S.bookings.map((b, i) => {
     const lockedFlight = b.locked && b.bookingGroup === 'westjet-flights';
+    const lockedRental = b.locked && b.bookingGroup === 'ascent-rental';
+    const lockedBooking = lockedFlight || lockedRental;
     const statusCell = lockedFlight
       ? '<span class="badge must">PAID • LOCKED</span>'
-      : `<select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
+      : lockedRental
+        ? '<span class="badge must">BOOKED • LOCKED</span>'
+        : `<select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
     const estimateCell = lockedFlight
       ? (b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>')
-      : money(bookingEstimate(b));
+      : lockedRental
+        ? '<b>C$371.30 due at pickup</b>'
+        : money(bookingEstimate(b));
     const actualCell = lockedFlight
       ? '<span class="date">combined fare</span>'
-      : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
-    const confirmCell = lockedFlight
-      ? '<span class="date">Booked</span>'
+      : lockedRental
+        ? '<span class="date">not paid yet</span>'
+        : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
+    const confirmCell = lockedBooking
+      ? `<span class="date">${lockedRental ? 'confirmation in voucher' : 'Booked'}</span>`
       : `<input class="input" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)">`;
-    return `<div class="bookrow ${lockedFlight ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}<a class="btn small" href="${b.link}" target="_blank">Airline</a></div>`;
+    const actionLabel = lockedRental ? 'Call supplier' : 'Airline';
+    return `<div class="bookrow ${lockedBooking ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}<a class="btn small" href="${b.link}" target="_blank">${actionLabel}</a></div>`;
   }).join('');
 }
 function updateBooking(i, k, v) {
@@ -1879,6 +1941,7 @@ function resetBookings() {
   if (confirm('Reset booking statuses, actual paid amounts and confirmations? Locked flights will stay booked.')) {
     S.bookings = deepClone(BASE.bookings);
     applyLockedWestJetFlights(S);
+    applyLockedAscentRental(S);
     save();
   }
 }
@@ -1935,17 +1998,18 @@ function renderBudget() {
   document.getElementById('flightChoice').value = S.costs.flight;
   document.getElementById('flightChoice').disabled = !!S.costs.flightLocked;
   document.getElementById('rentalCost').value = S.costs.rental;
+  document.getElementById('rentalCost').disabled = !!S.costs.rentalLocked;
   document.getElementById('fuelCost').value = S.costs.fuel;
   document.getElementById('miscCost').value = S.costs.misc;
   const food = document.getElementById('foodCost');
   if (food) food.value = S.costs.food;
   const hint = document.getElementById('fuelHint');
-  if (hint) hint.textContent = `Route currently ~${tripDriveKm().toFixed(0)} km. A mid-size SUV at ~12 L/100 km and $1.75/L plus parking suggests ~${money(fuelSuggest())}.`;
+  if (hint) hint.textContent = `Route currently ~${tripDriveKm().toFixed(0)} km. Rental is a standard gasoline sedan (Kia K4 or similar); fuel budget remains conservative until the exact vehicle is assigned.`;
   const bh = document.getElementById('budgetHint');
-  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.`;
+  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental base is booked at C$371.30; refundable C$1,000 deposit is not a trip cost. Insurance, extra drivers and possible 2.4% card fee are not included.' : '');
 }
 document.getElementById('flightChoice').onchange = e => { if (S.costs.flightLocked) { e.target.value = 'booked-westjet'; toast('Flights are booked and locked.'); return; } S.costs.flight = e.target.value; save(); };
-document.getElementById('rentalCost').onchange = e => { S.costs.rental = Number(e.target.value || 0); save(); };
+document.getElementById('rentalCost').onchange = e => { if (S.costs.rentalLocked) { e.target.value = S.costs.rental; toast('Rental is booked and locked.'); return; } S.costs.rental = Number(e.target.value || 0); save(); };
 document.getElementById('fuelCost').onchange = e => { S.costs.fuel = Number(e.target.value || 0); save(); };
 document.getElementById('miscCost').onchange = e => { S.costs.misc = Number(e.target.value || 0); save(); };
 const foodEl = document.getElementById('foodCost');
