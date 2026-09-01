@@ -199,3 +199,45 @@ These are trip-design values, not published attraction guarantees:
 - YYC rental/terminal buffers
 
 They are deliberately easy to change in the app and are restored by the verified preset if experimentation gets messy.
+
+
+## Jasper wildfire-recovery closures — verified Aug. 31, 2026
+
+### Hard exclusions
+
+**Maligne Canyon — CLOSED for the 2026 season**
+
+Parks Canada states that Maligne Canyon will remain closed for the 2026 season while wildfire-recovery assessments and rehabilitation planning continue. The Aug. 14, 2026 area-closure bulletin prohibits access to Maligne Canyon trails and surrounding land from First Bridge parking lot to the Fifth Bridge junction.
+
+- Recovery page: https://parks.canada.ca/pn-np/ab/jasper/gestion-management/serviceimmobilier-realty/retablissement-recovery/pc-recovery
+- Canyon page: https://parks.canada.ca/pn-np/ab/jasper/activ/itineraires-itineraires/canyon-maligne
+- Aug. 14 closure bulletin: https://parks.canada.ca/voyage-travel/securite-safety/bulletins/76ecae58-8a63-480c-8304-dc903837eefd
+
+**Cavell Road / Mount Edith Cavell — CLOSED for the 2026 season**
+
+Parks Canada states that Cavell Road remains closed for the 2026 season. The Aug. 14 closure bulletin says Edith Cavell Road and area are closed to all travel and specifically includes Path of the Glacier and Cavell Meadows.
+
+- Recovery page: https://parks.canada.ca/pn-np/ab/jasper/gestion-management/serviceimmobilier-realty/retablissement-recovery/pc-recovery
+- Cavell page: https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/cavell
+- Aug. 14 closure bulletin: https://parks.canada.ca/voyage-travel/securite-safety/bulletins/76ecae58-8a63-480c-8304-dc903837eefd
+
+### Nearby itinerary items that remain valid
+
+- **Maligne Lake: OPEN.** Parks Canada's current "What's open" page lists Maligne Lake open while Maligne Canyon is closed.
+- **Valley of the Five Lakes: OPEN.** Parks Canada lists it open and identifies it as a summer-2026 reopening.
+- The Maligne Lake itinerary therefore remains **Jasper → Medicine Lake → Maligne Lake**. Do not substitute Maligne Canyon into that route.
+
+Current-status page:
+https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed
+
+### Planner enforcement
+
+`closure-policy.js` is loaded last and acts as a safety policy over presets, imports and manual edits:
+
+- closed locations are never added to the active route or ETA chain
+- Google route generation filters them
+- imported closed stops are forced to `CUT`, zero dwell and marked `hardClosed2026`
+- attempts to promote them back to MUST/NICE are blocked
+- name/search/catalog attempts to add them are blocked
+- the add-place catalog omits Maligne Canyon
+- detail views show Parks Canada closure information instead of navigation actions
