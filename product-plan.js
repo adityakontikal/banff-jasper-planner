@@ -85,7 +85,7 @@
     { id: 'rental', label: 'Rental car', ids: ['rental'] },
     { id: 'cochrane26', label: 'Cochrane • Sep 26', ids: ['h26'] },
     { id: 'hinton2', label: 'Hinton Lodge • Sep 27–28', ids: ['h27','h28'] },
-    { id: 'cochrane29', label: 'Cochrane • Sep 29', ids: ['h29'] },
+    { id: 'airport29', label: 'Calgary Airport • Sep 29', ids: ['h29'] },
     { id: 'park', label: 'Parks Canada admission', ids: ['park'] },
     { id: 'shuttle', label: 'Moraine / Lake Louise shuttle', ids: ['shuttle'] }
   ];
@@ -251,8 +251,10 @@
           : lockedHotel && b.id === 'h26'
             ? 'Paid • Super 8 by Wyndham Cochrane • C$301.28'
             : lockedHotel && b.id === 'h27'
-              ? 'Booked • 2 nights • C$429.07 due at property'
-              : state;
+              ? 'Booked • Hinton Lodge • 2 nights • C$429.07 due at property'
+              : lockedHotel && b.id === 'h29'
+                ? 'Paid • Holiday Inn Calgary-Airport • C$171.42'
+                : state;
       const href = b && b.link ? b.link : '#';
       return '<div class="pp-check-row ' + (done ? 'done' : '') + '">' +
         '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' ' + (lockedBooking ? 'disabled' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(sub) + '</small></span></label>' +
