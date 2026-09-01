@@ -21,7 +21,7 @@ You can also open `index.html` directly, but a local server is more reliable for
 2. **Set an alarm for Sep 25, 8:00 AM Mountain (10:00 AM Toronto).** Remaining Parks Canada seats drop 48 hours before departure. Book **Moraine Lake as first destination**. Screenshot the ticket — there is no cell at the Park & Ride.
 3. **All hotel nights are now resolved.** Sep 25 intentionally has no hotel; Sep 26 Cochrane, Sep 27–28 Hinton, and Sep 29 Calgary Airport are locked.
 4. Flights, YYC rental and YYZ parking are already locked.
-5. Parks Canada Family/Group pass is **$24.50/day** for Sep 26–29 (Canada Strong Pass ended Sep 7). ≈ **$98**, not a Discovery Pass.
+5. Parks Canada Family/Group Day Pass is **paid and locked: C$73.50 for 3 days**. Print and display the receipt on the left side of the dashboard with the date visible. Because daily passes expire at 4:00 PM the following day, verify the printed dates cover any Sep 29 park time after 4:00 PM.
 
 ## Tabs
 
@@ -237,7 +237,7 @@ Effects on the itinerary:
 - After the 1:30 AM rental pickup, the plan keeps a YYC-area buffer/rest window and starts the Banff-first day at **5:45 AM**.
 - Sep 30 uses **4:45 PM** as the rental-return target and keeps the YYC block through the booked **7:10 PM** flight departure.
 - Reset/preset/import recovery cannot downgrade these flight rows back to undecided; they remain **Paid / Locked**.
-- Rental and hotels are already locked; shuttle / park admission / remaining attraction decisions are next.
+- Rental, hotels and the paid Parks Canada pass are locked; the shuttle and remaining attraction decisions are next.
 
 
 ## Locked rental — Ascent Car Rental
@@ -293,7 +293,22 @@ The current plan reserves budget for **one paid cruise only: Maligne Lake Classi
 
 The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book Classic Cruise** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
 
-Hotels are fully resolved; the remaining trip lock-ins are the shuttle, park admission and attraction decisions.
+Hotels and the Parks Canada pass are resolved; the remaining trip lock-ins are the shuttle and attraction decisions.
+
+
+## Locked Parks Canada pass — paid Sep. 1, 2026
+
+The email receipt confirms:
+
+- **Pass type:** Family/Group Day Pass
+- **Quantity / duration:** 3 days
+- **Paid:** **C$73.50**
+- **Status:** **PAID • LOCKED**
+- The official receipt must be **printed and displayed on the left-hand side of the vehicle dashboard with the date visible**.
+- No receipt link, personal contact details or other sensitive purchase data are committed to source.
+- Parks Canada states Banff/Jasper daily passes are valid until **4:00 PM the following day**. Keep a coverage check visible for Sep 29 if the route remains inside Banff/Jasper/Yoho after 4:00 PM.
+
+The planner uses the receipt amount instead of the previous C$98 four-day estimate and preserves this paid booking across reset, presets and imported older saves.
 
 
 ## Locked hotels — booked Sep. 1, 2026
