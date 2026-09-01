@@ -19,7 +19,7 @@ You can also open `index.html` directly, but a local server is more reliable for
 
 1. Open **Plan**. The red banner is the Moraine / Lake Louise shuttle.
 2. **Set an alarm for Sep 25, 8:00 AM Mountain (10:00 AM Toronto).** Remaining Parks Canada seats drop 48 hours before departure. Book **Moraine Lake as first destination**. Screenshot the ticket — there is no cell at the Park & Ride.
-3. **Only Sep 29 hotel remains to book.** Sep 26 Cochrane and Sep 27–28 Hinton are locked.
+3. **All hotel nights are now resolved.** Sep 25 intentionally has no hotel; Sep 26 Cochrane, Sep 27–28 Hinton, and Sep 29 Calgary Airport are locked.
 4. Flights, YYC rental and YYZ parking are already locked.
 5. Parks Canada Family/Group pass is **$24.50/day** for Sep 26–29 (Canada Strong Pass ended Sep 7). ≈ **$98**, not a Discovery Pass.
 
@@ -31,7 +31,7 @@ You can also open `index.html` directly, but a local server is more reliable for
 | **Map** | Reorder stops, drag pins, add catalog/search places, live drive times |
 | **Days** | Photo cards, arrival/departure times, per-stop briefing |
 | **Book** | Status, actuals, confirmation numbers |
-| **Hotels** | Locked booked stays, no-hotel Sep 25, and the remaining Sep 29 2-queen choice |
+| **Hotels** | Locked booked stays plus the intentional no-hotel Sep 25 transition |
 | **Do** | Paid vs free attractions; toggles feed budget and stay times |
 | **Pack** | Clothes / daypack / car checklists |
 | **Field** | Fuel (only one station on the Parkway), no-cell, 511, emergency numbers |
@@ -293,7 +293,7 @@ The current plan reserves budget for **one paid cruise only: Maligne Lake Classi
 
 The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book Classic Cruise** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
 
-Hotels remain the next major unresolved booking category.
+Hotels are fully resolved; the remaining trip lock-ins are the shuttle, park admission and attraction decisions.
 
 
 ## Locked hotels — booked Sep. 1, 2026
@@ -303,7 +303,7 @@ The hotel plan now reflects the actual confirmations:
 - **Sep 25:** no hotel — intentional.
 - **Sep 26 → Sep 27:** **Super 8 by Wyndham Cochrane**, 1 room, 3 adults, 2 Queen Beds. **C$301.28 paid.** Non-refundable. The confirmation notes a **C$100 property deposit**.
 - **Sep 27 → Sep 29:** **Hinton Lodge**, 1 room, 3 adults, Standard Room, 2 Queen Beds, Non Smoking. **C$429.07 due at the property** for both nights. Free cancellation until Sep 26 at 6:00 PM property-local time.
-- **Sep 29:** still unbooked; Cochrane remains the planned final hotel night.
+- **Sep 29 → Sep 30:** **Holiday Inn Calgary-Airport by IHG**, 1 room, 3 adults, Standard Room with 2 Queen Beds (Low Floor). **C$171.42 paid.** Free cancellation until Sep 22 at 6:00 PM property-local time. The confirmation lists a **C$50 accommodation deposit** plus **C$50/night breakage deposit**.
 
 The exact Hotels.com itinerary numbers are intentionally not committed into the application source.
 
@@ -314,4 +314,5 @@ Route impact:
 - Sep 26 ends at Super 8 Cochrane.
 - Sep 27 departs Super 8 Cochrane and ends at Hinton Lodge.
 - Sep 28 starts and ends at Hinton Lodge.
-- Sep 29 departs Hinton Lodge and continues south as before.
+- Sep 29 departs Hinton Lodge and continues south as before, but now finishes at the booked Holiday Inn Calgary-Airport instead of Cochrane.
+- Sep 30 starts already in Calgary, reducing the final-day hotel→YYC transfer substantially.
