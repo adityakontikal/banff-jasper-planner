@@ -1,0 +1,476 @@
+/* Global scroll contract.
+ * Loaded LAST. This is the only authoritative page-scroll policy.
+ *
+ * Desktop/laptop:
+ *   - app remains viewport-sized
+ *   - normal content views scroll inside the app
+ *   - Map and Days keep their purpose-built internal layouts
+ *
+ * Phone/tablet:
+ *   - the DOCUMENT is the only page scroller
+ *   - active views never own vertical scrolling
+ *   - only true overlays (modals / More sheet) scroll internally
+ */
+(function () {
+  const MOBILE_QUERY = '(max-width: 768px)';
+
+  function injectScrollContract() {
+    if (document.getElementById('globalScrollContractCss')) return;
+    const st = document.createElement('style');
+    st.id = 'globalScrollContractCss';
+    st.textContent = `
+      /* ---------------- Desktop / laptop contract ---------------- */
+      @media (min-width: 769px) {
+        html, body {
+          height: 100vh !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+
+        body {
+          position: static !important;
+        }
+
+        .app {
+          height: calc(100vh - 51px) !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: hidden !important;
+        }
+
+        .view {
+          min-height: 0 !important;
+        }
+
+        .view:not(.on) {
+          display: none !important;
+        }
+
+        /* Every ordinary desktop page owns one clean vertical scroller. */
+        #planview.view.on,
+        #bookings.view.on,
+        #hotels.view.on,
+        #attractions.view.on,
+        #packview.view.on,
+        #fieldview.view.on,
+        #budget.view.on,
+        #settings.view.on,
+        #finalize.view.on {
+          display: block !important;
+          height: 100% !important;
+          min-height: 0 !important;
+          max-height: 100% !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior-y: auto !important;
+          scrollbar-gutter: stable;
+          touch-action: pan-y pinch-zoom !important;
+          padding-right: 6px;
+        }
+
+        /* Map is viewport-contained; sidebar owns its editor scroll. */
+        #mapview.view.on {
+          display: flex !important;
+          flex-direction: column !important;
+          height: 100% !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+
+        #mapview .workspace {
+          min-height: 0 !important;
+          height: 100% !important;
+          overflow: hidden !important;
+        }
+
+        #mapview .sidebar,
+        #mapview .mapwrap {
+          min-height: 0 !important;
+          height: 100% !important;
+        }
+
+        #mapview .sidebody {
+          min-height: 0 !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior-y: auto !important;
+          touch-action: pan-y pinch-zoom !important;
+        }
+
+        /* Days keeps its left list + right detail panel, each independently scrollable. */
+        #overview.view.on {
+          display: block !important;
+          height: 100% !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
+
+        #overview .overview-layout,
+        #overview .overview-sidebar,
+        #overview .overview-main {
+          height: 100% !important;
+          min-height: 0 !important;
+          max-height: 100% !important;
+        }
+
+        #overview .overview-daylist,
+        #overview .overview-main {
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior-y: auto !important;
+          touch-action: pan-y pinch-zoom !important;
+        }
+      }
+
+      /* ---------------- Phone / tablet contract ---------------- */
+      @media (max-width: 768px) {
+        html {
+          width: 100% !important;
+          height: auto !important;
+          min-height: 100% !important;
+          max-height: none !important;
+          overflow-x: hidden !important;
+          overflow-y: visible !important;
+          overscroll-behavior-y: auto !important;
+          touch-action: pan-y pinch-zoom !important;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+          position: static !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 100dvh !important;
+          max-height: none !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior-x: none !important;
+          overscroll-behavior-y: auto !important;
+          touch-action: pan-y pinch-zoom !important;
+          -webkit-overflow-scrolling: touch !important;
+          padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important;
+        }
+
+        .top {
+          position: sticky !important;
+          top: 0 !important;
+        }
+
+        .app {
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: visible !important;
+          padding: 8px !important;
+        }
+
+        .view,
+        .view.on,
+        #mobilequick.view.on,
+        #planview.view.on,
+        #overview.view.on,
+        #mapview.view.on,
+        #bookings.view.on,
+        #hotels.view.on,
+        #attractions.view.on,
+        #packview.view.on,
+        #fieldview.view.on,
+        #budget.view.on,
+        #settings.view.on,
+        #finalize.view.on {
+          position: static !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow-x: visible !important;
+          overflow-y: visible !important;
+          overscroll-behavior: auto !important;
+          touch-action: pan-y pinch-zoom !important;
+          -webkit-overflow-scrolling: auto !important;
+        }
+
+        .view:not(.on) {
+          display: none !important;
+        }
+
+        #mobilequick.view.on,
+        #planview.view.on,
+        #overview.view.on,
+        #mapview.view.on,
+        #bookings.view.on,
+        #hotels.view.on,
+        #attractions.view.on,
+        #packview.view.on,
+        #fieldview.view.on,
+        #budget.view.on,
+        #settings.view.on,
+        #finalize.view.on {
+          display: block !important;
+        }
+
+        /* No nested vertical page scrollers on mobile. */
+        .workspace,
+        .sidebar,
+        .sidebody,
+        .overview-layout,
+        .overview-sidebar,
+        .overview-main,
+        .lock-grid,
+        .lock-timeline,
+        .cards,
+        .attgrid,
+        .editorGrid,
+        .product-plan,
+        .pp-days,
+        .pp-section,
+        #planRoot,
+        #overviewRoot,
+        #fieldRoot,
+        #bookingRows,
+        #hotelCards,
+        #attractionCards,
+        #budgetRoot,
+        #settings {
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow-y: visible !important;
+          overscroll-behavior-y: auto !important;
+          touch-action: pan-y pinch-zoom !important;
+        }
+
+        /* Horizontal controls may scroll sideways but must not steal vertical page swipes. */
+        .tabs,
+        .dayswitch,
+        .overview-daylist,
+        .mobile-chip-row,
+        .pp-subnav,
+        .closure-links,
+        .maptoolbar {
+          overflow-x: auto !important;
+          overflow-y: hidden !important;
+          touch-action: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* Days: horizontal day picker, normal document-scroll content. */
+        #overview .overview-layout {
+          display: block !important;
+        }
+
+        #overview .overview-sidebar {
+          display: block !important;
+          margin-bottom: 8px !important;
+        }
+
+        #overview .overview-daylist {
+          display: flex !important;
+          flex-direction: row !important;
+          max-height: none !important;
+          padding: 7px !important;
+        }
+
+        #overview .overview-main {
+          display: block !important;
+          padding-right: 0 !important;
+        }
+
+        /* Map: fixed usable map surface, everything else participates in page flow. */
+        #mapview .workspace {
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 8px !important;
+        }
+
+        #mapview .mapwrap {
+          order: 1 !important;
+          display: block !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: visible !important;
+        }
+
+        #mapview #map {
+          position: relative !important;
+          inset: auto !important;
+          width: 100% !important;
+          height: 58dvh !important;
+          min-height: 360px !important;
+          max-height: 620px !important;
+          overflow: hidden !important;
+          touch-action: pan-x pan-y !important;
+        }
+
+        #mapview .adaptive-route-clock {
+          position: static !important;
+          order: 2 !important;
+          width: 100% !important;
+          max-height: none !important;
+          overflow: visible !important;
+        }
+
+        #mapview .route-clock-list,
+        #mapview .route-clock-days {
+          max-height: none !important;
+          overflow: visible !important;
+        }
+
+        #mapview .sidebar {
+          order: 3 !important;
+          height: auto !important;
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow: visible !important;
+        }
+
+        #mapview .sidebar:not(.mobile-editor-open) {
+          display: none !important;
+        }
+
+        #mapview .sidebar.mobile-editor-open {
+          display: flex !important;
+          flex-direction: column !important;
+        }
+
+        #mapview .sidebody {
+          flex: none !important;
+          overflow: visible !important;
+        }
+
+        /* True overlays are the ONLY internal vertical scrollers on phones. */
+        .modal-backdrop {
+          position: fixed !important;
+          inset: 0 !important;
+          overflow: hidden !important;
+          touch-action: none !important;
+        }
+
+        .modal-dialog {
+          width: 100% !important;
+          height: auto !important;
+          max-height: 94dvh !important;
+          overflow: hidden !important;
+          touch-action: pan-y !important;
+        }
+
+        .modal-body {
+          min-height: 0 !important;
+          max-height: none !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior-y: contain !important;
+          touch-action: pan-y pinch-zoom !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+
+        .mobile-more-sheet {
+          position: fixed !important;
+          inset: 0 !important;
+          overflow: hidden !important;
+        }
+
+        .mobile-more-panel {
+          max-height: 82dvh !important;
+          overflow-x: hidden !important;
+          overflow-y: auto !important;
+          overscroll-behavior-y: contain !important;
+          touch-action: pan-y pinch-zoom !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+
+        /* Inputs should allow normal page gestures when the finger begins on them. */
+        input,
+        textarea,
+        select,
+        button,
+        a,
+        label {
+          touch-action: manipulation;
+        }
+
+        textarea,
+        #rawJson {
+          touch-action: pan-y !important;
+        }
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  function normalizeViewport() {
+    const mobile = window.matchMedia(MOBILE_QUERY).matches;
+    document.documentElement.dataset.scrollMode = mobile ? 'document' : 'app';
+
+    if (mobile) {
+      // Clear stale inline scroll state left by earlier view-specific fixes.
+      document.documentElement.style.removeProperty('height');
+      document.documentElement.style.removeProperty('overflow');
+      document.body.style.removeProperty('height');
+      document.body.style.removeProperty('overflow');
+
+      // The retired Lock page must never remain as a hidden scroll owner.
+      const lock = document.getElementById('lockview');
+      if (lock && !lock.classList.contains('on')) {
+        lock.style.removeProperty('height');
+        lock.style.removeProperty('overflow');
+      }
+    }
+  }
+
+  function resetActiveScroll() {
+    if (window.matchMedia(MOBILE_QUERY).matches) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      return;
+    }
+
+    const active = document.querySelector('.view.on');
+    if (!active) return;
+
+    if (active.id === 'overview') {
+      const main = active.querySelector('.overview-main');
+      if (main) main.scrollTop = 0;
+      return;
+    }
+
+    if (active.id !== 'mapview') active.scrollTop = 0;
+  }
+
+  function patchViewNavigation() {
+    const oldSetView = setView;
+    setView = function (id) {
+      oldSetView(id);
+      normalizeViewport();
+      requestAnimationFrame(resetActiveScroll);
+    };
+  }
+
+  injectScrollContract();
+  normalizeViewport();
+  patchViewNavigation();
+
+  window.addEventListener('resize', normalizeViewport, { passive: true });
+  window.addEventListener('orientationchange', function () {
+    setTimeout(normalizeViewport, 80);
+  });
+
+  // Expose a tiny diagnostic for future regressions.
+  window.getPlannerScrollState = function () {
+    const mobile = window.matchMedia(MOBILE_QUERY).matches;
+    const active = document.querySelector('.view.on');
+    return {
+      mode: mobile ? 'document' : 'app',
+      activeView: active ? active.id : null,
+      windowScrollY: window.scrollY,
+      bodyScrollHeight: document.body.scrollHeight,
+      bodyClientHeight: document.body.clientHeight,
+      activeScrollHeight: active ? active.scrollHeight : null,
+      activeClientHeight: active ? active.clientHeight : null,
+      bodyOverflowY: getComputedStyle(document.body).overflowY,
+      activeOverflowY: active ? getComputedStyle(active).overflowY : null
+    };
+  };
+})();
