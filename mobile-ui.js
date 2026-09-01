@@ -304,10 +304,32 @@
         .spot-card .actions .btn,.spot-card .quick-map{min-height:36px;padding:6px 7px;font-size:9px}
         .overview-schedule{margin:5px 0!important;padding:5px 7px!important}
 
-        /* Spot details become a phone bottom sheet with only essential intel first. */
-        .modal-backdrop{padding:0!important;align-items:flex-end!important}
-        .modal-dialog{max-height:94vh!important;border-radius:18px 18px 0 0!important}
-        .modal-header{padding:10px 12px!important}
+        /* Spot details become a phone bottom sheet with only essential intel first.
+           Keep the sheet above the persistent mobile nav and provide an always-visible
+           way back to the exact underlying planner view. */
+        .modal-backdrop{padding:0!important;align-items:flex-end!important;z-index:7000!important}
+        .modal-dialog{max-height:94dvh!important;border-radius:18px 18px 0 0!important}
+        .modal-header{
+          padding:10px 12px!important;
+          display:grid!important;
+          grid-template-columns:auto minmax(0,1fr)!important;
+          gap:8px!important;
+          align-items:start!important;
+        }
+        .modal-header>div{min-width:0!important}
+        #spotModal .modal-back-btn{display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap}
+        #spotModal .modal-close-btn{display:none!important}
+        #modalLogistics{min-width:0!important;max-width:100%!important}
+        #modalLogistics .badge-pill,#modalLogistics .rating-pill{
+          max-width:100%!important;
+          min-width:0!important;
+          white-space:normal!important;
+          overflow-wrap:anywhere!important;
+        }
+        #modalLogistics .badge-pill b,#modalLogistics .rating-pill b{
+          min-width:0!important;
+          white-space:normal!important;
+        }
         .modal-body{padding:10px 12px!important}
         .modal-footer{padding:8px 12px calc(8px + env(safe-area-inset-bottom))!important}
         .detail-layout{grid-template-columns:1fr!important}
