@@ -589,6 +589,7 @@
       .pp-route-stop.nice-on .pp-route-status{color:#8ec9e7}
       .pp-route-stop.nice-off .pp-route-status{color:#7b8c96}
       .pp-route-place{display:block;width:100%;border:0;background:transparent;color:inherit;text-align:left;padding:0;cursor:pointer}
+      .pp-route-map-link{align-self:flex-start;margin-top:6px;text-decoration:none;font-size:8px;padding:4px 6px}
       .pp-route-place b{display:block;font-size:11px;line-height:1.3;color:#d8e5eb}
       .pp-route-place small{display:block;margin-top:5px;color:#819aa8;font-size:8.5px;line-height:1.25}
       .pp-route-option-meta{display:flex;justify-content:space-between;gap:6px;margin-top:8px;color:#6f8795;font-size:7.5px}
@@ -644,7 +645,7 @@
       .alltrip-stop-state.cut{border-color:#705c33;color:#d9bd7a}
       .alltrip-stop-state.hotel{border-color:#74558c;color:#cbb0df}
       .alltrip-stop.is-cut{opacity:.56}
-      .alltrip-info{width:23px;height:23px;border-radius:6px;border:1px solid var(--line);background:#0c2230;color:#86a2b2;font-size:9px;cursor:pointer}
+      .alltrip-info{width:23px;height:23px;border-radius:6px;border:1px solid var(--line);background:#0c2230;color:#86a2b2;font-size:9px;cursor:pointer;display:grid;place-items:center;text-decoration:none}
       .alltrip-info:hover{color:#fff;border-color:#456d84}
 
       @media(max-width:768px){
