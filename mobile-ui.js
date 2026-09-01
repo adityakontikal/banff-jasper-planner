@@ -396,7 +396,6 @@
         #budget.view.on,
         #settings.view.on,
         #finalize.view.on,
-        #lockview.view.on,
         #mobilequick.view.on{
           height:auto!important;
           min-height:0!important;
@@ -453,6 +452,32 @@
         /* Inputs/editors must not create invisible full-height scroll traps. */
         textarea,.textarea,#rawJson{
           touch-action:auto;
+        }
+
+        /* Final authority for Lock: fixed app-height scroller on phones. */
+        #lockview.view.on{
+          display:block!important;
+          position:relative!important;
+          box-sizing:border-box!important;
+          width:100%!important;
+          height:calc(100dvh - 118px)!important;
+          min-height:0!important;
+          max-height:calc(100dvh - 118px)!important;
+          overflow-x:hidden!important;
+          overflow-y:scroll!important;
+          -webkit-overflow-scrolling:touch!important;
+          overscroll-behavior-y:contain!important;
+          touch-action:pan-y pinch-zoom!important;
+          padding-right:0!important;
+          padding-bottom:96px!important;
+        }
+        #lockview #lockRoot,
+        #lockview .lock-grid,
+        #lockview .lock-timeline{
+          height:auto!important;
+          min-height:0!important;
+          max-height:none!important;
+          overflow:visible!important;
         }
       }
     `;
