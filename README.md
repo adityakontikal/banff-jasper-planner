@@ -268,4 +268,19 @@ Important follow-ups from the voucher:
 - confirm the early-return/drop-off procedure at pickup because the booking says 6:00 PM but the trip plan returns at 4:45 PM
 - the voucher notes a possible **2.4% card fee** on accepted credit-card payments
 
-Hotels are now the next major unresolved booking category.
+## Locked YYZ airport parking — SpotHero
+
+Toronto airport parking is now a committed paid booking in the planner.
+
+- Facility: **EZ Airport Parking — Uncovered Self Park**
+- Provider: **SpotHero**
+- Entry: **Sep 25, 2026 after 8:00 PM**
+- Exit: **Oct 1, 2026 before 8:00 PM**
+- Paid total: **C$51.74**
+- The pass explicitly says to **review the parking instructions before entering**.
+
+The planner treats this as **Paid / Locked**, includes the C$51.74 in paid-booking progress, and keeps the existing Fuel + parking budget as the category envelope so the parking charge is not double-counted.
+
+The SpotHero rental/confirmation ID and vehicle plate are intentionally **not committed to the public GitHub source**; those remain in the user's SpotHero pass.
+
+Hotels remain the next major unresolved booking category.
