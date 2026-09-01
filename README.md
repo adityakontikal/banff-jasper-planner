@@ -166,3 +166,17 @@ Stop identifiers use **Day-Stop** notation everywhere practical:
 They are derived from the live itinerary order, so reordering a day immediately renumbers the affected stops across the map, ETA timeline, editor, Plan page and place details.
 
 The app also remembers the last open page in the browser and restores it on reload. A phone-only Quick page falls back to Plan when the same saved state is opened on desktop.
+
+
+## Jasper 2026 wildfire-recovery hard closures
+
+The planner hard-excludes the following Parks Canada wildfire-recovery closures from active routing and ETA calculations:
+
+- **Maligne Canyon** — closed for the 2026 season.
+- **Cavell Road / Mount Edith Cavell area** — closed for the 2026 season, including Path of the Glacier and Cavell Meadows.
+
+These are not ordinary CUT stops. If an old JSON import or manual edit contains one, the policy layer forces it to zero dwell / CUT and filters it from Google road routes. The add-place catalog does not offer them, and closed-location detail pages do not provide a directions action.
+
+This does **not** remove the valid Maligne Valley plan: **Medicine Lake and Maligne Lake remain open**, and **Valley of the Five Lakes is open** in 2026.
+
+Official references are recorded in [VERIFICATION.md](VERIFICATION.md).
