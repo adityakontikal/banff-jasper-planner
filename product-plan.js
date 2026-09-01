@@ -453,6 +453,44 @@
       #stopList .stop-num-badge{width:auto!important;min-width:42px!important;height:22px!important;border-radius:7px!important;padding:0 5px!important;font-size:9px!important}
       #stopList .stop-num-badge:hover{transform:none!important}
 
+      /* Whole-trip map sidebar: compact route index, not the single-day editor. */
+      #mapview .sidebar.all-days-mode .dayeditor,
+      #mapview .sidebar.all-days-mode #dayNote,
+      #mapview .sidebar.all-days-mode .addbox,
+      #mapview .sidebar.all-days-mode #attBanner{display:none!important}
+      #mapview .sidebar.all-days-mode .sidebody{padding-top:8px}
+      #mapview .sidebar.all-days-mode #daySummary{
+        display:flex;justify-content:space-between;gap:8px;align-items:center;
+        padding:7px 8px;margin-bottom:8px;border:1px solid var(--line);border-radius:8px;
+        background:#081a27;font-size:9px;color:#93aab8
+      }
+      #mapview .sidebar.all-days-mode #daySummary span:last-child{text-align:right}
+      .alltrip-day{margin:0 0 9px;border:1px solid var(--line);border-left:3px solid var(--day-color);border-radius:9px;overflow:hidden;background:#091b27}
+      .alltrip-day-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:stretch;background:#0c2230;border-bottom:1px solid var(--line)}
+      .alltrip-day-main{display:grid;grid-template-columns:34px minmax(0,1fr);gap:7px;align-items:center;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:7px;cursor:pointer}
+      .alltrip-day-code{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:#14394d;color:#e2eef4;font-size:9px;font-weight:850}
+      .alltrip-day-copy{min-width:0}
+      .alltrip-day-copy b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .alltrip-day-copy small{display:block;margin-top:2px;color:#819aa9;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .alltrip-open{border:0;border-left:1px solid var(--line);background:#102736;color:#9eb9c8;padding:0 8px;font-size:8.5px;cursor:pointer}
+      .alltrip-open:hover{background:#173549;color:#fff}
+      .alltrip-stops{padding:3px 6px 5px}
+      .alltrip-stop{display:grid;grid-template-columns:minmax(0,1fr) 25px;gap:4px;align-items:center;border-bottom:1px solid rgba(255,255,255,.045)}
+      .alltrip-stop:last-child{border-bottom:0}
+      .alltrip-stop-main{display:grid;grid-template-columns:44px minmax(0,1fr) 38px 42px;gap:5px;align-items:center;min-width:0;border:0;background:transparent;color:inherit;text-align:left;padding:5px 2px;cursor:pointer}
+      .alltrip-stop-main:hover .alltrip-stop-name{color:#fff}
+      .alltrip-stop-code{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:21px;padding:0 4px;border-radius:6px;background:#163c50;color:#d6e8f1;font-size:8px;font-weight:850}
+      .alltrip-stop-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c7d8e1;font-size:9.5px}
+      .alltrip-stop-meta{text-align:right;color:#7e96a5;font-size:8px;white-space:nowrap}
+      .alltrip-stop-state{justify-self:end;min-width:38px;text-align:center;border:1px solid var(--line);border-radius:999px;padding:2px 3px;font-size:6.8px;font-weight:850}
+      .alltrip-stop-state.must{border-color:#3e765e;color:#9dd5b4}
+      .alltrip-stop-state.nice{border-color:#3b6179;color:#8fc9e8}
+      .alltrip-stop-state.cut{border-color:#705c33;color:#d9bd7a}
+      .alltrip-stop-state.hotel{border-color:#74558c;color:#cbb0df}
+      .alltrip-stop.is-cut{opacity:.56}
+      .alltrip-info{width:23px;height:23px;border-radius:6px;border:1px solid var(--line);background:#0c2230;color:#86a2b2;font-size:9px;cursor:pointer}
+      .alltrip-info:hover{color:#fff;border-color:#456d84}
+
       @media(max-width:768px){
         .product-plan{padding:0 2px 86px}
         .pp-header{display:block;padding:14px 2px 12px}
