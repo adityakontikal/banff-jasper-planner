@@ -748,7 +748,9 @@
     googleRouteUrl = function (stops) {
       let filtered = stops || [];
       if (S.decisions && S.decisions.sep29bonus === 'pending') {
-        filtered = filtered.filter(function (s) { return s.choiceGroup !== 'sep29bonus'; });
+        filtered = filtered.filter(function (s) {
+          return s.choiceGroup !== 'sep29bonus' || s.enabled === true;
+        });
       }
       if (filtered.some(function (s) { return s.id === 'moraine'; })) {
         filtered = filtered.filter(function (s) { return s.id !== 'moraine' && s.id !== 'louise'; });
