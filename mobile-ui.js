@@ -118,6 +118,46 @@
     }
   }
 
+  function renderMobileMapDayNav() {
+    const root = document.getElementById('mobileMapDayNav');
+    if (!root) return;
+
+    const selected = S.selectedDay || 'all';
+    const isAll = selected === 'all';
+    const idx = S.days.findIndex(function (d) { return d.date === selected; });
+    const current = idx >= 0 ? S.days[idx] : null;
+    const prev = idx >= 0 ? S.days[(idx - 1 + S.days.length) % S.days.length] : S.days[S.days.length - 1];
+    const next = idx >= 0 ? S.days[(idx + 1) % S.days.length] : S.days[0];
+
+    root.innerHTML =
+      '<button class="mobile-map-all ' + (isAll ? 'on' : '') + '" onclick="chooseDay(\'all\')">' +
+        (isAll ? 'Whole trip' : '← All days') +
+      '</button>' +
+      '<div class="mobile-map-day-current">' +
+        '<button class="mobile-map-arrow" onclick="chooseDay(\'' + prev.date + '\')" aria-label="Previous day">‹</button>' +
+        '<button class="mobile-map-current-btn" onclick="' + (current ? "openDayGuide('" + current.date + "')" : "setView('overview')") + '">' +
+          (current
+            ? '<b>D' + (idx + 1) + ' · ' + escapeHtml(current.date) + '</b><small>' + escapeHtml(current.label) + '</small>'
+            : '<b>All 6 days</b><small>Whole trip route</small>') +
+        '</button>' +
+        '<button class="mobile-map-arrow" onclick="chooseDay(\'' + next.date + '\')" aria-label="Next day">›</button>' +
+      '</div>';
+  }
+
+  function mobileMapAdjacent(dir) {
+    const selected = S.selectedDay || 'all';
+    if (selected === 'all') {
+      chooseDay(dir < 0 ? S.days[S.days.length - 1].date : S.days[0].date);
+      return;
+    }
+    const idx = S.days.findIndex(function (d) { return d.date === selected; });
+    if (idx < 0) {
+      chooseDay(S.days[0].date);
+      return;
+    }
+    chooseDay(S.days[(idx + dir + S.days.length) % S.days.length].date);
+  }
+
   function injectMobileUi() {
     if (!document.getElementById('mobilequick')) {
       const plan = document.getElementById('planview');
@@ -146,12 +186,22 @@
         '</div></div></div>');
     }
 
+    const mapWorkspace = document.querySelector('#mapview .workspace');
+    if (mapWorkspace && !document.getElementById('mobileMapDayNav')) {
+      const nav = document.createElement('div');
+      nav.id = 'mobileMapDayNav';
+      nav.className = 'mobile-map-day-nav';
+      mapWorkspace.insertBefore(nav, mapWorkspace.firstChild);
+    }
+
     const toolbar = document.querySelector('#mapview .maptoolbar');
     if (toolbar && !document.getElementById('mobileMapEditBtn')) {
       toolbar.insertAdjacentHTML('afterbegin',
         '<button class="btn small primary mobile-essential" id="mobileMapEditBtn" onclick="toggleMobilePlannerMapEditor()">Edit stops</button>' +
         '<button class="btn small mobile-essential" onclick="openGoogleRoute()">Google route</button>');
     }
+
+    renderMobileMapDayNav();
   }
 
   function injectMobileCss() {
@@ -272,6 +322,82 @@
         .mini-map{height:180px!important}
         #modalTopActions{display:grid!important;grid-template-columns:1fr 1fr}
         #modalTopActions .btn:nth-child(3){grid-column:1/-1}
+
+        /* Map day navigation is always available on phones. */
+        .mobile-map-day-nav{display:none}
+        @media(max-width:768px){
+          .mobile-map-day-nav{
+            order:0!important;
+            position:sticky!important;
+            top:0!important;
+            z-index:2200!important;
+            display:grid!important;
+            grid-template-columns:auto minmax(0,1fr)!important;
+            gap:7px!important;
+            align-items:stretch!important;
+            padding:6px!important;
+            margin:0 0 7px!important;
+            border:1px solid var(--line)!important;
+            border-radius:12px!important;
+            background:rgba(7,24,36,.97)!important;
+            backdrop-filter:blur(14px)!important;
+            box-shadow:0 6px 18px rgba(0,0,0,.28)!important;
+          }
+          .mobile-map-all{
+            min-width:82px;
+            border:1px solid #3a596c;
+            border-radius:9px;
+            background:#0d2635;
+            color:#d4e3eb;
+            padding:7px 8px;
+            font-size:10px;
+            font-weight:800;
+            white-space:nowrap;
+          }
+          .mobile-map-all.on{
+            background:#1a435a;
+            border-color:#5d859d;
+            color:#fff;
+          }
+          .mobile-map-day-current{
+            display:grid;
+            grid-template-columns:34px minmax(0,1fr) 34px;
+            gap:5px;
+            min-width:0;
+          }
+          .mobile-map-arrow{
+            border:1px solid #345268;
+            border-radius:9px;
+            background:#0b2231;
+            color:#fff;
+            font-size:22px;
+            line-height:1;
+            min-height:40px;
+          }
+          .mobile-map-current-btn{
+            min-width:0;
+            border:1px solid #345268;
+            border-radius:9px;
+            background:#0b2231;
+            color:#eef6fa;
+            padding:5px 8px;
+            text-align:left;
+          }
+          .mobile-map-current-btn b{
+            display:block;
+            font-size:11px;
+            white-space:nowrap;
+          }
+          .mobile-map-current-btn small{
+            display:block;
+            margin-top:1px;
+            color:#8fa8b7;
+            font-size:8px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          }
+        }
 
         /* Map first; editor only when asked for. */
         #mapview.view.on{overflow:visible!important;height:auto!important}
@@ -510,6 +636,7 @@
     setView = function (id) {
       oldSetView(id);
       if (id === 'mobilequick') renderMobileQuick();
+      if (id === 'mapview') renderMobileMapDayNav();
       if (isMobile()) {
         updateMobileNav(id);
         if (id === 'lockview') setTimeout(enhanceMobileLock, 0);
@@ -530,6 +657,7 @@
     renderAll = function () {
       oldRenderAll();
       renderMobileQuick();
+      renderMobileMapDayNav();
       enhanceMobileLock();
     };
   }
@@ -549,8 +677,11 @@
   window.showMobilePlannerMore = showMobileMore;
   window.toggleMobilePlannerMapEditor = toggleMobileMapEditor;
   window.renderMobileQuick = renderMobileQuick;
+  window.renderMobileMapDayNav = renderMobileMapDayNav;
+  window.mobileMapAdjacent = mobileMapAdjacent;
 
   renderMobileQuick();
+  renderMobileMapDayNav();
   enhanceMobileLock();
   initialMobileView();
 
