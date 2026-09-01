@@ -112,17 +112,17 @@ See [VERIFICATION.md](VERIFICATION.md) for official 2026 sources, exact publishe
 
 ## Mobile quick mode
 
-Phones now use a simplified planning surface instead of a stacked desktop layout.
+Phones use a simplified planning surface instead of a stacked desktop layout.
 
-- **Quick** is the default phone home: budget, lock progress, next booking/decision, and compact day cards.
-- Bottom navigation keeps **Quick / Days / Map / Lock / More** one tap away.
-- Day cards show only the main MUST stops plus direct **Quick look / Map / Google Maps** actions.
-- The **Lock** screen shows only the selected/recommended answer by default; tap **Change choice** to reveal alternatives.
+- **Quick** is the phone summary: budget, next booking/decision and compact day cards.
+- Bottom navigation keeps **Quick / Days / Map / Plan / More** one tap away.
+- Day cards show the main MUST stops with stable stop codes such as **D2-4**, plus Quick look / Map / Google Maps.
+- **Plan** contains the booking checklist, decision timeline and full itinerary; there is no separate Lock page.
 - The map opens first on mobile; the stop editor stays collapsed until **Edit stops** is tapped.
-- Place detail modals keep the first photo, arrival/departure, dwell, drive-from-previous, what-to-do, parking/access and Maps links while hiding review/detail clutter.
-- Full Bookings, Hotels, Attractions, Budget, Pack, Field, Data/Presets and Print screens remain available under **More**.
+- Place details prioritize arrival/departure, dwell, drive-from-previous, what-to-do, parking/access and Maps links.
+- Bookings, Hotels, Attractions, Budget, Pack, Road, Data/Presets and Export remain available under **More**.
 
-Desktop behavior is unchanged.
+The last open page is restored after reload.
 
 
 ## Adaptive map route clock
@@ -145,3 +145,24 @@ The timeline always uses the **current** stop sequence. Reordering or reversing 
 MUST and NICE stops are timed. CUT stops are bypassed. Pending Sep 29 choice-group alternatives remain visible as options but are not inserted into the active ETA chain until chosen.
 
 On desktop the route clock floats over the map and can be collapsed. On mobile it appears directly below the map so the map remains usable.
+
+
+## Unified Plan and stop codes
+
+The main **Plan** page now replaces the old split Plan + Lock workflow.
+
+It is organized as a normal travel workflow:
+
+1. **Before you go** — grouped booking checklist with direct booking links.
+2. **Decisions** — time-ordered choices with the current answer shown first and alternatives only when Change is opened.
+3. **Itinerary** — all six days with real route times and stable stop identifiers.
+
+Stop identifiers use **Day-Stop** notation everywhere practical:
+
+- `D1-1` = Day 1, first stop
+- `D2-4` = Day 2, fourth stop
+- `D5-10` = Day 5, tenth stop
+
+They are derived from the live itinerary order, so reordering a day immediately renumbers the affected stops across the map, ETA timeline, editor, Plan page and place details.
+
+The app also remembers the last open page in the browser and restores it on reload. A phone-only Quick page falls back to Plan when the same saved state is opened on desktop.

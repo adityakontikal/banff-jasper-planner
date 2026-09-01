@@ -74,7 +74,7 @@
       return '<article class="mobile-day-card">' +
         '<div class="mobile-day-head"><div><small>' + escapeHtml(d.date) + '</small><b>' + escapeHtml(d.label) + '</b></div><span>' + escapeHtml(d.start) + '</span></div>' +
         '<div class="mobile-day-meta">~' + escapeHtml(tl.totalDistKm) + ' km • ~' + escapeHtml(formatDuration(tl.totalDriveMin)) + ' drive • sleep: ' + escapeHtml(d.sleep) + '</div>' +
-        '<div class="mobile-must-list">' + show.map(s => '<span>★ ' + escapeHtml(getSpotInfo(s).title || s.name) + '</span>').join('') + (rest > 0 ? '<span class="muted">+' + rest + ' more must</span>' : '') + '</div>' +
+        '<div class="mobile-must-list">' + show.map(s => '<span><b style="color:#93b7ca;margin-right:5px">' + escapeHtml(tripStopCode(d, s)) + '</b>' + escapeHtml(getSpotInfo(s).title || s.name) + '</span>').join('') + (rest > 0 ? '<span class="muted">+' + rest + ' more must</span>' : '') + '</div>' +
         '<div class="mobile-card-actions"><button class="btn primary" onclick="openDayGuide(\'' + d.date + '\')">Quick look</button><button class="btn" onclick="chooseDay(\'' + d.date + '\')">Map</button>' + (route ? '<a class="btn" href="' + route + '" target="_blank">Google Maps</a>' : '') + '</div>' +
       '</article>';
     }).join('');
@@ -85,7 +85,7 @@
         '<div class="mobile-quick-stats"><div><small>Budget</small><b>' + moneySafe(totalNow) + '</b><span>' + moneySafe(pp) + '/person</span></div><div><small>Locked</small><b>' + pct + '%</b><span>' + pending.length + ' booking items left</span></div></div>' +
       '</div>' +
       nextActionHtml() +
-      '<div class="mobile-section"><div class="mobile-section-head"><div><small>CORE PLAN</small><h2>Day by day</h2></div><button class="btn" onclick="setView(\'lockview\')">Lock choices</button></div><div class="mobile-day-list">' + days + '</div></div>' +
+      '<div class="mobile-section"><div class="mobile-section-head"><div><small>CORE PLAN</small><h2>Day by day</h2></div><button class="btn" onclick="setView(\'planview\')">Plan</button></div><div class="mobile-day-list">' + days + '</div></div>' +
       '<div class="mobile-section mobile-summary-card"><small>LOCKED / PENDING</small><div class="mobile-chip-row">' + (decisions.length ? decisions.map(x => '<span>' + escapeHtml(x) + '</span>').join('') : '<span>Core decisions set</span>') + '</div></div>' +
       '<div class="mobile-section"><div class="mobile-section-head"><div><small>TRIP READY</small><h2>Fast checklist</h2></div></div>' +
         '<div class="mobile-check-grid">' +
@@ -130,11 +130,11 @@
           '<button data-mobile-view="mobilequick" onclick="goMobilePlanner(\'mobilequick\')"><span>⌂</span><b>Quick</b></button>' +
           '<button data-mobile-view="overview" onclick="goMobilePlanner(\'overview\')"><span>☰</span><b>Days</b></button>' +
           '<button data-mobile-view="mapview" onclick="goMobilePlanner(\'mapview\')"><span>⌖</span><b>Map</b></button>' +
-          '<button data-mobile-view="lockview" onclick="goMobilePlanner(\'lockview\')"><span>✓</span><b>Lock</b></button>' +
+          '<button data-mobile-view="planview" onclick="goMobilePlanner(\'planview\')"><span>✓</span><b>Plan</b></button>' +
           '<button onclick="showMobilePlannerMore(true)"><span>•••</span><b>More</b></button>' +
         '</nav>' +
         '<div class="mobile-more-sheet" id="mobileMoreSheet" onclick="if(event.target===this)showMobilePlannerMore(false)"><div class="mobile-more-panel"><div class="mobile-more-head"><b>More</b><button onclick="showMobilePlannerMore(false)">×</button></div><div class="mobile-more-grid">' +
-          '<button onclick="goMobilePlanner(\'planview\')">Full plan</button>' +
+          '<button onclick="goMobilePlanner(\'planview\')">Plan</button>' +
           '<button onclick="goMobilePlanner(\'bookings\')">Bookings</button>' +
           '<button onclick="goMobilePlanner(\'hotels\')">Hotels</button>' +
           '<button onclick="goMobilePlanner(\'attractions\')">Attractions</button>' +

@@ -1,11 +1,11 @@
 {
   "name": "banff-jasper-planner",
   "version": "2.0.0",
-  "description": "Banff to Jasper trip command center",
+  "description": "Banff to Jasper interactive trip planner",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check app.js && node --check verified-plan.js && node --check mobile-ui.js && node --check adaptive-map-timeline.js && node --check server.js"
+    "check": "node --check app.js && node --check verified-plan.js && node --check mobile-ui.js && node --check adaptive-map-timeline.js && node --check product-plan.js && node --check server.js"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Banff → Jasper Trip Command Center</title>
+<title>Banff → Jasper Trip Planner</title>
 <meta name="theme-color" content="#07131d" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-title" content="Rockies Trip" />
-<meta name="description" content="Interactive Banff–Jasper road-trip planner: map, bookings, shuttle window, packing, and field guide." />
+<meta name="description" content="Interactive Banff–Jasper trip planner with itinerary, decisions, bookings, adaptive ETAs, maps and packing." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='14' width='64' height='64' fill='%23173d54'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='32'%3E%F0%9F%8F%94%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
@@ -296,9 +296,9 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
 <div class="top">
   <div class="topin">
     <div class="brand" onclick="setView('planview')">
-      <div class="logo">🏔️</div>
+      <div class="logo">RP</div>
       <div class="brand-text">
-        <b>Rockies Command Center</b>
+        <b>Rockies Planner</b>
         <small id="brandSub">Sep 25–30, 2026 • 3 adults</small>
       </div>
     </div>
@@ -307,14 +307,14 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
       <button class="on" data-view="planview">Plan</button>
       <button data-view="mapview">Map</button>
       <button data-view="overview">Days</button>
-      <button data-view="bookings">Book</button>
+      <button data-view="bookings">Bookings</button>
       <button data-view="hotels">Hotels</button>
-      <button data-view="attractions">Do</button>
+      <button data-view="attractions">Attractions</button>
       <button data-view="packview">Pack</button>
-      <button data-view="fieldview">Field</button>
+      <button data-view="fieldview">Road</button>
       <button data-view="budget">Budget</button>
       <button data-view="settings">Data</button>
-      <button data-view="finalize">Print</button>
+      <button data-view="finalize">Export</button>
     </nav>
     
     <div class="top-stats">
@@ -528,5 +528,6 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
 <script src="verified-plan.js"></script>
 <script src="mobile-ui.js"></script>
 <script src="adaptive-map-timeline.js"></script>
+<script src="product-plan.js"></script>
 </body>
 </html>

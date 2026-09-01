@@ -98,7 +98,7 @@
       rows += '<div class="route-clock-row" onclick="focusAdaptiveStop(' + stop.lat + ',' + stop.lng + ')">' +
         legLine +
         '<div class="route-clock-stop">' +
-          '<div class="route-clock-number">' + (visibleIndex + 1) + '</div>' +
+          '<div class="route-clock-number">' + escapeHtml(tripStopCode(day, stop)) + '</div>' +
           '<div class="route-clock-name"><b>' + escapeHtml(shortName(stop)) + '</b><small>' + escapeHtml(stop.priority.toUpperCase()) + '</small></div>' +
           '<div class="route-clock-time"><small>ARRIVE</small><b>' + escapeHtml(it.arrTime.display) + '</b></div>' +
           '<label class="route-clock-stay" onclick="event.stopPropagation()"><small>STAY</small><span><input type="number" min="0" step="5" value="' + Number(it.stayMin || 0) + '" onchange="setAdaptiveRouteStay(\'' + day.date + '\',\'' + escapeAttr(stop.id) + '\',this.value)"> min</span></label>' +
@@ -188,8 +188,8 @@
       .route-clock-row:hover{border-color:#4e7994}
       .route-clock-leg{display:flex;gap:7px;align-items:center;padding:4px 7px;background:#071925;color:#8faaba;font-size:8.5px;border-bottom:1px solid rgba(255,255,255,.05)}
       .route-clock-leg.pending{color:#e7c680}.route-clock-leg span:last-child{margin-left:auto}
-      .route-clock-stop{display:grid;grid-template-columns:24px minmax(90px,1fr) 58px 62px 58px;gap:5px;align-items:center;padding:6px}
-      .route-clock-number{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:#07131d;font-size:10px;font-weight:900}
+      .route-clock-stop{display:grid;grid-template-columns:46px minmax(90px,1fr) 58px 62px 58px;gap:5px;align-items:center;padding:6px}
+      .route-clock-number{min-width:42px;height:23px;border-radius:7px;padding:0 5px;display:grid;place-items:center;background:var(--accent);color:#07131d;font-size:10px;font-weight:900}
       .route-clock-name{min-width:0}.route-clock-name b{display:block;font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.route-clock-name small{font-size:7px;color:var(--muted)}
       .route-clock-time small,.route-clock-stay small{display:block;font-size:7px;color:var(--muted);font-weight:800}.route-clock-time b{font-size:9.5px;white-space:nowrap}
       .route-clock-stay span{display:flex;align-items:center;font-size:8px;color:var(--muted)}
@@ -224,7 +224,7 @@
         #mapview .sidebar{order:3!important}
         .route-clock-list{max-height:none!important;overflow:visible!important}
         .route-clock-summary{grid-template-columns:repeat(2,1fr)}
-        .route-clock-stop{grid-template-columns:24px minmax(90px,1fr) 58px 58px}
+        .route-clock-stop{grid-template-columns:44px minmax(90px,1fr) 58px 58px}
         .route-clock-time.depart{display:none}
         .route-clock-row{touch-action:pan-y}
         .route-clock-head{position:sticky;top:0;z-index:2}

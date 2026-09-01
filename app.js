@@ -1167,15 +1167,31 @@ function fuelSuggest() { const km = tripDriveKm(); return Math.round(km * 0.12 *
 
 function getDay() { return S.days.find(d => d.date === S.selectedDay) || S.days[0]; }
 function dayColor(date) { return { 'Sep 25': '#8dd3ff', 'Sep 26': '#56c6a5', 'Sep 27': '#f0c36a', 'Sep 28': '#c5a6ff', 'Sep 29': '#ff9fa0', 'Sep 30': '#8dd3ff' }[date] || '#68b9ff'; }
+function tripStopCode(dayOrDate, stopOrIndex) {
+  const day = typeof dayOrDate === 'string' ? S.days.find(d => d.date === dayOrDate) : dayOrDate;
+  if (!day) return 'D?-?';
+  const dayIdx = S.days.indexOf(day);
+  let stopIdx = typeof stopOrIndex === 'number' ? stopOrIndex : day.stops.indexOf(stopOrIndex);
+  if (stopIdx < 0 && stopOrIndex && stopOrIndex.id) stopIdx = day.stops.findIndex(s => s.id === stopOrIndex.id);
+  return `D${dayIdx + 1}-${stopIdx + 1}`;
+}
 function divIcon(stop, label, isCut = false) {
   const isHotel = stop.isHotel || /hotel|transit \/ overnight|Airport/i.test(getSpotInfo(stop).tag || '');
   const c = isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[stop.priority] || COLORS.nice));
   const border = isCut ? '2px dashed #f0c36a' : '2px solid #07131d';
   const textColor = isCut ? '#f0c36a' : (isHotel ? '#ffffff' : '#07131d');
   const dim = stop.done ? 'opacity:.45;' : (isCut ? 'opacity:.7;' : '');
-  const txt = typeof label === 'number' ? (label + 1) : label;
-  const fontSize = String(txt).length > 2 ? '8.5px' : '10px';
-  return L.divIcon({ className: '', html: `<div style="width:26px;height:26px;border-radius:50%;background:${c};border:${border};color:${textColor};font-weight:900;display:grid;place-items:center;font-size:${fontSize};box-shadow:0 4px 12px #0007;${dim}">${txt}</div>`, iconSize: [26, 26], iconAnchor: [13, 13] });
+  const txt = typeof label === 'number' ? (label + 1) : String(label);
+  const coded = /^D\d+-\d+$/.test(txt);
+  const width = coded ? Math.max(40, 14 + txt.length * 6) : 26;
+  const radius = coded ? 9 : 13;
+  const fontSize = coded ? '9px' : (txt.length > 2 ? '8.5px' : '10px');
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${width}px;height:26px;border-radius:${radius}px;background:${c};border:${border};color:${textColor};font-weight:900;display:grid;place-items:center;font-size:${fontSize};box-shadow:0 4px 12px #0007;${dim}">${txt}</div>`,
+    iconSize: [width, 26],
+    iconAnchor: [width / 2, 13]
+  });
 }
 
 function googleRouteUrl(stops) {
@@ -1318,14 +1334,14 @@ function renderMap() {
       stopsToRender.forEach((s, sIdx) => {
         const inf = getSpotInfo(s);
         const isCut = s.priority === 'cut';
-        const label = `D${dayIdx + 1}`;
+        const label = tripStopCode(day, s);
         const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut), draggable: false }).addTo(markerLayer);
 
-        m.bindTooltip(`<b>Day ${dayIdx + 1} (${day.date}): ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+        m.bindTooltip(`<b>${tripStopCode(day, s)} • ${day.date}: ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
 
         m.bindPopup(`
           <div style="font-family:Inter,sans-serif;min-width:220px;">
-            <div style="font-size:10px;color:#8ba4b6;text-transform:uppercase;font-weight:700;">Day ${dayIdx + 1} • ${day.date}</div>
+            <div style="font-size:10px;color:#8ba4b6;text-transform:uppercase;font-weight:700;">${tripStopCode(day, s)} • ${day.date}</div>
             <b style="font-size:14px;color:#fff;display:block;margin:2px 0 4px;">${escapeHtml(s.name)}</b>
             <span class="rating-pill" style="margin:2px 0;display:inline-block;">⭐ <b>${inf.rating || '8.5/10'}</b></span>
             <span class="badge ${s.priority}" style="margin-left:4px;">${s.priority.toUpperCase()}</span>
@@ -1364,13 +1380,13 @@ function renderMap() {
       const isCut = it.isCut;
       if (S.filterMustOnly && s.priority !== 'must' && !s.isHotel && !/hotel|airport/i.test(getSpotInfo(s).tag || '')) return;
       const inf = getSpotInfo(s);
-      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, i, isCut), draggable: true }).addTo(markerLayer);
+      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, tripStopCode(d, s), isCut), draggable: true }).addTo(markerLayer);
       if (isCut) {
-        m.bindTooltip(`<b>Stop ${i + 1}: ${escapeHtml(s.name)}</b><br><span style="color:#f0c36a;">✂️ Bypassed from route (Cut)</span> • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
-        m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge cut">CUT (BYPASSED)</span> • Stop ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;color:#f0c36a;">⚠️ <b>This stop is currently bypassed from the driving route and timeline calculations.</b> Change priority to <b>Must</b> or <b>Nice</b> in the left panel to route through it.</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div>`);
+        m.bindTooltip(`<b>${tripStopCode(d, s)}: ${escapeHtml(s.name)}</b><br><span style="color:#f0c36a;">✂️ Bypassed from route (Cut)</span> • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+        m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge cut">CUT (BYPASSED)</span> • ${tripStopCode(d, s)} • ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;color:#f0c36a;">⚠️ <b>This stop is currently bypassed from the driving route and timeline calculations.</b> Change priority to <b>Must</b> or <b>Nice</b> in the left panel to route through it.</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div>`);
       } else {
-        m.bindTooltip(`<b>Stop ${i + 1}: ${escapeHtml(s.name)}</b><br><span style="color:#56c6a5;">Arr ${it.arrTime.display} • Dep ${it.depTime.display}</span> (${it.stayMin}m stay) • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
-        m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge ${s.priority}">${s.priority.toUpperCase()}</span> • Stop ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;">🕒 <b>Arrival:</b> ${it.arrTime.display}<br>🚪 <b>Departure:</b> ${it.depTime.display}<br>⏱️ <b>Est. Stay:</b> ${it.stayMin} min<br>${it.prevLeg ? `🚗 <b>Drive:</b> ${it.prevLeg.distKm} km (~${it.prevLeg.durText}) from ${escapeHtml(it.prevLeg.fromName || 'prev')}<br>` : '🚩 <b>Starting location</b><br>'}${s.note ? `📝 ${escapeHtml(s.note)}` : ''}</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div><small style="color:var(--muted);display:block;margin-top:5px;">Drag marker to fine-tune location.</small>`);
+        m.bindTooltip(`<b>${tripStopCode(d, s)}: ${escapeHtml(s.name)}</b><br><span style="color:#56c6a5;">Arr ${it.arrTime.display} • Dep ${it.depTime.display}</span> (${it.stayMin}m stay) • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+        m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge ${s.priority}">${s.priority.toUpperCase()}</span> • ${tripStopCode(d, s)} • ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;">🕒 <b>Arrival:</b> ${it.arrTime.display}<br>🚪 <b>Departure:</b> ${it.depTime.display}<br>⏱️ <b>Est. Stay:</b> ${it.stayMin} min<br>${it.prevLeg ? `🚗 <b>Drive:</b> ${it.prevLeg.distKm} km (~${it.prevLeg.durText}) from ${escapeHtml(it.prevLeg.fromName || 'prev')}<br>` : '🚩 <b>Starting location</b><br>'}${s.note ? `📝 ${escapeHtml(s.note)}` : ''}</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div><small style="color:var(--muted);display:block;margin-top:5px;">Drag marker to fine-tune location.</small>`);
       }
       m.on('dragend', ev => {
         const p = ev.target.getLatLng();
@@ -1535,7 +1551,7 @@ function renderDayEditor() {
 
         html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" style="margin-bottom:5px;">
           <div class="stoprow-top" style="grid-template-columns:28px 1fr auto auto;">
-            <div class="stop-num-badge" style="background:${badgeColor};width:24px;height:24px;font-size:9.5px;" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin D${dayIdx + 1} (Click to focus on map)">D${dayIdx + 1}</div>
+            <div class="stop-num-badge" style="background:${badgeColor};width:24px;height:24px;font-size:9.5px;" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</div>
             <div style="font-weight:700;font-size:12px;color:#fff;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" onclick="focusStopOnMap(${s.lat}, ${s.lng})">${escapeHtml(s.name)}</div>
             <span class="rating-pill" style="font-size:10px;">⭐ ${inf.rating || '8.5/10'}</span>
             <button class="iconbtn infoBtn" onclick="openSpotModal('${d.date}','${s.id}')" title="Photos and details">i</button>
@@ -1593,7 +1609,7 @@ function renderDayEditor() {
     html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" draggable="true" data-i="${i}">
       <div class="stoprow-top">
         <div class="grip" title="Drag to reorder">☰</div>
-        <div class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin #${i + 1} (Click to focus on map)">${i + 1}</div>
+        <div class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</div>
         <input class="stopname" value="${escapeAttr(s.name)}" onchange="renameStop(${i},this.value)">
         <select class="priority ${s.priority}" onchange="setPriority(${i},this.value)">
           <option value="must" ${s.priority === 'must' ? 'selected' : ''}>Must</option>
@@ -2019,7 +2035,7 @@ function renderOverview() {
               <span class="badge ${isHotel ? 'hotel' : st.priority}">${isHotel ? 'LODGING BASE' : (isCut ? 'CUT (BYPASSED)' : st.priority.toUpperCase())}</span>
               <span class="rating-pill">⭐ ${inf.rating || '8.5/10'}</span>
             </div>
-            <span class="date">${isHotel ? (i === 0 ? '🚩 Day Departure' : '🏁 Night Base') : `Stop ${i + 1}`}</span>
+            <span class="date">${isHotel ? (i === 0 ? '🚩 Day Departure' : '🏁 Night Base') : tripStopCode(d, st)}</span>
           </div>
           <h3>${escapeHtml(inf.title)}</h3>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin:5px 0;">${badgePills.join('')}</div>
@@ -2375,7 +2391,7 @@ function searchPlaces(q) {
 }
 
 function renderAll() {
-  document.title = S.settings.title + ' — Trip Command Center';
+  document.title = S.settings.title + ' — Trip Planner';
   renderHero();
   renderDayEditor();
   renderMap();
