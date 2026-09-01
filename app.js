@@ -1646,12 +1646,13 @@ function renderDayEditor() {
   tl.items.forEach((it, i) => {
     const s = it.stop;
     const isCut = it.isCut;
+    const disabledNice = s.priority === 'nice' && !isStopEnabled(s);
     const inf = getSpotInfo(s);
     if (i > 0 && it.prevLeg) {
       html += `<div class="leg-bridge"><span>🚗 <b>${it.prevLeg.distKm} km</b></span><span>• ~<b>${it.prevLeg.durText}</b> drive from ${escapeHtml(it.prevLeg.fromName || 'prev')}</span></div>`;
     }
     const isHotel = s.isHotel || /hotel|transit \/ overnight|Airport/i.test(inf.tag || '');
-    const badgeColor = isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[s.priority] || COLORS.nice));
+    const badgeColor = disabledNice ? '#536a78' : (isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[s.priority] || COLORS.nice)));
     html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" draggable="true" data-i="${i}">
       <div class="stoprow-top">
         <div class="grip" title="Drag to reorder">☰</div>
