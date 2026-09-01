@@ -1181,9 +1181,17 @@ function divIcon(stop, label, isCut = false) {
   const border = isCut ? '2px dashed #f0c36a' : '2px solid #07131d';
   const textColor = isCut ? '#f0c36a' : (isHotel ? '#ffffff' : '#07131d');
   const dim = stop.done ? 'opacity:.45;' : (isCut ? 'opacity:.7;' : '');
-  const txt = typeof label === 'number' ? (label + 1) : label;
-  const fontSize = String(txt).length > 2 ? '8.5px' : '10px';
-  return L.divIcon({ className: '', html: `<div style="width:26px;height:26px;border-radius:50%;background:${c};border:${border};color:${textColor};font-weight:900;display:grid;place-items:center;font-size:${fontSize};box-shadow:0 4px 12px #0007;${dim}">${txt}</div>`, iconSize: [26, 26], iconAnchor: [13, 13] });
+  const txt = typeof label === 'number' ? (label + 1) : String(label);
+  const coded = /^D\d+-\d+$/.test(txt);
+  const width = coded ? Math.max(40, 14 + txt.length * 6) : 26;
+  const radius = coded ? 9 : 13;
+  const fontSize = coded ? '9px' : (txt.length > 2 ? '8.5px' : '10px');
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${width}px;height:26px;border-radius:${radius}px;background:${c};border:${border};color:${textColor};font-weight:900;display:grid;place-items:center;font-size:${fontSize};box-shadow:0 4px 12px #0007;${dim}">${txt}</div>`,
+    iconSize: [width, 26],
+    iconAnchor: [width / 2, 13]
+  });
 }
 
 function googleRouteUrl(stops) {
