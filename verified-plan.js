@@ -693,7 +693,9 @@
         }
       });
       tl.activeCount = day.stops.filter(function (s) {
-        return s.priority !== 'cut' && !(s.choiceGroup && pendingGroups.includes(s.choiceGroup));
+        return typeof isStopActive === 'function'
+          ? isStopActive(s)
+          : (s.priority !== 'cut' && s.enabled !== false && !(s.choiceGroup && pendingGroups.includes(s.choiceGroup)));
       }).length;
       tl.cutCount = day.stops.filter(function (s) { return s.priority === 'cut'; }).length;
       tl.pendingOptionCount = optionIds.size;
