@@ -152,8 +152,8 @@
         }
 
         .top {
-          position: sticky !important;
-          top: 0 !important;
+          position: static !important;
+          top: auto !important;
         }
 
         .app {
@@ -421,6 +421,76 @@
     }
   }
 
+  function enforceMobileDocumentScroll() {
+    if (!window.matchMedia(MOBILE_QUERY).matches) return;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const app = document.querySelector('.app');
+    const active = document.querySelector('.view.on');
+
+    [
+      [root, 'height', 'auto'],
+      [root, 'min-height', '100%'],
+      [root, 'overflow-x', 'hidden'],
+      [root, 'overflow-y', 'auto'],
+      [body, 'height', 'auto'],
+      [body, 'min-height', '100dvh'],
+      [body, 'overflow-x', 'hidden'],
+      [body, 'overflow-y', 'scroll']
+    ].forEach(function (entry) {
+      if (entry[0]) entry[0].style.setProperty(entry[1], entry[2], 'important');
+    });
+
+    if (app) {
+      app.style.setProperty('height', 'auto', 'important');
+      app.style.setProperty('min-height', '0', 'important');
+      app.style.setProperty('max-height', 'none', 'important');
+      app.style.setProperty('overflow', 'visible', 'important');
+    }
+
+    if (active) {
+      active.style.setProperty('height', 'auto', 'important');
+      active.style.setProperty('min-height', '0', 'important');
+      active.style.setProperty('max-height', 'none', 'important');
+      active.style.setProperty('overflow-x', 'visible', 'important');
+      active.style.setProperty('overflow-y', 'visible', 'important');
+      active.style.setProperty('touch-action', 'pan-y pinch-zoom', 'important');
+    }
+
+    requestAnimationFrame(function () {
+      const scrolling = document.scrollingElement || root;
+      const viewport = window.innerHeight || root.clientHeight;
+      const activeHeight = active ? active.scrollHeight : 0;
+      const appHeight = app ? app.scrollHeight : 0;
+      const expected = Math.max(activeHeight, appHeight) + 90;
+
+      // Safari/PWA safety net: if an earlier layout rule prevents the document
+      // from inheriting a long active view's height, force enough body height.
+      if (expected > viewport + 20 && scrolling.scrollHeight < expected - 20) {
+        body.style.setProperty('min-height', expected + 'px', 'important');
+      }
+
+      if (activeHeight > viewport + 20 && scrolling.scrollHeight <= viewport + 20) {
+        console.warn('[Rockies Planner] Scroll contract violation', {
+          activeView: active.id,
+          viewport: viewport,
+          activeHeight: activeHeight,
+          documentHeight: scrolling.scrollHeight,
+          bodyOverflow: getComputedStyle(body).overflowY,
+          activeOverflow: getComputedStyle(active).overflowY
+        });
+      }
+    });
+  }
+
+  function queueMobileScrollEnforcement() {
+    if (!window.matchMedia(MOBILE_QUERY).matches) return;
+    enforceMobileDocumentScroll();
+    requestAnimationFrame(enforceMobileDocumentScroll);
+    setTimeout(enforceMobileDocumentScroll, 80);
+  }
+
   function resetActiveScroll() {
     if (window.matchMedia(MOBILE_QUERY).matches) {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -444,6 +514,7 @@
     setView = function (id) {
       oldSetView(id);
       normalizeViewport();
+      queueMobileScrollEnforcement();
       requestAnimationFrame(resetActiveScroll);
     };
   }
@@ -451,11 +522,24 @@
   injectScrollContract();
   normalizeViewport();
   patchViewNavigation();
+  const oldRenderAllForScroll = renderAll;
+  renderAll = function () {
+    oldRenderAllForScroll();
+    queueMobileScrollEnforcement();
+  };
 
-  window.addEventListener('resize', normalizeViewport, { passive: true });
+
+  window.addEventListener('resize', function () {
+    normalizeViewport();
+    queueMobileScrollEnforcement();
+  }, { passive: true });
   window.addEventListener('orientationchange', function () {
-    setTimeout(normalizeViewport, 80);
+    setTimeout(function () {
+      normalizeViewport();
+      queueMobileScrollEnforcement();
+    }, 80);
   });
+  window.addEventListener('load', queueMobileScrollEnforcement, { once: true });
 
   // Expose a tiny diagnostic for future regressions.
   window.getPlannerScrollState = function () {
@@ -470,7 +554,8 @@
       activeScrollHeight: active ? active.scrollHeight : null,
       activeClientHeight: active ? active.clientHeight : null,
       bodyOverflowY: getComputedStyle(document.body).overflowY,
-      activeOverflowY: active ? getComputedStyle(active).overflowY : null
+      activeOverflowY: active ? getComputedStyle(active).overflowY : null,
+      canWindowScroll: (document.scrollingElement || document.documentElement).scrollHeight > window.innerHeight + 1
     };
   };
 })();
