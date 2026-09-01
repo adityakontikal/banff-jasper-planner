@@ -43,13 +43,13 @@
     {
       id: 'gondola',
       when: '1–2 days before Sep 26',
-      title: 'Banff Gondola',
-      detail: 'Only do it if weather is clear or a later Pursuit decision changes the value.',
+      title: 'Banff Gondola — weather-gated MUST',
+      detail: 'Strong yes when summit visibility is good. It is in the route and budget now; skip only if cloud/fog makes the view poor.',
       options: [
-        ['weather', 'Decide from weather'],
-        ['yes', 'Buy if clear'],
+        ['yes', 'Strong yes — buy if clear'],
+        ['weather', 'Hold while checking forecast'],
         ['pass', 'Use with Pursuit Pass'],
-        ['no', 'Skip']
+        ['no', 'Skip for poor visibility']
       ]
     },
     {
