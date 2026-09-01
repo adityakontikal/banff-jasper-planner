@@ -217,3 +217,24 @@ Each day card shows:
 - a route-ordered ON/OFF switch
 
 Sep 29's Valley of Five Lakes / Icefield Adventure / Emerald Lake group remains mutually exclusive when experimenting: enabling one NICE option turns the sibling NICE options off, but does not lock the final MCQ decision until the user explicitly does so.
+
+
+## Locked flights — booked Sep. 1, 2026
+
+Flights are now an authoritative booking in the planner rather than a scenario:
+
+- **Outbound:** WestJet, Fri Sep 25, YYZ 10:25 PM → YYC 12:44 AM Sep 26, nonstop, 4h 19m.
+- **Return:** WestJet, Wed Sep 30, YYC 7:10 PM → YYZ 1:05 AM Oct 1, nonstop, 3h 55m.
+- **Combined paid total:** **C$966.63 for 3 adults**.
+
+The planner intentionally stores the fare as one combined flight total rather than inventing an outbound/return price split.
+
+Effects on the itinerary:
+
+- Sep 25/26 road clock begins at the booked **12:44 AM YYC arrival**.
+- YYC rental-pickup allowance is ~60 min.
+- Expected Cochrane arrival is roughly 2:20–2:30 AM.
+- Sep 26 departure is moved to **10:30 AM** to protect sleep.
+- Sep 30 uses **4:45 PM** as the rental-return target and keeps the YYC block through the booked **7:10 PM** flight departure.
+- Reset/preset/import recovery cannot downgrade these flight rows back to undecided; they remain **Paid / Locked**.
+- Rental car and hotels are the next unresolved booking categories.
