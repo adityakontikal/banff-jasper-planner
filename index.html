@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Banff → Jasper Trip Command Center</title>
+<meta name="theme-color" content="#07131d" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Rockies Trip" />
+<meta name="description" content="Interactive Banff–Jasper road-trip planner: map, bookings, shuttle window, packing, and field guide." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='14' width='64' height='64' fill='%23173d54'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='32'%3E%F0%9F%8F%94%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<style>
+:root{
+  --bg:#07131d;--panel:#0e2232;--panel2:#112a3d;--panel3:#0a1b28;--line:#2a4960;
+  --text:#edf6fb;--muted:#9bb3c4;--accent:#56c6a5;--blue:#68b9ff;--warn:#f0c36a;--bad:#ef8989;
+  --ok:#72d19c;--purple:#c5a6ff;--shadow:0 18px 45px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html,body{height:100vh;margin:0;padding:0;overflow:hidden;background:linear-gradient(180deg,#06121b,#0a1722);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}.hidden{display:none!important}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#264b63;border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#56c6a5}
+
+.top{position:sticky;top:0;z-index:1000;background:rgba(7,19,29,.96);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 4px 20px rgba(0,0,0,.35);flex-shrink:0}
+.topin{max-width:1920px;margin:auto;padding:7px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--accent));display:grid;place-items:center;color:#05121b;font-weight:900;font-size:15px;box-shadow:0 0 14px rgba(86,198,165,.25)}
+.brand-text b{font-size:13px;font-weight:750;color:#fff;display:block;line-height:1.2;letter-spacing:-.01em}
+.brand-text small{font-size:11px;color:var(--muted);display:block;line-height:1.2}
+.tabs{display:flex;gap:3px;background:#081926;padding:3px;border-radius:10px;border:1px solid var(--line);overflow-x:auto}
+.tabs button{white-space:nowrap;border:1px solid transparent;background:transparent;color:var(--muted);padding:5px 11px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s ease}
+.tabs button:hover{color:#fff;background:rgba(255,255,255,.05)}
+.tabs button.on{background:linear-gradient(135deg,#18415c,#1a4f6d);color:#fff;border-color:#3b6b8c;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.top-stats{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.stat-pill{display:inline-flex;align-items:center;gap:6px;background:#081c2b;border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:11px;color:#c9dce7;white-space:nowrap}
+.stat-pill b{color:#fff;font-weight:750}
+.stat-pill small{color:var(--muted)}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--warn);box-shadow:0 0 6px var(--warn);animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.6}}
+.mini-bar{width:32px;height:5px;background:#05131e;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.mini-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));width:0%;transition:width .3s ease}
+
+.app{max-width:1920px;margin:auto;padding:10px 14px;height:calc(100vh - 51px);display:flex;flex-direction:column;overflow:hidden}
+.view{display:none;height:100%;min-height:0}
+.view.on{display:flex;flex-direction:column;height:100%}
+#planview.view.on,#bookings.view.on,#hotels.view.on,#attractions.view.on,#packview.view.on,#fieldview.view.on,#budget.view.on,#settings.view.on,#finalize.view.on{display:block;overflow-y:auto;height:100%;padding-right:6px}
+
+.glass{background:linear-gradient(180deg,rgba(18,42,61,.96),rgba(12,31,45,.97));border:1px solid rgba(255,255,255,.08);border-radius:14px;box-shadow:var(--shadow)}
+.plan-hero{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:12px;border-radius:14px;overflow:hidden}
+.plan-hero .hero-main{padding:14px 18px}
+.plan-hero .ey,.ey{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);font-weight:800}
+.plan-hero h1{font-size:clamp(19px,2.2vw,26px);line-height:1.2;margin:4px 0 6px;letter-spacing:-.03em;font-weight:850}
+.plan-hero .lead,.lead{color:var(--muted);line-height:1.45;font-size:12px}
+.plan-hero .chips,.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.plan-hero .chip,.chip{font-size:10px;padding:4px 7px;border-radius:999px;background:#102a3d;border:1px solid var(--line);color:#c9dce7}
+.plan-hero .metrics{padding:10px 12px;display:grid;grid-template-columns:repeat(2,1fr);gap:7px;background:rgba(8,26,39,.6);border-left:1px solid rgba(255,255,255,.06)}
+.plan-hero .met,.met{background:#081a27;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.plan-hero .met small,.met small{color:var(--muted);font-size:10px;display:block}
+.plan-hero .met b,.met b{font-size:17px;display:block;margin-top:2px;font-weight:800}
+.progress{height:6px;background:#05131e;border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:5px}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));width:0}
+
+.panel{padding:14px;margin-bottom:12px}
+.ph{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.ph h2{font-size:18px;margin:2px 0}
+.ph p{font-size:12px;color:var(--muted);margin:3px 0}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:#112b3e;color:white;padding:6px 9px;border-radius:8px;cursor:pointer;text-decoration:none;font-size:12px}
+.btn:hover{background:#173a53;border-color:#47728d}
+.btn.primary{background:linear-gradient(135deg,#2d7fb3,#3fa88b);border:0;font-weight:750}
+.btn.warn{border-color:#6b5425;color:#ffd992}
+.btn.danger{color:#ffc0c0}
+.btn.small{padding:5px 7px;font-size:11px}
+.input,.select,.textarea{width:100%;background:#071925;color:white;border:1px solid var(--line);border-radius:8px;padding:7px;font-size:12px}
+.textarea{resize:vertical;min-height:58px}
+
+/* map workspace */
+#mapview.view.on{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.workspace{display:grid;grid-template-columns:390px 1fr;gap:10px;height:100%;min-height:0;flex:1}
+.sidebar{background:#0b1e2c;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;height:100%;min-height:0}
+.sidehead{padding:10px 12px;border-bottom:1px solid var(--line);background:#10283a;flex-shrink:0}
+.sidehead .row,.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dayswitch{display:flex;gap:4px;overflow:auto;padding-top:8px}
+.daybtn{white-space:nowrap;border:1px solid var(--line);background:#081a27;color:var(--muted);border-radius:999px;padding:5px 8px;cursor:pointer;font-size:11px}
+.daybtn.on{background:#173d54;color:white;border-color:#4e7891}
+.sidebody{padding:10px 12px;overflow-y:auto;flex:1;min-height:0}
+.dayeditor{display:grid;grid-template-columns:1fr 85px;gap:6px;margin-bottom:8px}
+.summaryline{font-size:11px;color:var(--muted);margin-bottom:8px}
+.stoplist{display:flex;flex-direction:column;gap:6px}
+.stoprow{display:grid;grid-template-columns:26px 1fr 82px 30px 30px;gap:7px;align-items:center;background:#0d2536;border:1px solid var(--line);border-radius:11px;padding:7px}
+.stoprow.dragging{opacity:.45}
+.grip{cursor:grab;color:#7fa0b6;text-align:center;user-select:none}
+.priority{font-size:10px;padding:4px;border-radius:7px;border:1px solid var(--line);background:#081a27;color:white}
+.priority.must{border-color:#3f7560;color:#baf4d0}
+.priority.nice{border-color:#436a89;color:#cbe7ff}
+.priority.cut{border-color:#7b6331;color:#ffe3a3}
+.stopname{background:transparent;border:0;color:white;width:100%;outline:none;font-size:12px}
+.iconbtn{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#071925;color:#bcd0dd;cursor:pointer}
+.iconbtn:hover{background:#17334a}
+.stoprow .infoBtn{color:#bfe4ff}
+.addbox{margin-top:9px;border:1px dashed #3d627b;border-radius:11px;padding:9px}
+.addbox small{display:block;color:var(--muted);line-height:1.35;margin-top:4px}
+.mapwrap{position:relative;background:#071925;border:1px solid var(--line);border-radius:14px;overflow:hidden;height:100%;min-height:0}
+.maptoolbar{position:absolute;z-index:500;left:52px;top:10px;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 65px)}
+.maptoolbar .btn{background:rgba(7,25,37,.94);backdrop-filter:blur(10px);box-shadow:0 4px 12px rgba(0,0,0,.4)}
+#map{position:absolute;inset:0;width:100%;height:100%}
+.maplegend{position:absolute;z-index:500;right:10px;bottom:10px;background:rgba(7,25,37,.92);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:10px;line-height:1.5;color:#c7d9e4}
+.legenddot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.maphint{position:absolute;z-index:500;left:10px;bottom:10px;background:rgba(7,25,37,.9);border:1px solid var(--line);border-radius:9px;padding:6px 9px;font-size:10px;color:var(--muted)}
+.leaflet-container{background:#0b1e2c}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0c2131;color:white}.leaflet-popup-content{margin:11px 12px;font-size:12px}.leaflet-control-zoom a{background:#0e2637!important;color:#fff!important;border-color:#2b4a60!important}.leaflet-control-attribution{background:rgba(8,22,33,.75)!important;color:#a9bdca!important}.leaflet-control-attribution a{color:#d2e4ef!important}
+
+/* cards */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.card{background:#0b1e2c;border:1px solid var(--line);border-radius:13px;padding:12px}.card h3{font-size:14px;margin:3px 0}.date{font-size:10px;color:var(--muted)}.badge{font-size:10px;border:1px solid var(--line);padding:3px 6px;border-radius:999px}.badge.must{border-color:#3e765e;color:#b9f0cd}.badge.warn{border-color:#745d2e;color:#ffe2a2}.note{background:#0a2131;border:1px solid #36576d;border-left:4px solid var(--blue);border-radius:9px;padding:9px;color:#c6d9e4;font-size:11px;line-height:1.45}.note.warn{border-left-color:var(--warn)}
+.hotelopt{cursor:pointer}.hotelopt.sel{outline:2px solid var(--accent);background:#103247}.hotelopt small{color:var(--muted);display:block;line-height:1.4;margin-top:4px}.hotelprice{display:grid;grid-template-columns:1fr 120px;gap:7px;align-items:center;margin-top:8px}.attgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.att{min-height:220px;display:flex;flex-direction:column}.att.selected{outline:2px solid var(--accent);background:#0e2d34}.att.free{border-color:#315f4d}.cost{font-size:19px;font-weight:850}.att p{font-size:11px;color:#b8cbd7;line-height:1.45}.rec{font-size:10px;color:var(--accent);font-weight:850;margin-top:auto}.switch{position:relative;width:40px;height:22px}.switch input{display:none}.slider{position:absolute;inset:0;background:#294155;border-radius:99px;cursor:pointer}.slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;border-radius:50%;background:white;transition:.2s}.switch input:checked+.slider{background:var(--accent)}.switch input:checked+.slider:before{transform:translateX(18px)}
+.bookrow{display:grid;grid-template-columns:36px 1.25fr 120px 105px 120px 1fr 75px;gap:7px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07)}.bookrow.head{font-size:9px;color:var(--muted);text-transform:uppercase;font-weight:850;letter-spacing:.07em}table{width:100%;border-collapse:collapse}th,td{padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.07);text-align:left}th{font-size:9px;color:var(--muted);text-transform:uppercase}td:last-child,th:last-child{text-align:right}.big{font-size:26px;font-weight:900}.summary{white-space:pre-wrap;background:#071925;border:1px solid var(--line);border-radius:11px;padding:12px;color:#c7d9e4;line-height:1.5;font-size:12px}
+.editorGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.field label{font-size:10px;color:var(--muted);display:block;margin-bottom:4px}.foot{text-align:center;color:var(--muted);font-size:10px;padding:10px 0 20px}
+
+@media(max-width:1100px){.workspace{grid-template-columns:330px 1fr}.plan-hero{grid-template-columns:1fr}.cards,.attgrid{grid-template-columns:1fr 1fr}.bookrow{grid-template-columns:30px 1.2fr 110px 90px}.bookrow>*:nth-child(5),.bookrow>*:nth-child(6),.bookrow>*:nth-child(7){display:none}}
+@media(max-width:768px){html,body{height:auto;overflow:auto}.app{height:auto;padding:8px}.topin{align-items:flex-start;flex-direction:column;gap:8px}.top-stats{width:100%;overflow-x:auto;padding-bottom:2px}.workspace{display:block;height:auto}.sidebar{margin-bottom:10px;height:auto;max-height:none}.mapwrap{height:460px;min-height:460px}.cards,.attgrid,.g2,.g3,.editorGrid{grid-template-columns:1fr}.bookrow{grid-template-columns:26px 1fr 105px}.bookrow>*:nth-child(4){display:none}}
+@media print{.top,.actions,.maptoolbar,.maphint,.switch,.iconbtn,.addbox{display:none!important}.app{max-width:none;height:auto;overflow:visible}.glass,.card,.sidebar,.mapwrap,.summary{box-shadow:none;background:white;color:#111;border:1px solid #aaa}.lead,.date,.card p,.hotelopt small,.note{color:#444!important}#map{position:relative;height:480px}}
+
+/* visual day / spot guide & overview */
+#overview.view.on{display:block;height:100%;overflow:hidden}
+.overview-layout{display:grid;grid-template-columns:320px 1fr;gap:12px;height:100%;min-height:0;align-items:stretch}
+.overview-sidebar{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#0b1e2c;display:flex;flex-direction:column;height:100%;min-height:0;padding:0}
+.overview-side-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.overview-daylist{display:flex;flex-direction:column;gap:7px;padding:10px;overflow-y:auto;flex:1;min-height:0}
+.overview-daycard{padding:11px 12px;border:1px solid var(--line);background:#071925;border-radius:11px;cursor:pointer;transition:.18s all;text-align:left;color:inherit;width:100%}
+.overview-daycard:hover{background:#112a3d;border-color:#487491}
+.overview-daycard.active{background:linear-gradient(135deg,#13374e,#17435f);border-color:var(--accent);box-shadow:0 0 15px rgba(86,198,165,.18)}
+.overview-daycard .daycard-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.overview-daycard h4{margin:0;font-size:13px;font-weight:750;color:#fff}
+.overview-daycard .overview-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.overview-main{display:flex;flex-direction:column;height:100%;min-height:0;overflow-y:auto;padding-right:6px}
+
+.crumbs{display:flex;gap:7px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-bottom:8px}
+.crumbs button{border:0;background:transparent;color:#bcd8ea;cursor:pointer;padding:0}
+.spot-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.spot-card{padding:0;overflow:hidden;cursor:pointer;transition:.18s transform,.18s border-color}
+.spot-card:hover{transform:translateY(-2px);border-color:#4e7994}
+.spot-img{height:140px;background:linear-gradient(135deg,#17394e,#102331);position:relative;overflow:hidden}
+.spot-img img{width:100%;height:100%;object-fit:cover;display:block}
+.spot-img .fallback{position:absolute;inset:0;display:grid;place-items:center;color:#8faabb;font-size:11px;padding:12px;text-align:center}
+.spot-body{padding:11px}
+.spot-body h3{margin:2px 0 4px;font-size:15px}
+.spot-body p{color:#b8cad6;font-size:11px;line-height:1.45;margin:6px 0}
+.spot-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.photo-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:150px 150px;gap:8px}
+.photo-grid .photo:first-child{grid-row:1/3}
+.photo{background:#0b1e2c;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo .pholder{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:11px;text-align:center;padding:12px}
+.photo-credit{position:absolute;left:6px;right:6px;bottom:6px;background:rgba(4,13,20,.78);backdrop-filter:blur(8px);padding:4px 6px;border-radius:6px;font-size:8px;color:#d4e2ea;opacity:0;transition:.2s}
+.photo:hover .photo-credit{opacity:1}
+.detail-layout{display:grid;grid-template-columns:1.25fr .75fr;gap:12px}
+.detail-copy h2{font-size:28px;letter-spacing:-.035em;margin:4px 0 7px}
+.detail-copy p{color:#c0d1dc;line-height:1.6;font-size:12px}
+.factgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.fact{padding:9px;border-radius:10px;background:#081a27;border:1px solid var(--line)}
+.fact small{color:var(--muted);display:block;font-size:10px}
+.fact b{display:block;margin-top:2px;font-size:12px}
+.mini-map{height:240px;border-radius:12px;border:1px solid var(--line);overflow:hidden}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.source-line{font-size:9px;color:var(--muted);margin-top:6px}
+.info-link{color:#bfe4ff;text-decoration:none}
+.info-link:hover{text-decoration:underline}
+.quick-map{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:7px;background:#102b3d;border:1px solid var(--line);font-size:10px;text-decoration:none}
+.spot-card .badge.cut{border-color:#795f2d;color:#ffe0a0}
+.spot-card .badge.nice{border-color:#3d6685;color:#c9e9ff}
+
+/* Leg connectors & schedule pill styles */
+.leg-bridge{display:flex;align-items:center;gap:8px;padding:4px 10px;margin:2px 0 2px 26px;font-size:11px;color:#9ab5c7;border-left:2px dashed #2e5473;background:rgba(8,25,38,.55);border-radius:0 8px 8px 0}
+.leg-bridge b{color:var(--accent)}
+.stoprow{display:flex;flex-direction:column;gap:5px;background:#0d2536;border:1px solid var(--line);border-radius:10px;padding:7px;transition:.15s border-color}
+.stoprow:hover{border-color:#487491}
+.stoprow-top{display:grid;grid-template-columns:16px 24px 1fr 76px 24px 24px 24px;gap:5px;align-items:center}
+.stop-num-badge{width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid #07131d;color:#07131d;font-weight:900;display:grid;place-items:center;font-size:10.5px;cursor:pointer;user-select:none;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.45);transition:transform .15s ease}
+.stop-num-badge:hover{transform:scale(1.18);box-shadow:0 0 10px rgba(86,198,165,.6)}
+.stoprow-sched{display:flex;align-items:center;justify-content:space-between;gap:7px;background:#081a27;border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:4px 7px;font-size:11px}
+.time-pill{color:#56c6a5;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.stay-ctl{display:flex;align-items:center;gap:4px;color:var(--muted);font-size:10px}
+.stay-select{background:#071925;border:1px solid var(--line);color:#edf6fb;border-radius:6px;padding:2px 5px;font-size:10px;cursor:pointer}
+.route-tooltip{background:rgba(8,24,37,.96)!important;backdrop-filter:blur(12px);border:1px solid #56c6a5!important;border-radius:10px!important;box-shadow:0 10px 25px rgba(0,0,0,.6)!important;color:#edf6fb!important;padding:6px 10px!important;pointer-events:none}
+.route-tooltip .leaflet-tooltip-content{margin:0}
+.leaflet-tooltip-left:before{border-left-color:#56c6a5!important}
+.leaflet-tooltip-right:before{border-right-color:#56c6a5!important}
+.leaflet-tooltip-top:before{border-top-color:#56c6a5!important}
+.leaflet-tooltip-bottom:before{border-bottom-color:#56c6a5!important}
+.overview-schedule{background:#081b29;border:1px solid var(--line);border-radius:9px;padding:6px 8px;margin:6px 0 4px;font-size:11px;display:flex;flex-direction:column;gap:3px}
+.overview-schedule .times{display:flex;justify-content:space-between;font-weight:750;color:#56c6a5}
+.overview-schedule .dwell{color:var(--muted);font-size:10px}
+/* Modal Popup */
+.modal-backdrop{position:fixed;inset:0;background:rgba(3,10,16,.85);backdrop-filter:blur(10px);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-backdrop.hidden{display:none!important}
+.modal-dialog{max-width:980px;width:100%;max-height:90vh;display:flex;flex-direction:column;border-radius:16px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(180deg,rgba(14,34,50,.98),rgba(10,25,38,.99));box-shadow:0 25px 60px rgba(0,0,0,.7);overflow:hidden}
+.modal-header{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#10283a}
+.modal-close-btn{background:transparent;border:0;color:#9bb3c4;font-size:24px;line-height:1;cursor:pointer;padding:3px 8px;border-radius:7px}
+.modal-close-btn:hover{color:white;background:#173b53}
+.modal-body{padding:18px;overflow-y:auto;flex:1}
+.modal-footer{padding:10px 18px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);background:#0d2334}
+
+@media(max-width:1000px){.overview-layout,.detail-layout{grid-template-columns:1fr}.spot-grid{grid-template-columns:1fr 1fr}.photo-grid{grid-template-columns:1fr 1fr;grid-template-rows:150px 150px}.photo-grid .photo:first-child{grid-row:auto;grid-column:1/3}.factgrid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.spot-grid{grid-template-columns:1fr}.photo-grid{grid-template-columns:1fr;grid-template-rows:180px 140px 140px}.photo-grid .photo:first-child{grid-column:auto}.tips,.factgrid{grid-template-columns:1fr}.detail-copy h2{font-size:24px}}
+
+/* Plan / Pack / Field */
+.alert-banner{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;border:1px solid #6b5425;background:linear-gradient(135deg,#2a2210,#1a2a22);margin-bottom:12px}
+.alert-banner.urgent{border-color:#8a4a4a;background:linear-gradient(135deg,#2a1418,#1a2430)}
+.alert-banner.ok{border-color:#3e765e;background:linear-gradient(135deg,#0e2a22,#132433)}
+.alert-banner .alert-ico{font-size:20px;line-height:1}
+.alert-banner h3{margin:0 0 3px;font-size:15px}
+.alert-banner p{margin:0;color:#d7e4ee;font-size:12px;line-height:1.45}
+.countdown{font-variant-numeric:tabular-nums;font-weight:850;color:var(--accent)}
+.plan-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:12px}
+.action-list{display:flex;flex-direction:column;gap:7px}
+.action-card{display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:start;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:#081a27}
+.action-card.done{opacity:.55}
+.action-card .due{font-size:10px;color:var(--warn);font-weight:750}
+.action-card .due.soon{color:var(--bad)}
+.action-card .due.ok{color:var(--ok)}
+.check-list{display:flex;flex-direction:column;gap:5px}
+.check-item{display:flex;gap:9px;align-items:flex-start;padding:8px 9px;border:1px solid var(--line);border-radius:10px;background:#081a27;cursor:pointer}
+.check-item input{margin-top:2px;accent-color:var(--accent)}
+.check-item.done span,.check-item.done small{text-decoration:line-through;opacity:.65}
+.check-item small{display:block;color:var(--muted);font-size:11px;margin-top:2px;line-height:1.4}
+.day-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:7px}
+.day-mini{padding:10px;border:1px solid var(--line);border-radius:12px;background:#081a27;cursor:pointer;text-align:left;color:inherit;width:100%}
+.day-mini:hover{border-color:#4e7994}
+.day-mini.today{outline:2px solid var(--accent)}
+.day-mini .sun{font-size:10px;color:var(--muted);margin-top:3px}
+.wx-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.wx-card{padding:10px;border-radius:11px;background:#081a27;border:1px solid var(--line)}
+.pack-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.gas-row{display:flex;justify-content:space-between;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:12px}
+.emerg{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.toast-wrap{position:fixed;right:16px;bottom:16px;z-index:4000;display:flex;flex-direction:column;gap:7px;max-width:360px}
+.toast{background:#123348;border:1px solid var(--accent);color:white;padding:9px 11px;border-radius:11px;box-shadow:var(--shadow);font-size:12px}
+/* Badges & Logistics */
+.badge-pill{display:inline-flex;align-items:center;gap:5px;background:#0b2131;border:1px solid var(--line);padding:3px 8px;border-radius:6px;font-size:11px;color:#c9dce7;white-space:nowrap}
+.badge-pill b{color:#fff;font-weight:700}
+.badge-pill.easy{border-color:#3e765e;background:#0d2820;color:#85e3b6}
+.badge-pill.warn{border-color:#785c28;background:#241d0e;color:#ffd988}
+.badge-pill.hot{border-color:#843939;background:#2a1418;color:#ff9e9e}
+.badge-pill.blue{border-color:#2a587d;background:#0f2437;color:#8ec9ff}
+.badge-pill.purple{border-color:#5c3e80;background:#21142e;color:#d8b8ff}
+.dwell-picker{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:8px 0}
+.dwell-btn{background:#0a1e2d;border:1px solid var(--line);color:#b3cad8;padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .15s ease}
+.dwell-btn:hover{background:#133750;color:#fff;border-color:#487494}
+.dwell-btn.active{background:linear-gradient(135deg,#1c5275,#1d628d);border-color:#56c6a5;color:#fff;font-weight:700}
+.review-card{background:linear-gradient(135deg,#0d2232,#0a1b28);border-left:3px solid var(--accent);border-radius:8px;padding:9px 12px;margin:8px 0;font-size:12px;color:#cde0eb;line-height:1.45}
+.review-card b{color:#fff}
+.review-quote{font-style:italic;color:#a8c4d6;margin-top:3px}
+.rating-pill{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#241a06,#191508);border:1px solid #c99327;color:#fed766;padding:2px 7px;border-radius:6px;font-size:11px;font-weight:800;white-space:nowrap}
+.stoprow.is-cut{border-style:dashed;border-color:#635229;background:rgba(10,22,32,.75);opacity:.75}
+.stoprow.is-cut .stop-num-badge{background:#4d473b!important;color:#f0c36a!important;border-color:#f0c36a!important;border-style:dashed}
+.spot-card.is-cut{border-style:dashed;border-color:#635229;opacity:.78}
+.bypassed-pill{display:inline-flex;align-items:center;gap:3px;background:#2a1a0c;border:1px solid #8f5c24;color:#f0c36a;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:750}
+
+.stoprow.done{opacity:.55}
+.stoprow.done .stopname{text-decoration:line-through}
+.stop-note{width:100%;background:#071925;border:1px solid rgba(255,255,255,.07);color:#c7d9e4;border-radius:7px;padding:4px 6px;font-size:11px}
+.sun-line{font-size:11px;color:#cbe7ff;margin:5px 0 8px}
+.timeline-warn{color:var(--bad);font-weight:750}
+.catalog-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:280px;overflow:auto}
+.catalog-item{text-align:left;padding:7px 9px;border:1px solid var(--line);background:#081a27;color:inherit;border-radius:9px;cursor:pointer}
+.catalog-item:hover{border-color:var(--accent)}
+.search-results{display:flex;flex-direction:column;gap:5px;margin-top:7px}
+.search-hit{text-align:left;padding:7px;border-radius:8px;border:1px solid var(--line);background:#081a27;color:inherit;cursor:pointer}
+.kbd{font-size:10px;border:1px solid var(--line);padding:1px 4px;border-radius:4px;color:var(--muted)}
+.chip.pulse{animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(240,195,106,.35)}50%{box-shadow:0 0 0 6px rgba(240,195,106,0)}}
+.daybtn.today{box-shadow:0 0 0 1px var(--accent)}
+.att-banner{margin:0 0 9px;padding:8px 10px;border-radius:9px;border:1px solid #6b5425;background:#1a2418;font-size:12px;color:#ffe3a3}
+.done-toggle{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.print-only{display:none}
+@media(max-width:1100px){.plan-grid,.pack-cols,.field-grid,.day-strip{grid-template-columns:1fr 1fr}.emerg{grid-template-columns:1fr}}
+@media(max-width:768px){.plan-grid,.pack-cols,.field-grid,.day-strip,.wx-grid,.catalog-grid{grid-template-columns:1fr}.toast-wrap{left:12px;right:12px;max-width:none}.maphint{display:none}}
+@media print{
+  .top,.actions,.maptoolbar,.maphint,.switch,.iconbtn,.addbox,.toast-wrap,.maplegend,.hero .lead{display:none!important}
+  .view{display:block!important;break-inside:avoid}
+  .print-only{display:block!important}
+  body{background:white;color:#111;height:auto;overflow:visible}
+  .glass,.card,.sidebar,.mapwrap,.summary,.action-card,.check-item,.day-mini{box-shadow:none;background:white;color:#111;border:1px solid #aaa}
+  .lead,.date,.card p,.hotelopt small,.note,.alert-banner p{color:#444!important}
+  #map{position:relative;height:420px}
+  a{color:#123;text-decoration:none}
+}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="topin">
+    <div class="brand" onclick="setView('planview')">
+      <div class="logo">🏔️</div>
+      <div class="brand-text">
+        <b>Rockies Command Center</b>
+        <small id="brandSub">Sep 25–30, 2026 • 3 adults</small>
+      </div>
+    </div>
+    
+    <nav class="tabs" id="tabs">
+      <button class="on" data-view="planview">Plan</button>
+      <button data-view="mapview">Map</button>
+      <button data-view="overview">Days</button>
+      <button data-view="bookings">Book</button>
+      <button data-view="hotels">Hotels</button>
+      <button data-view="attractions">Do</button>
+      <button data-view="packview">Pack</button>
+      <button data-view="fieldview">Field</button>
+      <button data-view="budget">Budget</button>
+      <button data-view="settings">Data</button>
+      <button data-view="finalize">Print</button>
+    </nav>
+    
+    <div class="top-stats">
+      <div class="stat-pill" title="Trip countdown">
+        <span class="pulse-dot"></span>
+        <b id="navCountdown">24 days to go</b>
+      </div>
+      <div class="stat-pill" title="Selected estimate & per person">
+        <span>💰</span>
+        <b id="navCost">$0</b>
+        <small id="navCostPP">($0/p)</small>
+      </div>
+      <div class="stat-pill" title="Core bookings locked">
+        <span>🔒</span>
+        <b id="navReady">0% locked</b>
+        <div class="mini-bar"><i id="navReadyBar" style="width:0%"></i></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+<section class="view on" id="planview">
+  <div class="plan-hero glass">
+    <div class="hero-main">
+      <div class="ey" id="heroEy">Toronto → Calgary → Banff → Jasper → Calgary → Toronto</div>
+      <h1 id="heroTitle">24 days to go. Book the hard things first.</h1>
+      <div class="lead" id="heroLead">This is your working trip file: lock flights, hotels and the Moraine/Louise shuttle, then shape each day on the map. Everything saves in this browser.</div>
+      <div class="chips" id="heroChips"></div>
+    </div>
+    <div class="metrics">
+      <div class="met"><small>Selected estimate</small><b id="heroTotal">$0</b></div>
+      <div class="met"><small>Per person</small><b id="heroPP">$0</b></div>
+      <div class="met"><small>Core bookings locked</small><b id="heroReady">0%</b><div class="progress"><i id="readyBar"></i></div></div>
+      <div class="met"><small id="heroHoursLabel">Countdown</small><b id="heroHours">—</b></div>
+    </div>
+  </div>
+  <div id="planRoot"></div>
+</section>
+
+<section class="view" id="mapview">
+<div class="workspace">
+  <aside class="sidebar">
+    <div class="sidehead"><div class="row"><div><div class="ey">Day editor</div><b id="sideTitle">Sep 26</b></div><button class="btn small" onclick="fitSelectedDay()">Fit map</button></div><div class="dayswitch" id="daySwitch"></div></div>
+    <div class="sidebody">
+      <div class="dayeditor"><input id="dayLabel" class="input" placeholder="Day label"><input id="dayStart" class="input" placeholder="Start"></div>
+      <textarea id="dayNote" class="textarea" placeholder="Day note"></textarea>
+      <div class="summaryline" id="daySummary"></div>
+      <div class="stoplist" id="stopList"></div>
+      <div class="att-banner hidden" id="attBanner"></div>
+      <div class="addbox"><b>Add a place</b><small>Search the Rockies catalog, geocode a name, or double-click the map. Drag rows to reorder.</small><div class="actions" style="margin-top:8px"><button class="btn small primary" onclick="openAddStopModal()">+ Add stop</button><button class="btn small" onclick="addBlankStop()">Blank pin</button><button class="btn small" onclick="openGoogleRoute()">Google road route</button><button class="btn small" onclick="copyDayText()">Copy day</button></div></div>
+    </div>
+  </aside>
+  <div class="mapwrap">
+    <div class="maptoolbar">
+      <button class="btn small" id="mustFilterBtn" onclick="toggleMustFilter()">⭐ Musts only</button>
+      <button class="btn small" id="poiBtn" onclick="togglePOIs()">Explore all spots</button>
+      <button class="btn small" id="allDaysBtn" onclick="toggleAllDays()">Show all days</button>
+      <button class="btn small" id="fuelBtn" onclick="toggleFuel()">Fuel stops</button>
+      <button class="btn small" onclick="fitSelectedDay()">Fit selected</button>
+      <button class="btn small" onclick="fitWholeTrip()">Fit whole trip</button>
+      <button class="btn small primary" onclick="openTripHealthModal()">Trip health &amp; rules</button>
+      <button class="btn small" onclick="undoLast()" title="Ctrl/Cmd+Z">Undo</button>
+    </div>
+    <div id="map"></div>
+    <div class="maphint">Double-click map = add stop • Drag marker = move • Drag rows = reorder • [ ] previous/next day</div>
+    <div class="maplegend"><span class="legenddot" style="background:#56c6a5"></span>Must do<br><span class="legenddot" style="background:#68b9ff"></span>Nice to do<br><span class="legenddot" style="background:#f0c36a"></span>Cut first<br><span class="legenddot" style="background:#c5a6ff"></span>Hotel / sleep</div>
+  </div>
+</div>
+</section>
+
+<section class="view" id="overview">
+  <div class="overview-layout">
+    <aside class="overview-sidebar glass">
+      <div class="sidehead">
+        <div class="ey">Trip Days</div>
+        <div class="overview-side-sub">Select a day to view stops & details</div>
+      </div>
+      <div class="overview-daylist" id="overviewDayList"></div>
+    </aside>
+    <main class="overview-main">
+      <div class="glass panel">
+        <div class="ph">
+          <div>
+            <div class="ey" id="overviewDateBadge">Sep 26 • Start 07:30</div>
+            <h2 id="overviewTitle" style="font-size:24px;margin:3px 0 5px;">Calgary → Banff → Cochrane</h2>
+            <p id="overviewNote" style="color:var(--muted);font-size:12px;margin:0;"></p>
+          </div>
+          <div class="actions">
+            <button class="btn primary small" onclick="openGoogleRouteForOverview()">Google Maps Route ↗</button>
+            <button class="btn small" onclick="switchDayAndGoToMap(overviewDay)">Edit on Map</button>
+          </div>
+        </div>
+        <div class="chips" id="overviewChips" style="margin-top:10px;"></div>
+      </div>
+      <div class="spot-grid" id="overviewSpotGrid" style="margin-top:12px;"></div>
+    </main>
+  </div>
+</section>
+
+<section class="view" id="bookings"><div class="glass panel"><div class="ph"><div><div class="ey">Booking tracker</div><h2>Lock the trip from top to bottom</h2><p>Status, actual paid amount and confirmation numbers persist in this browser.</p></div><div class="actions"><button class="btn" onclick="resetBookings()">Reset booking progress</button></div></div><div class="bookrow head"><div>#</div><div>Item</div><div>Status</div><div>Estimate</div><div>Actual</div><div>Confirmation</div><div>Open</div></div><div id="bookingRows"></div></div></section>
+
+<section class="view" id="hotels"><div class="glass panel"><div class="ph"><div><div class="ey">1 room • 3 adults</div><h2>Two-queen hotel selector</h2><p>Choose a property per night, change the nightly total, and the trip budget updates immediately.</p></div></div><div class="g2" id="hotelGrid"></div></div></section>
+
+<section class="view" id="attractions"><div class="glass panel"><div class="ph"><div><div class="ey">Cost + time + uniqueness</div><h2>Attraction decision board</h2><p>Paid choices update both the budget and the day-load score.</p></div></div><div class="actions" style="margin-bottom:11px"><button class="btn small" data-filter="all">All</button><button class="btn small" data-filter="paid">Paid</button><button class="btn small" data-filter="free">Free</button><button class="btn small" data-filter="must">Recommended</button><button class="btn small" data-filter="skip">Skip / low priority</button></div><div class="attgrid" id="attGrid"></div></div></section>
+
+<section class="view" id="packview"><div id="packRoot"></div></section>
+<section class="view" id="fieldview"><div id="fieldRoot"></div></section>
+
+<section class="view" id="budget"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Live budget</div><h2>Selected trip cost</h2></div></div><table><thead><tr><th>Category</th><th>Amount</th></tr></thead><tbody id="budgetRows"></tbody></table><div class="row" style="align-items:flex-end;margin-top:16px"><div><div class="ey">Trip total</div><div class="big" id="budgetTotal">$0</div></div><div style="text-align:right"><div class="ey">Per person</div><div class="big" id="budgetPP">$0</div></div></div><div class="note" style="margin-top:12px" id="budgetHint"></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Cost knobs</div><h2>Quick scenario controls</h2></div></div><div class="field"><label>Flight strategy</label><select id="flightChoice" class="select"><option value="mixed">Flair outbound + Air Canada return (~$1,128)</option><option value="ac">All Air Canada base fares (~$1,353)</option></select></div><div class="field" style="margin-top:10px"><label>Rental-car estimate (CAD)</label><input id="rentalCost" class="input" type="number"></div><div class="field" style="margin-top:10px"><label>Fuel + parking buffer</label><input id="fuelCost" class="input" type="number"><small id="fuelHint" style="color:var(--muted);font-size:10px"></small></div><div class="field" style="margin-top:10px"><label>Food (3 adults, 5 days on the ground)</label><input id="foodCost" class="input" type="number"></div><div class="field" style="margin-top:10px"><label>Miscellaneous buffer</label><input id="miscCost" class="input" type="number"></div><div class="note warn" style="margin-top:12px">Canada Strong Pass ended Sep 7. You need a Parks Canada daily Family/Group pass for Sep 26–29 ($24.50/day ≈ $98). Map lines are planning-only — use the road-route button plus 511 Alberta before you drive.</div></div></div></section>
+
+<section class="view" id="settings"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Easy modifications</div><h2>Trip settings</h2><p>These fields change the header and final summary without editing code.</p></div></div><div class="editorGrid"><div class="field"><label>Trip title</label><input id="tripTitleInput" class="input"></div><div class="field"><label>Travellers</label><input id="travellersInput" class="input" type="number" min="1"></div><div class="field"><label>Start date</label><input id="startDateInput" class="input" type="date"></div><div class="field"><label>End date</label><input id="endDateInput" class="input" type="date"></div></div><div class="field" style="margin-top:10px"><label>Global planning note</label><textarea id="globalNoteInput" class="textarea"></textarea></div><div class="editorGrid" style="margin-top:10px"><div class="field"><label>Lunch block (minutes, long days)</label><input id="lunchInput" class="input" type="number" min="0" step="5"></div><div class="field"><label>Buffer between stops (minutes)</label><input id="bufferInput" class="input" type="number" min="0" step="1"></div></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="saveSettings()">Save settings</button><button class="btn" onclick="exportState()">Export JSON</button><label class="btn">Import JSON<input id="importFile" type="file" accept=".json" style="display:none"></label><button class="btn" onclick="undoLast()">Undo last change</button></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Advanced</div><h2>Raw trip JSON</h2><p>For bulk edits. You can modify days/stops directly and apply.</p></div></div><textarea id="rawJson" class="textarea" style="min-height:390px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px"></textarea><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="applyRawJson()">Apply JSON</button><button class="btn" onclick="refreshRawJson()">Reload current</button><button class="btn danger" onclick="resetAll()">Reset all</button></div></div></div></section>
+
+<section class="view" id="finalize"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Final plan</div><h2>Current selected itinerary</h2></div></div><div class="summary" id="finalSummary"></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Take it with you</div><h2>Export / print / reference</h2></div></div><div class="actions"><button class="btn primary" onclick="exportState()">Export JSON</button><button class="btn" onclick="exportICS()">Add days to calendar (.ics)</button><button class="btn" onclick="copyFullPlan()">Copy full plan</button><button class="btn" onclick="window.print()">Print planner</button><a class="btn" target="_blank" href="https://docs.google.com/spreadsheets/d/1RE2LsjzYN-XCNRUZdKULyXvxF3ANyFp8Jc_Un80wq_8/edit">Open Google Sheet</a></div><div class="note" style="margin-top:12px"><b>Hotel rule:</b> final checkout must explicitly show 1 room • 3 adults • 2 Queen Beds. Do not accept “bed type assigned at check-in.”</div><div class="note warn" style="margin-top:9px"><b>Map rule:</b> marker-to-marker lines are for planning only, not turn-by-turn navigation.</div></div></div></section>
+
+<!-- Destination Detail Modal Popup -->
+<div class="modal-backdrop hidden" id="spotModal" onclick="if(event.target===this)closeSpotModal()">
+  <div class="modal-dialog glass">
+    <div class="modal-header">
+      <div>
+        <div class="ey" id="modalDayLabel">Sep 26 • Stop 1 of 7</div>
+        <h2 id="modalTitle" style="margin:2px 0 0;font-size:22px;">Lake Minnewanka</h2>
+        <div id="modalLogistics" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;"></div>
+      </div>
+      <button class="modal-close-btn" onclick="closeSpotModal()" title="Close (Esc)">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-layout" style="margin-bottom:14px;">
+        <div class="detail-copy">
+          <p id="modalDescription" style="color:#c0d1dc;line-height:1.55;font-size:13px;"></p>
+          <div id="modalDwellSection" style="margin:10px 0;">
+            <div class="ey" style="margin-bottom:4px;">Adjust Stay Duration / Trail Depth:</div>
+            <div class="dwell-picker" id="modalDwellControls"></div>
+          </div>
+          <div class="actions" id="modalTopActions" style="margin-top:10px;"></div>
+          <div class="source-line" id="modalPhotoSource" style="margin-top:6px;"></div>
+        </div>
+        <div class="factgrid" id="modalFacts"></div>
+      </div>
+      <div class="photo-grid" id="modalPhotoGrid" style="margin-bottom:14px;"></div>
+      <div class="detail-layout">
+        <div>
+          <div class="review-card" id="modalReviews"></div>
+          <div class="tips" style="margin-top:10px;">
+            <div class="note"><b>What to do</b><div id="modalDo" style="margin-top:4px;font-size:12px;"></div></div>
+            <div class="note warn"><b>If you are behind</b><div id="modalCut" style="margin-top:4px;font-size:12px;"></div></div>
+          </div>
+          <div class="note" style="margin-top:10px;"><b>Parking / access</b><div id="modalParking" style="margin-top:4px;font-size:12px;"></div></div>
+        </div>
+        <div>
+          <div class="mini-map" id="modalMiniMap"></div>
+          <div class="actions" style="margin-top:10px;" id="modalMapActions"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn small" id="modalPrevBtn">← Previous</button>
+      <button class="btn small" onclick="closeSpotModal()">Close</button>
+      <button class="btn small" id="modalNextBtn">Next →</button>
+    </div>
+  </div>
+</div>
+
+<div class="foot">Map © OpenStreetMap contributors • Driving times via OSRM when online • State stays in this browser. Undo with Ctrl/Cmd+Z.</div>
+</div>
+
+<div class="modal-backdrop hidden" id="addStopModal" onclick="if(event.target===this)closeAddStopModal()">
+  <div class="modal-dialog glass" style="max-width:640px">
+    <div class="modal-header">
+      <div><div class="ey">Add to this day</div><h2 style="margin:2px 0 0;font-size:20px;">Place search + catalog</h2></div>
+      <button class="modal-close-btn" onclick="closeAddStopModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Search the map (name or “Peyto Lake”)</label><input id="placeSearch" class="input" placeholder="Type a place, then pick a result" autocomplete="off"></div>
+      <div class="search-results" id="placeResults"></div>
+      <div class="ey" style="margin:14px 0 8px">Rockies catalog — tap to add</div>
+      <div class="catalog-grid" id="catalogGrid"></div>
+      <div class="editorGrid" style="margin-top:14px">
+        <div class="field"><label>Or name a custom pin</label><input id="customStopName" class="input" placeholder="Custom stop"></div>
+        <div class="field"><label>Stay</label><select id="customStay" class="select"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1.5 h</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="date">Pins drop at the map centre unless you pick a catalog/search result.</span>
+      <button class="btn primary small" onclick="addNamedCustomStop()">Add custom pin</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop hidden" id="tripHealthModal" onclick="if(event.target===this)closeTripHealthModal()">
+  <div class="modal-dialog glass" style="max-width:920px">
+    <div class="modal-header">
+      <div>
+        <div class="ey">Trip Health &amp; Rules</div>
+        <h2 style="margin:2px 0 0;font-size:20px;">Day Load &amp; Protection Rules</h2>
+      </div>
+      <button class="modal-close-btn" onclick="closeTripHealthModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin-top:0;margin-bottom:12px;">Calculated from your paid attraction selections and current itinerary load.</p>
+      <div class="cards" id="dayCards"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="date">Click to show on map • Double-click for day overview</span>
+      <button class="btn small" onclick="closeTripHealthModal()">Close</button>
+    </div>
+  </div>
+</div>
+<div class="toast-wrap" id="toasts"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="app.js"></script>
+</body>
+</html>
