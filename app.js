@@ -621,7 +621,7 @@ const GENERIC_INFO = {
   cochrane: {
     title: 'Cochrane Hotel Base (Lodging)', photoQuery: 'Cochrane Alberta Rocky Mountains', time: 'Overnight Base', rating: '9.0/10',
     timingOptions: [{ label: 'Overnight Rest & Breakfast', min: 0 }],
-    parking: 'Free hotel self-parking at Days Inn / Super 8.',
+    parking: 'Free hotel self-parking at Super 8 by Wyndham Cochrane.',
     parkingRating: 'Free & Easy', bestWindow: 'Evening check-in / Morning departure',
     restrooms: 'Hotel room', cell: 'Excellent (5G)', effort: 'Lodging base',
     desc: 'A scenic foothills town west of Calgary. Saves 50–70% on lodging with easy highway connections to Banff (45m) and Calgary Airport (35m).',
@@ -633,7 +633,7 @@ const GENERIC_INFO = {
   hinton: {
     title: 'Hinton Hotel Base (Lodging)', photoQuery: 'Hinton Alberta Rockies', time: 'Overnight Base', rating: '8.8/10',
     timingOptions: [{ label: 'Overnight Rest & Fuel', min: 0 }],
-    parking: 'Free hotel self-parking at Ramada / Best Western / Baymont.',
+    parking: 'Free hotel self-parking at Hinton Lodge.',
     parkingRating: 'Free & Easy', bestWindow: 'Evening check-in / Early 06:30 AM departure',
     restrooms: 'Hotel room', cell: 'Excellent (5G)', effort: 'Lodging base',
     desc: 'The gateway town 65 km east of Jasper along Highway 16. Delivers huge savings on 2-queen rooms with full services (restaurants, supermarkets, gas).',
@@ -680,7 +680,7 @@ const CATALOG = [
 ];
 
 const GAS_STOPS = [
-  { name: 'Cochrane', lat: 51.189, lng: -114.467, note: 'Fill leaving town Sep 26, 27 & 30' },
+  { name: 'Cochrane', lat: 51.189, lng: -114.467, note: 'Fill before the Sep 27 northbound leg; Sep 26 ends here after Banff' },
   { name: 'Banff', lat: 51.1784, lng: -115.5708, note: 'Several stations in town' },
   { name: 'Lake Louise Village', lat: 51.425, lng: -116.177, note: 'Last reasonable fuel before the Parkway' },
   { name: 'Saskatchewan River Crossing', lat: 51.9744, lng: -116.7456, note: 'ONLY fuel on Icefields Parkway. Seasonal, expensive.' },
