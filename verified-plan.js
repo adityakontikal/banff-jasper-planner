@@ -352,7 +352,6 @@
       }
     });
     next.checklists = deepClone(old.checklists || {});
-    next.costs = Object.assign({}, next.costs, old.costs || {});
     Object.keys(next.hotels || {}).forEach(function (date) {
       if (old.hotels && old.hotels[date]) {
         next.hotels[date].price = old.hotels[date].price;
@@ -379,9 +378,9 @@
       if (st) { st.name = 'Maligne Lake Shoreline (Cruise skipped)'; st.stayMin = 60; }
       next.decisions.maligne = 'skip';
     } else if (name === 'pursuit') {
-      if (maligne) maligne.selected = true;
-      if (gondola) gondola.selected = true;
-      if (ice) ice.selected = true;
+      if (maligne) { maligne.selected = true; maligne.cost = 0; }
+      if (gondola) { gondola.selected = true; gondola.cost = 0; }
+      if (ice) { ice.selected = true; ice.cost = 0; }
       if (pass) pass.selected = true;
       const st = next.days.find(function (d) { return d.date === 'Sep 29'; }).stops.find(function (s) { return s.id === 'icefield29'; });
       if (st) st.stayMin = 165;
@@ -408,12 +407,43 @@
     if (!S.decisions) S.decisions = deepClone(VERIFIED_DECISIONS);
     S.decisions[id] = value;
 
+    if (id === 'hotel26') {
+      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
+      const d27 = S.days.find(function (d) { return d.date === 'Sep 27'; });
+      const ret = d26 && d26.stops.find(function (s) { return s.id === 'cochrane26_ret'; });
+      const dep = d27 && d27.stops.find(function (s) { return s.id === 'cochrane27'; });
+      const h = S.hotels && S.hotels['Sep 26'];
+      const mountainIdx = h ? h.options.findIndex(function (o) { return /Mountain-area/.test(o[0]); }) : -1;
+      if (value === 'mountain' && mountainIdx >= 0) {
+        h.choice = mountainIdx;
+        if (ret) { ret.name = 'Canmore / Dead Man\'s Flats Hotel (Return & Sleep)'; ret.lat = 51.089; ret.lng = -115.359; }
+        if (dep) { dep.name = 'Canmore / Dead Man\'s Flats Hotel (Depart 06:00)'; dep.lat = 51.089; dep.lng = -115.359; }
+        d26.sleep = 'Canmore / Dead Man\'s Flats (only because price delta ≤ C$100)';
+        d27.label = 'Canmore/Dead Man\'s Flats → Moraine/Louise → Icefields Parkway → Hinton';
+      } else if (value === 'budget-rule') {
+        if (h && /Mountain-area/.test(h.options[h.choice] && h.options[h.choice][0])) h.choice = 0;
+        if (ret) { ret.name = 'Cochrane Hotel (Return & Sleep)'; ret.lat = 51.189; ret.lng = -114.467; }
+        if (dep) { dep.name = 'Cochrane Hotel (Depart 06:00)'; dep.lat = 51.189; dep.lng = -114.467; }
+        d26.sleep = 'Cochrane (Night 2 of 2)';
+        d27.label = 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton';
+      }
+    }
+    if (id === 'shuttle') {
+      const b = S.bookings.find(function (x) { return x.id === 'shuttle'; });
+      if (b && (value === 'booked' || value === 'backup')) b.status = 'Booked';
+      if (b && value === 'pending' && ['Not started','Waiting window'].includes(b.status)) b.status = 'Waiting window';
+    }
+    if (id === 'lakeLouise') {
+      const st = S.days.find(function (d) { return d.date === 'Sep 27'; }).stops.find(function (x) { return x.id === 'louise'; });
+      // Includes a modeled ~30 min return-shuttle wait in addition to the lake visit.
+      if (st) st.stayMin = value === 'quick' ? 70 : (value === 'agnes' ? 195 : 90);
+    }
     if (id === 'maligne') {
       const a = S.attractions.find(function (x) { return x.id === 'maligneCruise'; });
       const st = S.days.find(function (d) { return d.date === 'Sep 28'; }).stops.find(function (x) { return x.id === 'maligne'; });
-      const on = value === 'book';
-      if (a) a.selected = on;
-      if (st) st.stayMin = on ? 150 : 60;
+      const reserveBudget = value === 'book' || value === 'hold';
+      if (a) a.selected = reserveBudget;
+      if (st) st.stayMin = reserveBudget ? 150 : 60;
     }
     if (id === 'gondola') {
       const a = S.attractions.find(function (x) { return x.id === 'banffGondola'; });
@@ -421,7 +451,10 @@
     }
     if (id === 'icefield') {
       const a = S.attractions.find(function (x) { return x.id === 'icefieldAdventure'; });
-      if (a) a.selected = value === 'pass' || value === 'buy';
+      const st = S.days.find(function (d) { return d.date === 'Sep 29'; }).stops.find(function (x) { return x.id === 'icefield29'; });
+      const on = value === 'pass' || value === 'buy';
+      if (a) a.selected = on;
+      if (st) st.stayMin = on ? 165 : 45;
     }
     if (id === 'sep29bonus') {
       const d = S.days.find(function (x) { return x.date === 'Sep 29'; });
