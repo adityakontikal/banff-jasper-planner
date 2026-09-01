@@ -715,7 +715,6 @@ const PACK_ITEMS = {
 
 const BOOK_TASKS = [
   { id: 'shuttle-alarm', title: 'Set the Moraine/Louise shuttle alarm', due: '2026-09-25T08:00:00-06:00', detail: 'Sep 25 at 8:00 AM Mountain / 10:00 AM Toronto. Remaining Parks Canada seats drop 48 hours before departure. Book from Toronto before you fly. Choose Moraine Lake as first destination so you are guaranteed that lake.', link: 'https://reservation.pc.gc.ca/', bookId: 'shuttle' },
-  { id: 'flights', title: 'Lock both flights', due: '2026-09-10T18:00:00-04:00', detail: 'Return is AC152 (Calgary → Toronto). Outbound is still a strategy choice (Flair vs Air Canada).', link: 'https://www.google.com/travel/flights?hl=en&q=YYZ%20YYC%20Sep%2025%202026', bookId: 'outbound' },
   { id: 'rental', title: 'Book the YYC rental', due: '2026-09-12T18:00:00-04:00', detail: 'Compact/standard SUV. Confirm after-hours pickup for a late landing and 3-adult coverage.', link: 'https://www.ca.kayak.com/Calgary-Airport-Car-Rentals.YYC.cap.ksp', bookId: 'rental' },
   { id: 'hotels', title: 'Book every 2-queen room', due: '2026-09-08T18:00:00-04:00', detail: 'Checkout must show 1 room • 3 adults • 2 Queen Beds. Do not accept “bed type assigned at check-in.” Prefer the same Hinton hotel Sep 27–28.', bookId: 'h26' },
   { id: 'maligne', title: 'Decide Maligne Lake Cruise', due: '2026-09-14T18:00:00-04:00', detail: 'Default paid highlight (~$348, 2.5 h). If yes, book a morning/midday sailing and protect Maligne Road time.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
