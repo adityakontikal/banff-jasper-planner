@@ -96,7 +96,7 @@ The tab also shows booking readiness, unresolved decisions, budget position, and
 
 ## Key schedule corrections in the verified preset
 
-- **Sep 26** starts at 08:30 to protect sleep after the late Calgary arrival.
+- **Sep 26** starts at 10:30 to protect sleep after the booked 12:44 AM Calgary arrival.
 - Johnston Canyon is **120 min** for Lower + Upper Falls rather than the old 90-minute assumption.
 - **Sep 27** starts at 06:00, not 04:30. The plan explicitly models Park & Ride check-in, shuttle/connector waiting and return to the car.
 - Sep 27 protects Moraine + Rockpile, Lake Louise lakeshore, Bow Lake, Peyto and the free Athabasca Glacier stop. Mistaya and Sunwapta are NICE.
