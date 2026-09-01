@@ -133,6 +133,15 @@
     BASE.days = deepClone(VERIFIED_DAYS);
     BASE.decisions = deepClone(VERIFIED_DECISIONS);
 
+    // NICE classification is permanent; enabled only controls whether it participates
+    // in the live route. Never promote a selected NICE stop to MUST.
+    const niceOnByDefault = new Set(['banff', 'jasper', 'jasper29']);
+    BASE.days.forEach(function (day) {
+      day.stops.forEach(function (st) {
+        if (st.priority === 'nice') st.enabled = niceOnByDefault.has(st.id);
+      });
+    });
+
     const maligne = BASE.attractions.find(function (a) { return a.id === 'maligneCruise'; });
     if (maligne) {
       maligne.selected = true;
@@ -381,7 +390,7 @@
       if (ice) { ice.selected = true; ice.cost = 0; }
       if (pass) pass.selected = true;
       const st = next.days.find(function (d) { return d.date === 'Sep 29'; }).stops.find(function (s) { return s.id === 'icefield29'; });
-      if (st) st.stayMin = 165;
+      if (st) { st.priority = 'nice'; st.enabled = true; st.stayMin = 165; }
       next.decisions.icefield = 'pass';
       next.decisions.gondola = 'pass';
       next.decisions.sep29bonus = 'icefield';
@@ -460,30 +469,35 @@
       const ice = d.stops.find(function (x) { return x.id === 'icefield29'; });
       const emerald = d.stops.find(function (x) { return x.id === 'emerald'; });
       const iceAtt = S.attractions.find(function (x) { return x.id === 'icefieldAdventure'; });
+
+      [valley, ice, emerald].forEach(function (st) {
+        if (st) st.priority = 'nice';
+      });
+
       if (value === 'pending') {
-        if (valley) valley.priority = 'nice';
-        if (ice) { ice.priority = 'nice'; ice.stayMin = 45; }
-        if (emerald) emerald.priority = 'nice';
+        if (valley) valley.enabled = false;
+        if (ice) { ice.enabled = false; ice.stayMin = 45; }
+        if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = false;
       } else if (value === 'valley') {
-        if (valley) valley.priority = 'nice';
-        if (ice) ice.priority = 'cut';
-        if (emerald) emerald.priority = 'cut';
+        if (valley) valley.enabled = true;
+        if (ice) ice.enabled = false;
+        if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = false;
       } else if (value === 'icefield') {
-        if (valley) valley.priority = 'cut';
-        if (ice) { ice.priority = 'nice'; ice.stayMin = 165; }
-        if (emerald) emerald.priority = 'cut';
+        if (valley) valley.enabled = false;
+        if (ice) { ice.enabled = true; ice.stayMin = 165; }
+        if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = true;
       } else if (value === 'yoho') {
-        if (valley) valley.priority = 'cut';
-        if (ice) ice.priority = 'cut';
-        if (emerald) emerald.priority = 'nice';
+        if (valley) valley.enabled = false;
+        if (ice) ice.enabled = false;
+        if (emerald) emerald.enabled = true;
         if (iceAtt) iceAtt.selected = false;
       } else if (value === 'core') {
-        if (valley) valley.priority = 'cut';
-        if (ice) ice.priority = 'cut';
-        if (emerald) emerald.priority = 'cut';
+        if (valley) valley.enabled = false;
+        if (ice) ice.enabled = false;
+        if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = false;
       }
     }
@@ -650,9 +664,9 @@
       const clone = deepClone(day);
       const optionIds = new Set();
       clone.stops.forEach(function (st) {
-        if (st.choiceGroup && pendingGroups.includes(st.choiceGroup) && st.priority === 'nice') {
+        if (st.choiceGroup && pendingGroups.includes(st.choiceGroup) && st.priority === 'nice' && st.enabled !== true) {
           optionIds.add(st.id);
-          st.priority = 'cut';
+          st.enabled = false;
         }
       });
       const tl = oldComputeDayTimeline(clone);
