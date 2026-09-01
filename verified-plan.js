@@ -6,20 +6,20 @@
 
   const VERIFIED_DAYS = [
     {
-      date: 'Sep 25', label: 'Toronto → Calgary Arrival → Drive to Cochrane', start: '23:00', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
-      note: 'Budget-first default. Assumes the chosen outbound lands around 22:30 or earlier. Carry-on only + rental pickup: allow about 75 min from gate to car. If landing is later than 23:00, protect sleep and push Sep 26 departure later rather than stealing rest.',
+      date: 'Sep 25', label: 'Toronto → Calgary (arrives Sep 26) → Cochrane', start: '00:44', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
+      note: 'LOCKED FLIGHT: WestJet YYZ 10:25 PM Sep 25 → YYC 12:44 AM Sep 26. Carry-on only; allow about 60 min for rental pickup, then drive to Cochrane. Expected hotel arrival roughly 2:20–2:30 AM.',
       hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
       stops: [
-        { id: 'yyc25', name: 'Calgary International Airport (YYC)', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 75 },
+        { id: 'yyc25', name: 'Calgary International Airport — WestJet arrival 12:44 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 60 },
         { id: 'cochrane25', name: 'Cochrane Hotel (Check-in & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 26', label: 'Cochrane → Banff First-Timer Highlights → Cochrane', start: '08:30', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
-      note: 'Protect sleep after the late flight. Minnewanka + Two Jack + Johnston Upper Falls are the core. Banff town is food/rest only. Bow Falls and Surprise Corner are short nice-to-have stops. Gondola is weather/pass dependent.',
+      date: 'Sep 26', label: 'Cochrane → Banff First-Timer Highlights → Cochrane', start: '10:30', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
+      note: 'Booked flight reaches YYC after midnight, so Sep 26 starts at 10:30 AM to protect roughly 8 hours in the room / 6–7 hours of sleep. Minnewanka + Two Jack + Johnston Upper Falls stay protected.',
       hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
       stops: [
-        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 08:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 10:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
         { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
         { id: 'banff', name: 'Banff Town (Fast Lunch + Short Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 45 },
@@ -82,12 +82,12 @@
     },
     {
       date: 'Sep 30', label: 'Cochrane → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
-      note: 'Do not lock Calgary sightseeing until the return flight is booked. Default is relaxed checkout + cheap lunch + fuel + rental return with a 2-hour terminal buffer.',
+      note: 'LOCKED FLIGHT: WestJet YYC 7:10 PM Sep 30 → YYZ 1:05 AM Oct 1. Target rental return about 4:45 PM. Calgary remains optional before that hard airport deadline.',
       hotel: null,
       stops: [
         { id: 'cochrane30', name: 'Cochrane Hotel (Depart 10:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if flight timing leaves room)', lat: 51.0550, lng: -114.0700, priority: 'cut', stayMin: 90 },
-        { id: 'yyc30', name: 'Calgary International Airport — Rental Return + Terminal', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 120 }
+        { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
     }
   ];
@@ -132,6 +132,7 @@
     BASE.costs.misc = 50;
     BASE.days = deepClone(VERIFIED_DAYS);
     BASE.decisions = deepClone(VERIFIED_DECISIONS);
+    if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(BASE);
 
     // NICE classification is permanent; enabled only controls whether it participates
     // in the live route. Never promote a selected NICE stop to MUST.
@@ -349,6 +350,7 @@
     if (!old) return next;
     const oldBookings = old.bookings || [];
     next.bookings.forEach(function (b) {
+      if (b.locked) return;
       const prev = oldBookings.find(function (x) { return x.id === b.id; });
       if (prev) {
         b.status = prev.status;
@@ -403,6 +405,7 @@
     if (!silent && !confirm('Apply preset: ' + label + '? Booking statuses, actual paid amounts, confirmations and entered hotel prices will be preserved. Itinerary edits and decision answers will reset.')) return;
     let next = configurePreset(deepClone(BASE), name);
     next = preserveProgress(next, S);
+    if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(next);
     S = next;
     localStorage.setItem(PRESET_MARK, name);
     persist();
