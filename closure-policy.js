@@ -241,6 +241,18 @@
       injectBanner(document.getElementById('fieldRoot'));
     };
 
+    const oldRenderMiniMap = renderModalMiniMap;
+    renderModalMiniMap = function (stop) {
+      const rule = closureFor(stop);
+      if (!rule) return oldRenderMiniMap(stop);
+      if (modalMiniMap) { modalMiniMap.remove(); modalMiniMap = null; }
+      const el = document.getElementById('modalMiniMap');
+      if (!el) return;
+      modalMiniMap = L.map(el, { scrollWheelZoom: false }).setView([stop.lat, stop.lng], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap contributors' }).addTo(modalMiniMap);
+      L.marker([stop.lat, stop.lng]).addTo(modalMiniMap).bindPopup('<b>' + escapeHtml(rule.title) + '</b><br><span style="color:#e7c48c">Closed for 2026 — do not route here.</span><br><a href="' + rule.official + '" target="_blank">Parks Canada closure</a>').openPopup();
+    };
+
     const oldOpenSpotModal = openSpotModal;
     openSpotModal = function (date, id) {
       oldOpenSpotModal(date, id);
