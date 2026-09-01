@@ -299,6 +299,10 @@
         .lock-choices{display:flex!important;overflow-x:auto;gap:5px!important}
         .lock-choice{min-width:76%;padding:8px!important}
         .lock-choice.selected{order:-1;min-width:84%}
+        .lock-copy:not(.mobile-show-alts) .lock-choice:not(.selected){display:none!important}
+        .lock-copy.mobile-show-alts .lock-choice{display:block!important;min-width:78%}
+        .mobile-change-choice{margin-top:6px!important;min-height:34px!important;font-size:10px!important}
+
         .lock-choice small{font-size:9px!important}
         .final-lock-item{font-size:10px!important}
 
@@ -323,6 +327,23 @@
     document.head.appendChild(st);
   }
 
+  function enhanceMobileLock() {
+    if (!isMobile()) return;
+    document.querySelectorAll('#lockview .lock-copy').forEach(function (card) {
+      const choices = card.querySelector('.lock-choices');
+      if (!choices || card.querySelector('.mobile-change-choice')) return;
+      const btn = document.createElement('button');
+      btn.className = 'btn mobile-change-choice';
+      btn.type = 'button';
+      btn.textContent = 'Change choice';
+      btn.onclick = function () {
+        card.classList.toggle('mobile-show-alts');
+        btn.textContent = card.classList.contains('mobile-show-alts') ? 'Hide alternatives' : 'Change choice';
+      };
+      choices.insertAdjacentElement('afterend', btn);
+    });
+  }
+
   function updateMobileNav(viewId) {
     document.querySelectorAll('#mobileBottomNav [data-mobile-view]').forEach(b => b.classList.toggle('on', b.dataset.mobileView === viewId));
   }
@@ -332,7 +353,10 @@
     setView = function (id) {
       oldSetView(id);
       if (id === 'mobilequick') renderMobileQuick();
-      if (isMobile()) updateMobileNav(id);
+      if (isMobile()) {
+        updateMobileNav(id);
+        if (id === 'lockview') setTimeout(enhanceMobileLock, 0);
+      }
     };
   }
 
@@ -341,6 +365,7 @@
     renderAll = function () {
       oldRenderAll();
       renderMobileQuick();
+      enhanceMobileLock();
     };
   }
 
@@ -361,6 +386,7 @@
   window.renderMobileQuick = renderMobileQuick;
 
   renderMobileQuick();
+  enhanceMobileLock();
   initialMobileView();
 
   window.addEventListener('resize', function () {
