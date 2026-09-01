@@ -209,7 +209,7 @@
     const st = document.createElement('style');
     st.id = 'mobilePlannerCss';
     st.textContent = `
-      .mobile-bottom-nav,.mobile-more-sheet{display:none}
+      .mobile-bottom-nav,.mobile-more-sheet,.mobile-map-day-nav{display:none}
       #mobilequick{display:none}
       @media(max-width:768px){
         html,body{overscroll-behavior-y:none}
@@ -324,9 +324,7 @@
         #modalTopActions .btn:nth-child(3){grid-column:1/-1}
 
         /* Map day navigation is always available on phones. */
-        .mobile-map-day-nav{display:none}
-        @media(max-width:768px){
-          .mobile-map-day-nav{
+        .mobile-map-day-nav{
             order:0!important;
             position:sticky!important;
             top:0!important;
@@ -397,7 +395,6 @@
             overflow:hidden;
             text-overflow:ellipsis;
           }
-        }
 
         /* Map first; editor only when asked for. */
         #mapview.view.on{overflow:visible!important;height:auto!important}
