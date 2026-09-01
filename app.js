@@ -1176,7 +1176,10 @@ function tripStopCode(dayOrDate, stopOrIndex) {
   return `D${dayIdx + 1}-${stopIdx + 1}`;
 }
 function isStopEnabled(stop) {
-  return !!stop && stop.enabled !== false;
+  if (!stop) return false;
+  if (stop.enabled === false) return false;
+  if (stop.choiceGroup === 'sep29bonus' && (!S.decisions || S.decisions.sep29bonus === 'pending') && stop.enabled !== true) return false;
+  return true;
 }
 function isStopActive(stop) {
   return !!stop && stop.priority !== 'cut' && isStopEnabled(stop);
