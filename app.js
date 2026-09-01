@@ -1191,28 +1191,15 @@ function setOptionalStopEnabled(date, id, enabled) {
   const stop = found.stop;
   stop.enabled = !!enabled;
 
-  // A choice group stays NICE. Turning one on only disables its sibling NICE
-  // alternatives so the route remains efficient and the decision is explicit.
+  // A choice group stays NICE. Turning one on only disables sibling NICE
+  // alternatives so the route remains efficient. This is a planning toggle,
+  // not a final MCQ lock decision.
   if (stop.choiceGroup && enabled) {
     found.day.stops.forEach(function (other) {
       if (other !== stop && other.priority === 'nice' && other.choiceGroup === stop.choiceGroup) {
         other.enabled = false;
       }
     });
-
-    if (stop.choiceGroup === 'sep29bonus') {
-      S.decisions = S.decisions || {};
-      const map = { valley5: 'valley', icefield29: 'icefield', emerald: 'yoho' };
-      if (map[stop.id]) S.decisions.sep29bonus = map[stop.id];
-    }
-  } else if (stop.choiceGroup === 'sep29bonus' && !enabled) {
-    const anyOn = found.day.stops.some(function (x) {
-      return x.priority === 'nice' && x.choiceGroup === 'sep29bonus' && x.enabled === true;
-    });
-    if (!anyOn) {
-      S.decisions = S.decisions || {};
-      S.decisions.sep29bonus = 'pending';
-    }
   }
 
   save();
