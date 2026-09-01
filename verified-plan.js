@@ -24,6 +24,7 @@
         { id: 'banff', name: 'Banff Town (Fast Lunch + Short Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 45 },
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 15 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 10 },
+        { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' },
         { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120 },
         { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
@@ -75,7 +76,8 @@
         { id: 'icefield29', name: 'Columbia Icefield — Second Chance / Adventure Option', lat: 52.2203, lng: -117.2249, priority: 'nice', stayMin: 45, choiceGroup: 'sep29bonus' },
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 10 },
         { id: 'bowlake29', name: 'Bow Lake (Repeat only if Sep 27 weather was poor)', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
-        { id: 'emerald', name: 'Emerald Lake + Natural Bridge (Yoho Option)', lat: 51.4436, lng: -116.5310, priority: 'nice', stayMin: 75, choiceGroup: 'sep29bonus' },
+        { id: 'naturalbridge', name: 'Natural Bridge — Kicking Horse River (Yoho Option)', lat: 51.381632, lng: -116.530455, priority: 'nice', stayMin: 20, choiceGroup: 'sep29bonus' },
+        { id: 'emerald', name: 'Emerald Lake (Yoho Option)', lat: 51.44321, lng: -116.53153, priority: 'nice', stayMin: 60, choiceGroup: 'sep29bonus' },
         { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
@@ -96,7 +98,7 @@
     maligne: 'book',
     pyramid: 'pyramid',
     icefield: 'nice-no-pass',
-    gondola: 'weather',
+    gondola: 'yes',
     sep29bonus: 'pending',
     shuttle: 'pending'
   };
@@ -105,6 +107,88 @@
     const d = day && day.stops ? day : null;
     const st = d && d.stops.find(function (x) { return x.id === id; });
     if (st) st.priority = priority;
+  }
+
+  function applyRoutePlaceIntegrity(state) {
+    if (!state || !state.days) return state;
+
+    const d26 = state.days.find(function (d) { return d.date === 'Sep 26'; });
+    if (d26) {
+      let gondolaStop = d26.stops.find(function (s) { return s.id === 'gondola'; });
+      const gondolaData = {
+        id: 'gondola',
+        name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)',
+        lat: 51.14821,
+        lng: -115.55614,
+        priority: 'must',
+        stayMin: 120,
+        note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.'
+      };
+      if (!gondolaStop) {
+        gondolaStop = gondolaData;
+        const johnstonIndex = d26.stops.findIndex(function (s) { return s.id === 'johnston'; });
+        d26.stops.splice(johnstonIndex >= 0 ? johnstonIndex : Math.max(0, d26.stops.length - 1), 0, gondolaStop);
+      } else {
+        Object.assign(gondolaStop, gondolaData);
+      }
+    }
+
+    const d29 = state.days.find(function (d) { return d.date === 'Sep 29'; });
+    if (d29) {
+      let emerald = d29.stops.find(function (s) { return s.id === 'emerald'; });
+      if (emerald) {
+        Object.assign(emerald, {
+          name: 'Emerald Lake (Yoho Option)',
+          lat: 51.44321,
+          lng: -116.53153,
+          priority: 'nice',
+          stayMin: 60,
+          choiceGroup: 'sep29bonus'
+        });
+      }
+      let bridge = d29.stops.find(function (s) { return s.id === 'naturalbridge'; });
+      if (!bridge) {
+        bridge = {
+          id: 'naturalbridge',
+          name: 'Natural Bridge — Kicking Horse River (Yoho Option)',
+          lat: 51.381632,
+          lng: -116.530455,
+          priority: 'nice',
+          stayMin: 20,
+          choiceGroup: 'sep29bonus'
+        };
+        const emeraldIndex = d29.stops.findIndex(function (s) { return s.id === 'emerald'; });
+        d29.stops.splice(emeraldIndex >= 0 ? emeraldIndex : Math.max(0, d29.stops.length - 1), 0, bridge);
+      } else {
+        Object.assign(bridge, {
+          name: 'Natural Bridge — Kicking Horse River (Yoho Option)',
+          lat: 51.381632,
+          lng: -116.530455,
+          priority: 'nice',
+          stayMin: 20,
+          choiceGroup: 'sep29bonus'
+        });
+      }
+
+      const yohoOn = !!(state.decisions && state.decisions.sep29bonus === 'yoho');
+      if (emerald) emerald.enabled = yohoOn;
+      if (bridge) bridge.enabled = yohoOn;
+    }
+
+    state.decisions = state.decisions || deepClone(VERIFIED_DECISIONS);
+    if (state.activePreset !== 'core') {
+      state.decisions.gondola = state.decisions.gondola === 'pass' ? 'pass' : 'yes';
+      const gondolaAtt = (state.attractions || []).find(function (a) { return a.id === 'banffGondola'; });
+      if (gondolaAtt) {
+        gondolaAtt.selected = true;
+        gondolaAtt.rating = '9/10';
+        gondolaAtt.rec = 'MUST — IF VISIBILITY IS GOOD';
+        gondolaAtt.desc = 'Strong yes in clear weather: Sulphur Mountain summit + boardwalk. Keep budget reserved until the 24–48h weather check.';
+        gondolaAtt.skip = 'Skip only if cloud/fog ruins summit visibility.';
+      }
+    }
+    state.presetVersion = 'verified-2026-09-01-v2';
+    return state;
   }
 
   function patchDaylight() {
@@ -119,7 +203,7 @@
   }
 
   function patchBase() {
-    BASE.presetVersion = 'verified-2026-08-31-v1';
+    BASE.presetVersion = 'verified-2026-09-01-v2';
     BASE.activePreset = 'verified';
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
     BASE.settings.globalNote = 'Verified Aug 31, 2026. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Three drivers; long/night driving is acceptable. Protect 6–7h sleep / ~8–9h in-room time. Must = first-timer core; Nice = consider/choose; Cut = keep in data but sacrifice first.';
@@ -130,6 +214,7 @@
     BASE.costs.misc = 50;
     BASE.days = deepClone(VERIFIED_DAYS);
     BASE.decisions = deepClone(VERIFIED_DECISIONS);
+    applyRoutePlaceIntegrity(BASE);
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(BASE);
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(BASE);
     if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(BASE);
@@ -161,8 +246,11 @@
     }
     const gondola = BASE.attractions.find(function (a) { return a.id === 'banffGondola'; });
     if (gondola) {
-      gondola.selected = false;
-      gondola.rec = 'NICE — CLEAR WEATHER / PASS ONLY';
+      gondola.selected = true;
+      gondola.rating = '9/10';
+      gondola.rec = 'MUST — IF VISIBILITY IS GOOD';
+      gondola.desc = 'Strong yes in clear weather: Sulphur Mountain summit + boardwalk. Keep budget reserved until the 24–48h weather check.';
+      gondola.skip = 'Skip only if cloud/fog ruins summit visibility.';
     }
     if (!BASE.attractions.some(function (a) { return a.id === 'pursuitPass'; })) {
       BASE.attractions.unshift({
@@ -301,13 +389,20 @@
       reviews: 'Verified 2026: Parks Canada lists Wetland Way 1.8 km easy, Emerald Loop 5.4 km moderate, Valley Loop 7.7 km moderate. The ~110 min dwell is our planning estimate.',
       official: 'https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/sud-south'
     },
+    naturalbridge: {
+      time: '15–25 min',
+      desc: 'Separate physical stop on Emerald Lake Road. The Kicking Horse River rushes beneath a natural rock bridge; it is not located at Emerald Lake.',
+      parking: 'Use the dedicated Natural Bridge day-use parking area and marked viewpoints.',
+      cut: 'Keep paired with the Emerald Lake bonus; skip the pair if the southbound day is late.',
+      official: 'https://parks.canada.ca/pn-np/bc/yoho/activ/places'
+    },
     emerald: {
-      time: '60–75 min for Emerald + Natural Bridge pair',
-      desc: 'High-value NICE option late Sep 29 if you have already completed the northbound Parkway musts. It is preferable to repeating Bow Lake in good weather.',
+      time: '45–60 min short visit',
+      desc: 'High-value NICE option late Sep 29. Emerald Lake now has its own map point, separate from Natural Bridge.',
       parking: 'Yoho warns Emerald Lake parking is limited and fills quickly. Try later in the day; if the lot is a mess, do not circle and waste the schedule.',
-      cut: 'If parking is full, weather is poor, or you chose Valley Five Lakes / Icefield Adventure, continue to Cochrane.',
+      cut: 'If parking is full, weather is poor, or you chose Valley Five Lakes / Icefield Adventure, continue toward Calgary.',
       reviews: 'Verified 2026: Parks Canada advises that Emerald Lake parking is limited and to arrive early or later in the day.',
-      official: 'https://parks.canada.ca/pn-np/bc/yoho/activ/~/~/link.aspx?_id=D760206D5E7645308EA1EC10A41A54F5&_z=z'
+      official: 'https://parks.canada.ca/pn-np/bc/yoho/activ/places'
     }
   };
 
@@ -337,7 +432,7 @@
   }
 
   function isVerifiedState(state) {
-    return !!state && state.presetVersion === 'verified-2026-08-31-v1';
+    return !!state && state.presetVersion === 'verified-2026-09-01-v2';
   }
 
   function preserveProgress(next, old) {
@@ -365,7 +460,7 @@
   }
 
   function configurePreset(next, name) {
-    next.presetVersion = 'verified-2026-08-31-v1';
+    next.presetVersion = 'verified-2026-09-01-v2';
     next.activePreset = name;
     next.decisions = deepClone(VERIFIED_DECISIONS);
     const maligne = next.attractions.find(function (a) { return a.id === 'maligneCruise'; });
@@ -375,6 +470,9 @@
     if (name === 'core') {
       if (maligne) maligne.selected = false;
       if (gondola) gondola.selected = false;
+      const coreGondolaStop = next.days.find(function (d) { return d.date === 'Sep 26'; }).stops.find(function (s) { return s.id === 'gondola'; });
+      if (coreGondolaStop) coreGondolaStop.priority = 'cut';
+      next.decisions.gondola = 'no';
       if (ice) ice.selected = false;
       if (pass) pass.selected = false;
       const st = next.days.find(function (d) { return d.date === 'Sep 28'; }).stops.find(function (s) { return s.id === 'maligne'; });
@@ -399,6 +497,14 @@
     if (!silent && !confirm('Apply preset: ' + label + '? Booking statuses, actual paid amounts, confirmations and entered hotel prices will be preserved. Itinerary edits and decision answers will reset.')) return;
     let next = configurePreset(deepClone(BASE), name);
     next = preserveProgress(next, S);
+    applyRoutePlaceIntegrity(next);
+    if (name === 'core') {
+      const coreGondolaStop = next.days.find(function (d) { return d.date === 'Sep 26'; }).stops.find(function (s) { return s.id === 'gondola'; });
+      const coreGondolaAtt = next.attractions.find(function (a) { return a.id === 'banffGondola'; });
+      if (coreGondolaStop) coreGondolaStop.priority = 'cut';
+      if (coreGondolaAtt) coreGondolaAtt.selected = false;
+      next.decisions.gondola = 'no';
+    }
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(next);
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(next);
     if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(next);
@@ -435,7 +541,14 @@
     }
     if (id === 'gondola') {
       const a = S.attractions.find(function (x) { return x.id === 'banffGondola'; });
-      if (a) a.selected = value === 'yes' || value === 'pass';
+      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
+      const st = d26 && d26.stops.find(function (x) { return x.id === 'gondola'; });
+      const on = value !== 'no';
+      if (a) a.selected = on;
+      if (st) {
+        st.priority = on ? 'must' : 'cut';
+        if (on) delete st.enabled;
+      }
     }
     if (id === 'icefield') {
       const a = S.attractions.find(function (x) { return x.id === 'icefieldAdventure'; });
@@ -458,36 +571,42 @@
       const d = S.days.find(function (x) { return x.date === 'Sep 29'; });
       const valley = d.stops.find(function (x) { return x.id === 'valley5'; });
       const ice = d.stops.find(function (x) { return x.id === 'icefield29'; });
+      const bridge = d.stops.find(function (x) { return x.id === 'naturalbridge'; });
       const emerald = d.stops.find(function (x) { return x.id === 'emerald'; });
       const iceAtt = S.attractions.find(function (x) { return x.id === 'icefieldAdventure'; });
 
-      [valley, ice, emerald].forEach(function (st) {
+      [valley, ice, bridge, emerald].forEach(function (st) {
         if (st) st.priority = 'nice';
       });
 
       if (value === 'pending') {
         if (valley) valley.enabled = false;
         if (ice) { ice.enabled = false; ice.stayMin = 45; }
+        if (bridge) bridge.enabled = false;
         if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = false;
       } else if (value === 'valley') {
         if (valley) valley.enabled = true;
         if (ice) ice.enabled = false;
+        if (bridge) bridge.enabled = false;
         if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = false;
       } else if (value === 'icefield') {
         if (valley) valley.enabled = false;
         if (ice) { ice.enabled = true; ice.stayMin = 165; }
+        if (bridge) bridge.enabled = false;
         if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = true;
       } else if (value === 'yoho') {
         if (valley) valley.enabled = false;
         if (ice) ice.enabled = false;
+        if (bridge) bridge.enabled = true;
         if (emerald) emerald.enabled = true;
         if (iceAtt) iceAtt.selected = false;
       } else if (value === 'core') {
         if (valley) valley.enabled = false;
         if (ice) ice.enabled = false;
+        if (bridge) bridge.enabled = false;
         if (emerald) emerald.enabled = false;
         if (iceAtt) iceAtt.selected = false;
       }
@@ -524,13 +643,13 @@
       ]
     },
     {
-      id: 'gondola', when: 'SEP 26 • WEATHER CALL', title: 'Banff Gondola?',
-      detail: 'Keep it NICE. Only spend the time/money if weather is clear or a Pursuit purchase changes the economics.',
+      id: 'gondola', when: 'SEP 26 • WEATHER GATE', title: 'Banff Gondola — strong yes if visibility is good',
+      detail: 'MUST in the working route and budget. Check the summit forecast/webcam 24–48h before; skip only if cloud/fog would erase the view.',
       options: [
-        ['weather', 'Decide 24–48h before from forecast', 'Recommended'],
-        ['yes', 'Buy à la carte if clear', 'Adds ~2h'],
+        ['yes', 'Strong yes — buy if visibility is good', 'Current plan • ~2h'],
+        ['weather', 'Hold budget while waiting for forecast', 'Still stays in route'],
         ['pass', 'Use because Pursuit Pass was bought', 'Bundle case'],
-        ['no', 'Skip', 'Protect free sights']
+        ['no', 'Skip only for poor visibility', 'Weather fallback']
       ]
     },
     {
@@ -762,6 +881,10 @@
   }
 
   const hadSavedState = !!(localStorage.getItem(STORE_V6) || localStorage.getItem(STORE_V5) || localStorage.getItem(STORE_V4) || localStorage.getItem(STORE_V3));
+  if (hadSavedState) {
+    applyRoutePlaceIntegrity(S);
+    persist();
+  }
   if (!hadSavedState) {
     S = configurePreset(deepClone(BASE), 'verified');
     localStorage.setItem(PRESET_MARK, 'verified');
