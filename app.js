@@ -408,9 +408,9 @@ const SPOT_INFO = {
     title: 'Calgary International Airport (YYC Return)', photoQuery: 'Calgary International Airport YYC', time: '60–90 min', rating: '10/10',
     timingOptions: [{ label: 'Fuel, Car Return & Security', min: 60 }],
     parking: 'YYC Rental Car Return Parkade.',
-    parkingRating: 'Clear airport signs', bestWindow: 'Return car by 15:30 on Sep 30 for 18:05 flight AC152',
+    parkingRating: 'Clear airport signs', bestWindow: 'Target rental return around 16:45 on Sep 30 for the booked 19:10 WestJet flight',
     restrooms: 'Full airport terminal facilities', cell: 'Excellent (5G)', effort: 'Airport walk',
-    desc: 'Final departure point. Protect the 18:05 flight AC152 back to Toronto. Return car with full fuel tank by 15:30.',
+    desc: 'Final departure point. Booked WestJet departs YYC at 19:10 and lands YYZ at 01:05 on Oct 1. Target rental return around 16:45.',
     todo: 'Fuel up at Shell/Petro-Canada on Airport Trail before entering return parkade, return keys, and proceed to security.',
     reviews: '"Allow 30 minutes for rental return and bag drop before security." — Travel Tip',
     cut: 'Non-negotiable departure.',
@@ -728,20 +728,20 @@ const BASE = {
   checklists: {},
   days: [
     {
-      date: 'Sep 25', label: 'Toronto → Calgary Arrival → Drive to Cochrane', start: '23:00', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
-      note: 'Late evening landing at YYC (~22:30), collect rental SUV, and drive straight west on Stoney Trail / AB-1A to Cochrane (35 min). Check into Cochrane hotel for a seamless 2-night stay.',
+      date: 'Sep 25', label: 'Toronto → Calgary (arrives Sep 26) → Cochrane', start: '00:44', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
+      note: 'Booked WestJet arrives YYC at 12:44 AM Sep 26. Carry-on only; allow about 60 min for rental pickup, then drive to Cochrane. Expected hotel arrival roughly 2:20–2:30 AM.',
       hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
       stops: [
-        { id: 'yyc25', name: 'Calgary International Airport (YYC)', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 45 },
+        { id: 'yyc25', name: 'Calgary International Airport — WestJet arrival 12:44 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 60 },
         { id: 'cochrane25', name: 'Cochrane Hotel (Check-in & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 26', label: 'Cochrane → Banff Highlights → Cochrane', start: '08:00', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
-      note: 'No packing or checkout needed! Wake up in Cochrane, enjoy hot breakfast, and drive 55 min to Lake Minnewanka. Spend the day exploring Banff town & Johnston Canyon, returning to the same Cochrane room.',
+      date: 'Sep 26', label: 'Cochrane → Banff Highlights → Cochrane', start: '10:30', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
+      note: 'Late-night flight arrival is locked. Depart Cochrane at 10:30 AM to protect roughly 8 hours in the room / 6–7 hours of sleep while preserving the core Banff stops.',
       hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
       stops: [
-        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 08:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 10:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
         { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
         { id: 'banff', name: 'Banff Town (Lunch & Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 60 },
@@ -802,13 +802,13 @@ const BASE = {
       ]
     },
     {
-      date: 'Sep 30', label: 'Cochrane → Calgary City → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
-      note: 'Protect the 18:05 flight AC152. Depart Cochrane, relaxed Calgary lunch along the Bow River, return rental SUV by 15:30.',
+      date: 'Sep 30', label: 'Cochrane → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
+      note: 'Booked WestJet departs YYC at 7:10 PM. Target rental return around 4:45 PM; Toronto arrival is 1:05 AM on Oct 1.',
       hotel: null,
       stops: [
         { id: 'cochrane30', name: 'Cochrane Hotel (Depart 10:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Lunch)', lat: 51.0550, lng: -114.0700, priority: 'nice', stayMin: 90 },
-        { id: 'yyc30', name: 'Calgary International Airport (YYC Return)', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 60 }
+        { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if time)', lat: 51.0550, lng: -114.0700, priority: 'nice', stayMin: 90, enabled: false },
+        { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
     }
   ],
