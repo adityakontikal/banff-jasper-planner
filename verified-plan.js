@@ -671,6 +671,8 @@
       tl.activeCount = day.stops.filter(function (s) {
         return s.priority !== 'cut' && !(s.choiceGroup && pendingGroups.includes(s.choiceGroup));
       }).length;
+      tl.cutCount = day.stops.filter(function (s) { return s.priority === 'cut'; }).length;
+      tl.pendingOptionCount = optionIds.size;
       return tl;
     };
   }
@@ -682,8 +684,9 @@
       const root = document.getElementById('planRoot');
       if (!root) return;
       const active = isVerifiedState(S);
+      const activePresetName = S.activePreset === 'core' ? 'Core scenery preset' : (S.activePreset === 'pursuit' ? 'Pursuit-aware preset' : 'Verified budget-first preset');
       root.insertAdjacentHTML('afterbegin',
-        '<div class="verified-banner ' + (active ? '' : 'warn') + '"><div><b>' + (active ? '✓ Verified budget-first preset active' : 'Verified preset available') + '</b><p>' +
+        '<div class="verified-banner ' + (active ? '' : 'warn') + '"><div><b>' + (active ? '✓ ' + activePresetName + ' active' : 'Verified preset available') + '</b><p>' +
         (active ? 'Based on the verified Aug 31 plan. Your MCQ choices and manual edits remain yours; Reset to verified restores the baseline.' : 'Your saved browser state predates the verified route. Apply the preset to update timings/priorities while preserving bookings and entered prices.') +
         '</p></div><div class="actions"><button class="btn small ' + (active ? '' : 'primary') + '" onclick="applyVerifiedPlannerPreset(\'verified\')">' + (active ? 'Reset to verified' : 'Apply verified preset') + '</button><button class="btn small" onclick="setView(\'lockview\');renderVerifiedLock()">Open Lock flow</button></div></div>');
     };
@@ -710,7 +713,8 @@
     planText = function () {
       const base = oldPlanText();
       const answers = DECISION_FLOW.map(function (q) { return '• ' + q.when + ': ' + answerLabel(q, S.decisions && S.decisions[q.id]); }).join('\n');
-      return base + '\n\nLOCKED / PENDING DECISIONS\n' + answers + '\n\nPRESET\nVerified budget-first Aug 31, 2026. Reset from Data → Presets.';
+      const preset = S.activePreset === 'core' ? 'Core scenery only' : (S.activePreset === 'pursuit' ? 'Pursuit-aware' : 'Verified budget-first');
+      return base + '\n\nLOCKED / PENDING DECISIONS\n' + answers + '\n\nPRESET\n' + preset + ' • verified baseline Aug 31, 2026. Reset from Data → Presets.';
     };
 
     const oldToggleAtt = toggleAtt;
