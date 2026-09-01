@@ -108,3 +108,18 @@ The tab also shows booking readiness, unresolved decisions, budget position, and
 - Calgary sightseeing on Sep 30 is **CUT** until the return flight is actually booked.
 
 See [VERIFICATION.md](VERIFICATION.md) for official 2026 sources, exact published durations/access rules, and which numbers are planner estimates rather than official timings.
+
+
+## Mobile quick mode
+
+Phones now use a simplified planning surface instead of a stacked desktop layout.
+
+- **Quick** is the default phone home: budget, lock progress, next booking/decision, and compact day cards.
+- Bottom navigation keeps **Quick / Days / Map / Lock / More** one tap away.
+- Day cards show only the main MUST stops plus direct **Quick look / Map / Google Maps** actions.
+- The **Lock** screen shows only the selected/recommended answer by default; tap **Change choice** to reveal alternatives.
+- The map opens first on mobile; the stop editor stays collapsed until **Edit stops** is tapped.
+- Place detail modals keep the first photo, arrival/departure, dwell, drive-from-previous, what-to-do, parking/access and Maps links while hiding review/detail clutter.
+- Full Bookings, Hotels, Attractions, Budget, Pack, Field, Data/Presets and Print screens remain available under **More**.
+
+Desktop behavior is unchanged.
