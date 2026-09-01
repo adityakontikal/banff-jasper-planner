@@ -134,6 +134,7 @@
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(BASE);
     if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(BASE);
     if (typeof applyLockedHotelBookings === 'function') applyLockedHotelBookings(BASE);
+    if (typeof applyLockedParkPass === 'function') applyLockedParkPass(BASE);
 
     // NICE classification is permanent; enabled only controls whether it participates
     // in the live route. Never promote a selected NICE stop to MUST.
@@ -402,6 +403,7 @@
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(next);
     if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(next);
     if (typeof applyLockedHotelBookings === 'function') applyLockedHotelBookings(next);
+    if (typeof applyLockedParkPass === 'function') applyLockedParkPass(next);
     S = next;
     localStorage.setItem(PRESET_MARK, name);
     persist();
@@ -587,7 +589,7 @@
       ['Rental with workable late pickup booked', isBooked('rental')],
       ['Toronto airport parking booked', isBooked('yyzParking')],
       ['Hotel plan locked: no-hotel Sep 25 + all 4 booked nights confirmed for 3 adults / 2 Queens', ['h25','h26','h27','h28','h29'].every(isBooked)],
-      ['Parks Canada admission handled', isBooked('park')],
+      ['Parks Canada 3-day Family/Group pass paid • verify printed dates cover late Sep 29', isBooked('park')],
       ['Moraine/Louise transport reservation locked', isBooked('shuttle') || S.decisions.shuttle === 'booked' || S.decisions.shuttle === 'backup'],
       ['Maligne Cruise decision locked', S.decisions.maligne === 'book' || S.decisions.maligne === 'skip'],
       ['Sep 29 bonus choice locked', S.decisions.sep29bonus && S.decisions.sep29bonus !== 'pending']
