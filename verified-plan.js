@@ -63,9 +63,9 @@
       ]
     },
     {
-      date: 'Sep 29', label: 'Hinton → Jasper / Parkway South → Yoho Option → Cochrane', start: '06:30', drive: '~500 km', sleep: 'Cochrane',
-      note: 'Second-chance + choice day. Athabasca Falls is protected here. Valley of Five Lakes, paid Icefield Adventure and Emerald/Natural Bridge are all NICE alternatives — normally choose one major bonus, not all three. Repeated Bow/Icefield viewpoints become cuttable if Sep 27 weather was good.',
-      hotel: { name: 'Days Inn / Super 8 Cochrane (lowest final 2Q/3-adult total)', lat: 51.189, lng: -114.467 },
+      date: 'Sep 29', label: 'Hinton → Jasper / Parkway South → Yoho Option → Calgary Airport Hotel', start: '06:30', drive: '~540 km', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
+      note: 'Second-chance + choice day. The southbound Parkway plan stays intact; after the final scenic/Yoho choice, continue to the booked Holiday Inn Calgary-Airport. This adds some driving tonight but removes the Cochrane→Calgary transfer on flight day.',
+      hotel: { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 },
       stops: [
         { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'jasper29', name: 'Jasper (Southbound Fuel + Snacks)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 25 },
@@ -76,15 +76,15 @@
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 10 },
         { id: 'bowlake29', name: 'Bow Lake (Repeat only if Sep 27 weather was poor)', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
         { id: 'emerald', name: 'Emerald Lake + Natural Bridge (Yoho Option)', lat: 51.4436, lng: -116.5310, priority: 'nice', stayMin: 75, choiceGroup: 'sep29bonus' },
-        { id: 'cochrane29', name: 'Cochrane Hotel (Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 30', label: 'Cochrane → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
-      note: 'LOCKED FLIGHT: WestJet YYC 7:10 PM Sep 30 → YYZ 1:05 AM Oct 1. Target rental return about 4:45 PM. Calgary remains optional before that hard airport deadline.',
+      date: 'Sep 30', label: 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~30 km', sleep: 'Home',
+      note: 'Wake up already in Calgary at the booked Holiday Inn Calgary-Airport. Calgary sightseeing remains optional. Keep the 4:45 PM Ascent rental-return target for the booked 7:10 PM WestJet flight.',
       hotel: null,
       stops: [
-        { id: 'cochrane30', name: 'Cochrane Hotel (Depart 10:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane30', name: 'Holiday Inn Calgary-Airport by IHG (Depart 10:00)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if flight timing leaves room)', lat: 51.0550, lng: -114.0700, priority: 'cut', stayMin: 90 },
         { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
@@ -92,7 +92,6 @@
   ];
 
   const VERIFIED_DECISIONS = {
-    hotel26: 'budget-rule',
     lakeLouise: 'shoreline',
     maligne: 'book',
     pyramid: 'pyramid',
