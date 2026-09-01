@@ -180,3 +180,16 @@ These are not ordinary CUT stops. If an old JSON import or manual edit contains 
 This does **not** remove the valid Maligne Valley plan: **Medicine Lake and Maligne Lake remain open**, and **Valley of the Five Lakes is open** in 2026.
 
 Official references are recorded in [VERIFICATION.md](VERIFICATION.md).
+
+
+## Scroll contract
+
+Scrolling is centralized in `scroll-policy.js`, which is intentionally loaded **last**.
+
+- **Desktop/laptop:** the application remains viewport-sized. Normal pages use one vertical content scroller; Map and Days keep their purpose-built internal panes.
+- **Phone/tablet:** the **document is the only page scroller**. Active pages are auto-height and never own vertical scroll.
+- The only phone elements allowed to scroll internally are true overlays such as the destination modal and the More sheet.
+- Horizontal day/tab/chip strips remain horizontally scrollable without taking ownership of vertical page scrolling.
+- Map remains a fixed-height interactive surface; its ETA panel and optional editor sit in normal page flow below it.
+
+A small diagnostic is available in the console as `getPlannerScrollState()` if a future CSS change causes another regression.
