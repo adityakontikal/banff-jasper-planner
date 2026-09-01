@@ -64,3 +64,47 @@ Everything saves in `localStorage` in this browser (`bj-map-planner-v4`). Export
 - Roads: [511 Alberta](https://511.alberta.ca)
 - Fees: [Banff park fees](https://parks.canada.ca/pn-np/ab/banff/visit/tarifs-fees)
 - Parkway fuel: Saskatchewan River Crossing is the only mid-route station (seasonal, expensive). Fill at Lake Louise going north and Jasper going south.
+
+
+## Verified budget-first preset
+
+The app now ships with a **Verified budget-first** recovery preset based on the Aug. 31, 2026 planning review for this specific 3-adult trip.
+
+Open **Data → Presets** at any time:
+
+- **Verified budget-first** — the agreed plan: Maligne Cruise protected; Banff Gondola and Icefield Adventure remain optional; MUST / NICE / CUT priorities restored.
+- **Core scenery only** — strips paid attractions while retaining the major natural sights.
+- **Pursuit-aware** — only use if you later decide to buy the Pursuit bundle; it intentionally makes the schedule more attraction-heavy.
+
+Applying a preset preserves booking statuses, actual paid amounts, confirmation numbers, checklist state and entered hotel prices. It resets route edits and decision answers. **Reset all** also returns to the verified budget-first base plan after this version loads.
+
+Existing browser saves are **not silently overwritten**. If your saved itinerary predates the verified plan, the Plan tab shows an **Apply verified preset** banner.
+
+## Lock tab: timeline decisions, not a graph
+
+The new **Lock** tab turns the remaining choices into time-ordered MCQs:
+
+1. Sep 26 hotel: keep Cochrane unless a mountain-area 2-queen room is within about **C$100 total**.
+2. Sep 27 Moraine/Louise transport: lock the 48-hour shuttle release or a licensed backup.
+3. Lake Louise: lakeshore only; do not add Lake Agnes on the Parkway day.
+4. Maligne Lake Cruise: protected paid highlight.
+5. Banff Gondola: weather / Pursuit decision.
+6. Icefield Adventure: NICE, mostly skipped without the pass.
+7. Sep 29: choose **one** large optional bonus — Valley of Five Lakes, paid Icefield Adventure, or Emerald Lake / Natural Bridge — after weather, fatigue and Sep 27 completion are known.
+
+The tab also shows booking readiness, unresolved decisions, budget position, and a final-lock checklist.
+
+## Key schedule corrections in the verified preset
+
+- **Sep 26** starts at 08:30 to protect sleep after the late Calgary arrival.
+- Johnston Canyon is **120 min** for Lower + Upper Falls rather than the old 90-minute assumption.
+- **Sep 27** starts at 06:00, not 04:30. The plan explicitly models Park & Ride check-in, shuttle/connector waiting and return to the car.
+- Sep 27 protects Moraine + Rockpile, Lake Louise lakeshore, Bow Lake, Peyto and the free Athabasca Glacier stop. Mistaya and Sunwapta are NICE.
+- Athabasca Falls is moved to **Sep 29 MUST**, reducing the fiction that every Parkway highlight fits after the lake-shuttle morning.
+- Maligne Cruise gets a **150-minute protected block** (cruise + early arrival / operational buffer).
+- Valley of Five Lakes is **NICE** with ~110 minutes planned for the 5.4 km Emerald Loop.
+- Paid Icefield Adventure is **NICE**, unselected by default, and plans **165 minutes** when chosen.
+- Emerald Lake / Natural Bridge is promoted to **NICE** and competes with the other Sep 29 bonus options instead of being automatically crammed in.
+- Calgary sightseeing on Sep 30 is **CUT** until the return flight is actually booked.
+
+See [VERIFICATION.md](VERIFICATION.md) for official 2026 sources, exact published durations/access rules, and which numbers are planner estimates rather than official timings.

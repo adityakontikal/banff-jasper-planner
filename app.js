@@ -753,11 +753,11 @@ const BASE = {
       ]
     },
     {
-      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields → Hinton', start: '04:30', drive: '~500 km', sleep: 'Hinton',
+      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton',
       note: 'Hardest & most scenic day. Cochrane start, Moraine + Louise morning shuttles, full Icefields Parkway northbound, ending at Hinton hotel.',
       hotel: { name: 'Ramada by Wyndham Hinton', lat: 53.399, lng: -117.586 },
       stops: [
-        { id: 'cochrane27', name: 'Cochrane Hotel (Depart 04:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane27', name: 'Cochrane Hotel (Depart 06:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'parkride', name: 'Lake Louise Park & Ride (Shuttle Hub)', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
         { id: 'moraine', name: 'Moraine Lake & Rockpile', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 75 },
         { id: 'louise', name: 'Lake Louise Lakeshore', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 60 },
@@ -2191,7 +2191,7 @@ function renderPlan() {
   const today = todayLabel();
   let banner = '';
   if (!shuttleBooked && shuttleMs > 0) {
-    banner = `<div class="alert-banner urgent"><div class="alert-ico">🚨</div><div><h3>Shuttle seats drop Sep 25 at 8:00 AM Mountain</h3><p>That is <b class="countdown">${fmtCountdown(shuttleMs)}</b> from now — 10:00 AM in Toronto, before you fly. Remaining Parks Canada seats for Sep 27 release 48 hours ahead. Book Moraine Lake as the first destination. Screenshot the ticket; there is no cell at the Park &amp; Ride.</p><div class="actions" style="margin-top:8px"><a class="btn primary small" href="https://reservation.pc.gc.ca/" target="_blank">Open Parks Canada reservations</a><a class="btn small" href="https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise" target="_blank">How the shuttle works</a></div></div></div>`;
+    banner = `<div class="alert-banner urgent"><div class="alert-ico">🚨</div><div><h3>Shuttle seats drop Sep 25 at 8:00 AM Mountain</h3><p>That is <b class="countdown">${fmtCountdown(shuttleMs)}</b> from now — 10:00 AM in Toronto, before you fly. Remaining Parks Canada seats for Sep 27 release 48 hours ahead. Book Moraine Lake as the first destination. Screenshot the ticket before the trip; Moraine Lake has no cell or Wi-Fi and Parkway coverage is unreliable.</p><div class="actions" style="margin-top:8px"><a class="btn primary small" href="https://reservation.pc.gc.ca/" target="_blank">Open Parks Canada reservations</a><a class="btn small" href="https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise" target="_blank">How the shuttle works</a></div></div></div>`;
   } else if (shuttleBooked) {
     banner = `<div class="alert-banner ok"><div class="alert-ico">✓</div><div><h3>Shuttle marked booked</h3><p>Still screenshot the confirmation onto every phone and a paper copy. Check-in is at Lake Louise Park &amp; Ride (ski resort), not the lakeshore.</p></div></div>`;
   } else {
@@ -2249,7 +2249,7 @@ function renderPlan() {
           <div class="ph"><div><div class="ey">Rules that save the trip</div><h2>Do not negotiate these</h2></div></div>
           <div class="note"><b>Hotels:</b> 1 room • 3 adults • 2 Queen Beds on the checkout screen. Walk away from “assigned at check-in.”</div>
           <div class="note" style="margin-top:8px"><b>Moraine Lake:</b> no private cars. Shuttle from Lake Louise Park &amp; Ride. One reservation covers both lakes + the connector.</div>
-          <div class="note warn" style="margin-top:8px"><b>Sep 27:</b> 04:30 start, ~500 km, no cell on the Parkway. Cut Mistaya first if you slip. Never cut Louise/Moraine/Peyto/Athabasca.</div>
+          <div class="note warn" style="margin-top:8px"><b>Sep 27:</b> 06:00 start, ~500 km, no cell on the Parkway. Cut Mistaya first if you slip. Never cut Louise/Moraine/Peyto/Athabasca.</div>
         </div>
       </div>
     </div>
@@ -2272,7 +2272,7 @@ function renderPack() {
         <div class="note warn"><b>Icefield temperature shock.</b> Banff town at 12°C can be 0°C and windy at the glacier 90 minutes later. Keep the extra layer in the car, not the suitcase.</div>
         <div class="note"><b>Peyto path ice.</b> The walk to the viewpoint is short and often slick in late September. Waterproof shoes beat running shoes.</div>
         <div class="note"><b>No cell, still need tickets.</b> Screenshot shuttle, hotels, rental and park pass. Paper backup in the glovebox.</div>
-        <div class="note"><b>Food on Sep 27.</b> Eat a real breakfast in Cochrane at 4 a.m. energy, then live on car food until Hinton. Do not count on the Crossing being fast.</div>
+        <div class="note"><b>Food on Sep 27.</b> Grab a quick breakfast or car food before the 06:00 departure, then rely on packed snacks until Hinton. Do not count on Saskatchewan Crossing being fast.</div>
       </div>
     </div>`;
 }
