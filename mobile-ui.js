@@ -322,6 +322,101 @@
         .preset-cards{grid-template-columns:1fr!important}
         #rawJson{min-height:250px!important}
         .foot{padding-bottom:78px!important}
+
+        /* Scroll ownership: the document scrolls on phones, never an individual page. */
+        html{
+          height:auto!important;
+          min-height:100%!important;
+          overflow-x:hidden!important;
+          overflow-y:auto!important;
+        }
+        body{
+          position:static!important;
+          height:auto!important;
+          min-height:100dvh!important;
+          max-height:none!important;
+          overflow-x:hidden!important;
+          overflow-y:auto!important;
+          -webkit-overflow-scrolling:touch;
+        }
+        .app{
+          display:block!important;
+          height:auto!important;
+          min-height:calc(100dvh - 48px)!important;
+          max-height:none!important;
+          overflow:visible!important;
+        }
+        .view,
+        .view.on,
+        #overview.view.on,
+        #mapview.view.on,
+        #planview.view.on,
+        #bookings.view.on,
+        #hotels.view.on,
+        #attractions.view.on,
+        #packview.view.on,
+        #fieldview.view.on,
+        #budget.view.on,
+        #settings.view.on,
+        #finalize.view.on,
+        #lockview.view.on,
+        #mobilequick.view.on{
+          height:auto!important;
+          min-height:0!important;
+          max-height:none!important;
+          overflow:visible!important;
+        }
+        .view:not(.on){display:none!important}
+        #mobilequick.view.on,
+        #overview.view.on,
+        #mapview.view.on,
+        #planview.view.on,
+        #bookings.view.on,
+        #hotels.view.on,
+        #attractions.view.on,
+        #packview.view.on,
+        #fieldview.view.on,
+        #budget.view.on,
+        #settings.view.on,
+        #finalize.view.on,
+        #lockview.view.on{display:block!important}
+
+        .overview-layout,.overview-main,.overview-sidebar,
+        .lock-grid,.lock-timeline,.cards,.attgrid,.editorGrid{
+          height:auto!important;
+          max-height:none!important;
+        }
+        .overview-main,.overview-daylist,.sidebody{
+          overflow:visible!important;
+          max-height:none!important;
+        }
+        .overview-daylist{
+          overflow-x:auto!important;
+          overflow-y:hidden!important;
+          -webkit-overflow-scrolling:touch;
+        }
+
+        /* Keep only true overlays internally scrollable. */
+        .modal-dialog{
+          height:auto!important;
+          max-height:94dvh!important;
+          overflow:hidden!important;
+        }
+        .modal-body{
+          overflow-y:auto!important;
+          overscroll-behavior:contain;
+          -webkit-overflow-scrolling:touch;
+        }
+        .mobile-more-panel{
+          max-height:82dvh;
+          overflow-y:auto;
+          -webkit-overflow-scrolling:touch;
+        }
+
+        /* Inputs/editors must not create invisible full-height scroll traps. */
+        textarea,.textarea,#rawJson{
+          touch-action:auto;
+        }
       }
     `;
     document.head.appendChild(st);
@@ -356,6 +451,9 @@
       if (isMobile()) {
         updateMobileNav(id);
         if (id === 'lockview') setTimeout(enhanceMobileLock, 0);
+        requestAnimationFrame(function () {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        });
       }
     };
   }
