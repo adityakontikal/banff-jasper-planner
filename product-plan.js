@@ -8,17 +8,6 @@
 
   const DECISIONS = [
     {
-      id: 'hotel26',
-      when: 'Before hotels are booked',
-      title: 'Sep 26 hotel',
-      detail: 'Stay in Cochrane unless a Canmore / Dead Man’s Flats 2-Queen room is within about C$100 total.',
-      options: [
-        ['budget-rule', 'Use the C$100 rule'],
-        ['mountain', 'Use mountain-area hotel'],
-        ['pending', 'Still comparing']
-      ]
-    },
-    {
       id: 'shuttle',
       when: 'Sep 25 • 8:00 AM MT',
       title: 'Moraine + Lake Louise shuttle',
@@ -94,8 +83,8 @@
     { id: 'flights-out', label: 'Outbound flight', ids: ['outbound'] },
     { id: 'flights-back', label: 'Return flight', ids: ['return'] },
     { id: 'rental', label: 'Rental car', ids: ['rental'] },
-    { id: 'cochrane2', label: 'Cochrane • Sep 25–26', ids: ['h25','h26'] },
-    { id: 'hinton2', label: 'Hinton • Sep 27–28', ids: ['h27','h28'] },
+    { id: 'cochrane26', label: 'Cochrane • Sep 26', ids: ['h26'] },
+    { id: 'hinton2', label: 'Hinton Lodge • Sep 27–28', ids: ['h27','h28'] },
     { id: 'cochrane29', label: 'Cochrane • Sep 29', ids: ['h29'] },
     { id: 'park', label: 'Parks Canada admission', ids: ['park'] },
     { id: 'shuttle', label: 'Moraine / Lake Louise shuttle', ids: ['shuttle'] }
@@ -253,12 +242,17 @@
       const state = done ? 'Done' : (b ? b.status : 'Not started');
       const lockedFlight = b && b.locked && b.bookingGroup === 'westjet-flights';
       const lockedRental = b && b.locked && b.bookingGroup === 'ascent-rental';
-      const lockedBooking = lockedFlight || lockedRental;
+      const lockedHotel = b && b.locked && /^hotel-/.test(b.bookingGroup || '');
+      const lockedBooking = lockedFlight || lockedRental || lockedHotel;
       const sub = lockedFlight
         ? ('Paid • ' + b.item.replace(/^WestJet\s*•\s*/, ''))
         : lockedRental
           ? ('Booked • ' + b.item.replace(/^Ascent Car Rental\s*•\s*/, '') + ' • C$371.30 due at pickup')
-          : state;
+          : lockedHotel && b.id === 'h26'
+            ? 'Paid • Super 8 by Wyndham Cochrane • C$301.28'
+            : lockedHotel && b.id === 'h27'
+              ? 'Booked • 2 nights • C$429.07 due at property'
+              : state;
       const href = b && b.link ? b.link : '#';
       return '<div class="pp-check-row ' + (done ? 'done' : '') + '">' +
         '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' ' + (lockedBooking ? 'disabled' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(sub) + '</small></span></label>' +
