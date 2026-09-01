@@ -176,9 +176,9 @@
     }
 
     state.decisions = state.decisions || deepClone(VERIFIED_DECISIONS);
+    const gondolaAtt = (state.attractions || []).find(function (a) { return a.id === 'banffGondola'; });
     if (state.activePreset !== 'core') {
       state.decisions.gondola = state.decisions.gondola === 'pass' ? 'pass' : 'yes';
-      const gondolaAtt = (state.attractions || []).find(function (a) { return a.id === 'banffGondola'; });
       if (gondolaAtt) {
         gondolaAtt.selected = true;
         gondolaAtt.rating = '9/10';
@@ -186,6 +186,13 @@
         gondolaAtt.desc = 'Strong yes in clear weather: Sulphur Mountain summit + boardwalk. Keep budget reserved until the 24–48h weather check.';
         gondolaAtt.skip = 'Skip only if cloud/fog ruins summit visibility.';
       }
+    } else {
+      state.decisions.gondola = 'no';
+      if (d26) {
+        const coreGondolaStop = d26.stops.find(function (s) { return s.id === 'gondola'; });
+        if (coreGondolaStop) coreGondolaStop.priority = 'cut';
+      }
+      if (gondolaAtt) gondolaAtt.selected = false;
     }
     state.presetVersion = 'verified-2026-09-01-v2';
     return state;
