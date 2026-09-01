@@ -123,3 +123,25 @@ Phones now use a simplified planning surface instead of a stacked desktop layout
 - Full Bookings, Hotels, Attractions, Budget, Pack, Field, Data/Presets and Print screens remain available under **More**.
 
 Desktop behavior is unchanged.
+
+
+## Adaptive map route clock
+
+The Map screen now includes a live route clock driven by the current itinerary order and live OSRM road legs.
+
+For the selected day it shows:
+
+- exact day start and projected finish
+- road distance and total drive time
+- each leg's drive time and distance
+- arrival time at every active stop
+- editable stop dwell/wait time
+- departure time
+- planner buffer / meal-wait time inserted between stops
+- whether road legs are still using temporary estimates while OSRM loads
+
+The timeline always uses the **current** stop sequence. Reordering or reversing stops, dragging a marker, adding/removing a stop, changing a MUST/NICE/CUT priority, changing the start time, or editing dwell time recalculates all downstream ETAs.
+
+MUST and NICE stops are timed. CUT stops are bypassed. Pending Sep 29 choice-group alternatives remain visible as options but are not inserted into the active ETA chain until chosen.
+
+On desktop the route clock floats over the map and can be collapsed. On mobile it appears directly below the map so the map remains usable.
