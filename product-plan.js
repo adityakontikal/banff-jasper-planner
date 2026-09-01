@@ -243,7 +243,8 @@
       const lockedFlight = b && b.locked && b.bookingGroup === 'westjet-flights';
       const lockedRental = b && b.locked && b.bookingGroup === 'ascent-rental';
       const lockedHotel = b && b.locked && /^hotel-/.test(b.bookingGroup || '');
-      const lockedBooking = lockedFlight || lockedRental || lockedHotel;
+      const lockedPark = b && b.locked && b.bookingGroup === 'parks-canada-pass';
+      const lockedBooking = lockedFlight || lockedRental || lockedHotel || lockedPark;
       const sub = lockedFlight
         ? ('Paid • ' + b.item.replace(/^WestJet\s*•\s*/, ''))
         : lockedRental
@@ -254,7 +255,9 @@
               ? 'Booked • Hinton Lodge • 2 nights • C$429.07 due at property'
               : lockedHotel && b.id === 'h29'
                 ? 'Paid • Holiday Inn Calgary-Airport • C$171.42'
-                : state;
+                : lockedPark
+                  ? 'Paid • 3-day Family/Group pass • C$73.50 • print/display receipt; verify late Sep 29 coverage'
+                  : state;
       const href = b && b.link ? b.link : '#';
       return '<div class="pp-check-row ' + (done ? 'done' : '') + '">' +
         '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' ' + (lockedBooking ? 'disabled' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(sub) + '</small></span></label>' +
