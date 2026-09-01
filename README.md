@@ -19,8 +19,8 @@ You can also open `index.html` directly, but a local server is more reliable for
 
 1. Open **Plan**. The red banner is the Moraine / Lake Louise shuttle.
 2. **Set an alarm for Sep 25, 8:00 AM Mountain (10:00 AM Toronto).** Remaining Parks Canada seats drop 48 hours before departure. Book **Moraine Lake as first destination**. Screenshot the ticket — there is no cell at the Park & Ride.
-3. Book hotels with checkout text that says **1 room • 3 adults • 2 Queen Beds**. Same Hinton hotel Sep 27–28 if you can.
-4. Lock flights + YYC rental (late pickup).
+3. **Only Sep 29 hotel remains to book.** Sep 26 Cochrane and Sep 27–28 Hinton are locked.
+4. Flights, YYC rental and YYZ parking are already locked.
 5. Parks Canada Family/Group pass is **$24.50/day** for Sep 26–29 (Canada Strong Pass ended Sep 7). ≈ **$98**, not a Discovery Pass.
 
 ## Tabs
@@ -31,7 +31,7 @@ You can also open `index.html` directly, but a local server is more reliable for
 | **Map** | Reorder stops, drag pins, add catalog/search places, live drive times |
 | **Days** | Photo cards, arrival/departure times, per-stop briefing |
 | **Book** | Status, actuals, confirmation numbers |
-| **Hotels** | 2-queen picker (updates the booking row + hotel name) |
+| **Hotels** | Locked booked stays, no-hotel Sep 25, and the remaining Sep 29 2-queen choice |
 | **Do** | Paid vs free attractions; toggles feed budget and stay times |
 | **Pack** | Clothes / daypack / car checklists |
 | **Field** | Fuel (only one station on the Parkway), no-cell, 511, emergency numbers |
@@ -84,19 +84,19 @@ Existing browser saves are **not silently overwritten**. If your saved itinerary
 
 The new **Lock** tab turns the remaining choices into time-ordered MCQs:
 
-1. Sep 26 hotel: keep Cochrane unless a mountain-area 2-queen room is within about **C$100 total**.
-2. Sep 27 Moraine/Louise transport: lock the 48-hour shuttle release or a licensed backup.
-3. Lake Louise: lakeshore only; do not add Lake Agnes on the Parkway day.
-4. Maligne Lake Cruise: protected paid highlight.
-5. Banff Gondola: weather / Pursuit decision.
-6. Icefield Adventure: NICE, mostly skipped without the pass.
-7. Sep 29: choose **one** large optional bonus — Valley of Five Lakes, paid Icefield Adventure, or Emerald Lake / Natural Bridge — after weather, fatigue and Sep 27 completion are known.
+1. Sep 27 Moraine/Louise transport: lock the 48-hour shuttle release or a licensed backup.
+2. Lake Louise: lakeshore only; do not add Lake Agnes on the Parkway day.
+3. Maligne Lake Cruise: protected paid highlight.
+4. Banff Gondola: weather / Pursuit decision.
+5. Icefield Adventure: NICE, mostly skipped without the pass.
+6. Sep 29: choose **one** large optional bonus — Valley of Five Lakes, paid Icefield Adventure, or Emerald Lake / Natural Bridge — after weather, fatigue and Sep 27 completion are known.
 
 The tab also shows booking readiness, unresolved decisions, budget position, and a final-lock checklist.
 
 ## Key schedule corrections in the verified preset
 
-- **Sep 26** starts at 10:30 to protect sleep after the booked 12:44 AM Calgary arrival.
+- **Sep 25 arrival night has no hotel by choice.** WestJet lands 12:44 AM Sep 26 and the Ascent rental pickup is 1:30 AM.
+- **Sep 26** keeps the same Banff-first route but now starts from YYC at **05:45**, reaching the mountain corridor around sunrise and ending at the booked Cochrane hotel.
 - Johnston Canyon is **120 min** for Lower + Upper Falls rather than the old 90-minute assumption.
 - **Sep 27** starts at 06:00, not 04:30. The plan explicitly models Park & Ride check-in, shuttle/connector waiting and return to the car.
 - Sep 27 protects Moraine + Rockpile, Lake Louise lakeshore, Bow Lake, Peyto and the free Athabasca Glacier stop. Mistaya and Sunwapta are NICE.
@@ -294,3 +294,24 @@ The current plan reserves budget for **one paid cruise only: Maligne Lake Classi
 The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book Classic Cruise** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
 
 Hotels remain the next major unresolved booking category.
+
+
+## Locked hotels — booked Sep. 1, 2026
+
+The hotel plan now reflects the actual confirmations:
+
+- **Sep 25:** no hotel — intentional.
+- **Sep 26 → Sep 27:** **Super 8 by Wyndham Cochrane**, 1 room, 3 adults, 2 Queen Beds. **C$301.28 paid.** Non-refundable. The confirmation notes a **C$100 property deposit**.
+- **Sep 27 → Sep 29:** **Hinton Lodge**, 1 room, 3 adults, Standard Room, 2 Queen Beds, Non Smoking. **C$429.07 due at the property** for both nights. Free cancellation until Sep 26 at 6:00 PM property-local time.
+- **Sep 29:** still unbooked; Cochrane remains the planned final hotel night.
+
+The exact Hotels.com itinerary numbers are intentionally not committed into the application source.
+
+Route impact:
+
+- The trip remains **south → north → south**; the reversed itinerary was not adopted.
+- Sep 26 now starts from YYC / the rental rather than an imaginary Sep 25 Cochrane hotel.
+- Sep 26 ends at Super 8 Cochrane.
+- Sep 27 departs Super 8 Cochrane and ends at Hinton Lodge.
+- Sep 28 starts and ends at Hinton Lodge.
+- Sep 29 departs Hinton Lodge and continues south as before.
