@@ -1,0 +1,21 @@
+template: buildpack-paketo
+build:
+  strategy: buildpack
+  context: .
+runtime:
+  port: 3000
+  env:
+    - name: PORT
+      value: "3000"
+scans:
+  trivy: false
+envs:
+  ist:
+    autoDeploy: true
+    ingress: true
+  prod:
+    autoDeploy: false
+    ingress: true
+promotionPolicy:
+  mustHaveScanRun: false
+  minIstSoakMinutes: 0

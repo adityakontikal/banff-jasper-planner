@@ -1,10 +1,20 @@
 {
   "name": "banff-jasper-planner",
   "version": "2.0.0",
-  "description": "Banff to Jasper trip command center: map, bookings, shuttle window, packing, field guide",
+  "description": "Banff to Jasper trip command center",
+  "main": "server.js",
   "scripts": {
-    "start": "npx serve ."
+    "start": "node server.js"
   },
-  "keywords": ["travel", "leaflet", "itinerary-planner", "banff", "jasper"],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "travel",
+    "leaflet",
+    "itinerary-planner",
+    "banff",
+    "jasper"
+  ],
   "license": "MIT"
 }
