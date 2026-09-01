@@ -344,6 +344,12 @@
     const code = tripStopCode(found.day, found.stop);
     const label = document.getElementById('modalDayLabel');
     if (label) label.textContent = code + ' • ' + found.day.date + ' • stop ' + (found.index + 1) + ' of ' + found.day.stops.length;
+    const prev = found.day.stops[found.index - 1];
+    const next = found.day.stops[found.index + 1];
+    const pb = document.getElementById('modalPrevBtn');
+    const nb = document.getElementById('modalNextBtn');
+    if (pb && prev) pb.textContent = '← ' + tripStopCode(found.day, prev) + ' ' + (getSpotInfo(prev).title || prev.name);
+    if (nb && next) nb.textContent = tripStopCode(found.day, next) + ' ' + (getSpotInfo(next).title || next.name) + ' →';
   }
 
   function decorateRouteClock() {
@@ -443,6 +449,9 @@
       .pp-stop-name{font-size:11px;color:#c7d8e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       .pp-stop-stay{text-align:right;font-size:9px;color:#839caa}
       .pp-cut-line{padding:8px 14px;background:#0a1821;color:#a79470;font-size:9px;border-top:1px solid rgba(255,255,255,.05)}
+      #stopList .stoprow-top{grid-template-columns:16px 46px minmax(0,1fr) 76px 24px 24px 24px!important}
+      #stopList .stop-num-badge{width:auto!important;min-width:42px!important;height:22px!important;border-radius:7px!important;padding:0 5px!important;font-size:9px!important}
+      #stopList .stop-num-badge:hover{transform:none!important}
 
       @media(max-width:768px){
         .product-plan{padding:0 2px 86px}
@@ -464,6 +473,7 @@
         .pp-stop-stay{display:none}
         .pp-stop-name{font-size:10.5px}
         .pp-check-row{min-height:50px}
+        #stopList .stoprow-top{grid-template-columns:16px 44px minmax(0,1fr) 70px 24px 24px 24px!important}
       }
     `;
     document.head.appendChild(st);
@@ -506,6 +516,7 @@
   function restoreView() {
     let requested = location.hash ? location.hash.slice(1) : localStorage.getItem(VIEW_KEY);
     if (requested === 'lockview') requested = 'planview';
+    if (requested === 'mobilequick' && !window.matchMedia('(max-width: 768px)').matches) requested = 'planview';
     const valid = new Set(['planview','mapview','overview','bookings','hotels','attractions','packview','fieldview','budget','settings','finalize','mobilequick']);
     if (!requested || !valid.has(requested) || !document.getElementById(requested)) return;
     setView(requested);
