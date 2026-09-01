@@ -74,7 +74,7 @@
       return '<article class="mobile-day-card">' +
         '<div class="mobile-day-head"><div><small>' + escapeHtml(d.date) + '</small><b>' + escapeHtml(d.label) + '</b></div><span>' + escapeHtml(d.start) + '</span></div>' +
         '<div class="mobile-day-meta">~' + escapeHtml(tl.totalDistKm) + ' km • ~' + escapeHtml(formatDuration(tl.totalDriveMin)) + ' drive • sleep: ' + escapeHtml(d.sleep) + '</div>' +
-        '<div class="mobile-must-list">' + show.map(s => '<span>★ ' + escapeHtml(getSpotInfo(s).title || s.name) + '</span>').join('') + (rest > 0 ? '<span class="muted">+' + rest + ' more must</span>' : '') + '</div>' +
+        '<div class="mobile-must-list">' + show.map(s => '<span><b style="color:#93b7ca;margin-right:5px">' + escapeHtml(tripStopCode(d, s)) + '</b>' + escapeHtml(getSpotInfo(s).title || s.name) + '</span>').join('') + (rest > 0 ? '<span class="muted">+' + rest + ' more must</span>' : '') + '</div>' +
         '<div class="mobile-card-actions"><button class="btn primary" onclick="openDayGuide(\'' + d.date + '\')">Quick look</button><button class="btn" onclick="chooseDay(\'' + d.date + '\')">Map</button>' + (route ? '<a class="btn" href="' + route + '" target="_blank">Google Maps</a>' : '') + '</div>' +
       '</article>';
     }).join('');
