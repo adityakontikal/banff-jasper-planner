@@ -1325,6 +1325,181 @@ function renderMap() {
   renderFuelLayer();
   renderPOILayer();
 
+  if (isAllDays) {
+    S.days.forEach((day, dayIdx) => {
+      const stopsToRender = S.filterMustOnly
+        ? day.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
+        : day.stops;
+
+      stopsToRender.forEach((s, sIdx) => {
+        const inf = getSpotInfo(s);
+        const isCut = s.priority === 'cut';
+        const label = tripStopCode(day, s);
+        const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut), draggable: false }).addTo(markerLayer);
+
+        m.bindTooltip(`<b>${tripStopCode(day, s)} • ${day.date}: ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+
+        m.bindPopup(`
+          <div style="font-family:Inter,sans-serif;min-width:220px;">
+            <div style="font-size:10px;color:#8ba4b6;text-transform:uppercase;font-weight:700;">${tripStopCode(day, s)} • ${day.date}</div>
+            <b style="font-size:14px;color:#fff;display:block;margin:2px 0 4px;">${escapeHtml(s.name)}</b>
+            <span class="rating-pill" style="margin:2px 0;display:inline-block;">⭐ <b>${inf.rating || '8.5/10'}</b></span>
+            <span class="badge ${s.priority}" style="margin-left:4px;">${s.priority.toUpperCase()}</span>
+            <p style="font-size:11px;color:#c0d1dc;margin:6px 0;line-height:1.4;">${escapeHtml(inf.desc || '')}</p>
+            <div style="display:flex;gap:6px;margin-top:8px;">
+              <button class="btn small primary" onclick="chooseDay('${day.date}')">Open Day ${dayIdx + 1} ↗</button>
+              <button class="btn small" onclick="openSpotModal('${day.date}','${s.id}')">Photos ↗</button>
+            </div>
+          </div>
+        `);
+      });
+
+      if (day.hotel) {
+        L.circleMarker([day.hotel.lat, day.hotel.lng], { radius: 8, color: '#07131d', weight: 2, fillColor: COLORS.hotel, fillOpacity: 1 })
+          .addTo(hotelLayer)
+          .bindPopup(`<b>Day ${dayIdx + 1} Base: ${escapeHtml(day.sleep)}</b><br>${escapeHtml(day.hotel.name)}<br><button class="btn small primary" style="margin-top:6px;" onclick="chooseDay('${day.date}')">Switch to Day ${dayIdx + 1}</button>`);
+      }
+    });
+  } else {
+    const tl = computeDayTimeline(d);
+    if (S.showAllDays) {
+      S.days.forEach(day => {
+        if (day.date === d.date) return;
+        const active = day.stops.filter(s => s.priority !== 'cut');
+        for (let i = 0; i < active.length - 1; i++) {
+          const s1 = active[i], s2 = active[i + 1];
+          const leg = getLeg(s1, s2);
+          const poly = L.polyline(leg.coordinates.map(c => [c[1], c[0]]), { color: dayColor(day.date), weight: 3, opacity: 0.45, dashArray: '5 7' }).addTo(allDayLayer);
+          poly.bindTooltip(`<b>${day.date}: ${day.label}</b><br>${s1.name} → ${s2.name}`, { sticky: true, className: 'route-tooltip' });
+        }
+      });
+    }
+
+    tl.items.forEach((it, i) => {
+      const s = it.stop;
+      const isCut = it.isCut;
+      if (S.filterMustOnly && s.priority !== 'must' && !s.isHotel && !/hotel|airport/i.test(getSpotInfo(s).tag || '')) return;
+      const inf = getSpotInfo(s);
+      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, tripStopCode(d, s), isCut), draggable: true }).addTo(markerLayer);
+      if (isCut) {
+        m.bindTooltip(`<b>${tripStopCode(d, s)}: ${escapeHtml(s.name)}</b><br><span style="color:#f0c36a;">✂️ Bypassed from route (Cut)</span> • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+        m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge cut">CUT (BYPASSED)</span> • ${tripStopCode(d, s)} • ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;color:#f0c36a;">⚠️ <b>This stop is currently bypassed from the driving route and timeline calculations.</b> Change priority to <b>Must</b> or <b>Nice</b> in the left panel to route through it.</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div>`);
+      } else {
+        m.bindTooltip(`<b>${tripStopCode(d, s)}: ${escapeHtml(s.name)}</b><br><span style="color:#56c6a5;">Arr ${it.arrTime.display} • Dep ${it.depTime.display}</span> (${it.stayMin}m stay) • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+        m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge ${s.priority}">${s.priority.toUpperCase()}</span> • ${tripStopCode(d, s)} • ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;">🕒 <b>Arrival:</b> ${it.arrTime.display}<br>🚪 <b>Departure:</b> ${it.depTime.display}<br>⏱️ <b>Est. Stay:</b> ${it.stayMin} min<br>${it.prevLeg ? `🚗 <b>Drive:</b> ${it.prevLeg.distKm} km (~${it.prevLeg.durText}) from ${escapeHtml(it.prevLeg.fromName || 'prev')}<br>` : '🚩 <b>Starting location</b><br>'}${s.note ? `📝 ${escapeHtml(s.note)}` : ''}</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div><small style="color:var(--muted);display:block;margin-top:5px;">Drag marker to fine-tune location.</small>`);
+      }
+      m.on('dragend', ev => {
+        const p = ev.target.getLatLng();
+        s.lat = +p.lat.toFixed(6);
+        s.lng = +p.lng.toFixed(6);
+        save();
+      });
+    });
+    if (d.hotel) {
+      L.circleMarker([d.hotel.lat, d.hotel.lng], { radius: 8, color: '#07131d', weight: 2, fillColor: COLORS.hotel, fillOpacity: 1 }).addTo(hotelLayer).bindPopup(`<b>Sleep: ${escapeHtml(d.sleep)}</b><br>${escapeHtml(d.hotel.name)}`);
+    }
+  }
+
+  const mustBtn = document.getElementById('mustFilterBtn');
+  if (mustBtn) {
+    mustBtn.classList.toggle('primary', !!S.filterMustOnly);
+    mustBtn.textContent = S.filterMustOnly ? '✓ Musts only' : '⭐ Musts only';
+  }
+  const poiBtn = document.getElementById('poiBtn');
+  if (poiBtn) poiBtn.textContent = S.showPOIs ? 'Hide extra spots' : 'Explore all spots';
+  const allBtn = document.getElementById('allDaysBtn');
+  if (allBtn) allBtn.textContent = S.showAllDays ? 'Hide other days' : 'Show all days';
+  const fuelBtn = document.getElementById('fuelBtn');
+  if (fuelBtn) fuelBtn.textContent = S.showFuel ? 'Hide fuel' : 'Fuel stops';
+}
+
+function fitSelectedDay() {
+  if (!map) return;
+  if (S.selectedDay === 'all') { fitWholeTrip(); return; }
+  const pts = getDay().stops.map(s => [s.lat, s.lng]);
+  if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(.14));
+}
+function fitWholeTrip() {
+  if (!map) return;
+  const pts = S.days.flatMap(d => d.stops.map(s => [s.lat, s.lng]));
+  if (pts.length) map.fitBounds(L.latLngBounds(pts).pad(.06));
+}
+function toggleMustFilter() {
+  S.filterMustOnly = !S.filterMustOnly;
+  save();
+  renderAll(false);
+  toast(S.filterMustOnly ? '⭐ Showing Must-Do locations only' : 'Showing all stops');
+}
+function togglePOIs() { S.showPOIs = !S.showPOIs; save(); toast(S.showPOIs ? '📍 Showing all catalog spots on map' : 'Hidden catalog spots'); }
+function toggleAllDays() { S.showAllDays = !S.showAllDays; save(); }
+function toggleFuel() { S.showFuel = !S.showFuel; save(); }
+function openGoogleRoute() {
+  if (S.selectedDay === 'all') {
+    const mustStops = S.days.flatMap(d => d.stops.filter(s => s.priority === 'must'));
+    if (!mustStops.length) return;
+    window.open(googleRouteUrl(mustStops), '_blank');
+    return;
+  }
+  const d = getDay();
+  if (!d.stops.length) return;
+  window.open(googleRouteUrl(d.stops), '_blank');
+}
+
+function setView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === id));
+  if (id === 'mapview' && map) setTimeout(() => { map.invalidateSize(); fitSelectedDay(); }, 80);
+  if (id === 'overview') renderOverview();
+  if (id === 'planview') renderPlan();
+  if (id === 'packview') renderPack();
+  if (id === 'fieldview') renderField();
+  if (id === 'settings') refreshRawJson();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
+
+function chooseDay(date) {
+  S.selectedDay = date;
+  persist();
+  setView('mapview');
+  renderAll(false);
+  if (date === 'all') {
+    setTimeout(fitWholeTrip, 60);
+  } else {
+    setTimeout(fitSelectedDay, 40);
+  }
+}
+function openDayGuide(date) {
+  overviewDay = date;
+  S.selectedDay = date;
+  persist();
+  setView('overview');
+  renderAll(false);
+}
+function nextDay(dir) {
+  const i = S.days.findIndex(d => d.date === S.selectedDay);
+  const n = S.days[(i + dir + S.days.length) % S.days.length];
+  S.selectedDay = n.date;
+  persist();
+  renderAll();
+  if (map) setTimeout(fitSelectedDay, 40);
+}
+
+function insertStop(stop) {
+  const d = getDay();
+  const last = d.stops[d.stops.length - 1];
+  const idx = last && getDefaultStayMin(last) === 0 ? d.stops.length - 1 : d.stops.length;
+  d.stops.splice(idx, 0, stop);
+}
+
+function renderDayEditor() {
+  const isAllDays = S.selectedDay === 'all';
+  const today = todayLabel();
+
+  let daySwitchHtml = `<button class="daybtn ${isAllDays ? 'on' : ''}" onclick="chooseDay('all')" title="Full 6-day trip route">🌍 All Days</button>`;
+  daySwitchHtml += S.days.map(x => `<button class="daybtn ${x.date === S.selectedDay ? 'on' : ''} ${x.date === today ? 'today' : ''}" onclick="chooseDay('${x.date}')" ondblclick="openDayGuide('${x.date}')" title="Click for map • Double-click for day guide">${x.date}</button>`).join('');
+  document.getElementById('daySwitch').innerHTML = daySwitchHtml;
+
   const sidebar = document.querySelector('#mapview .sidebar');
   const sideEy = sidebar && sidebar.querySelector('.sidehead .ey');
   if (sidebar) sidebar.classList.toggle('all-days-mode', isAllDays);
@@ -1374,7 +1549,7 @@ function renderMap() {
             <span class="alltrip-day-code">D${dayIdx + 1}</span>
             <span class="alltrip-day-copy">
               <b>${escapeHtml(d.date)} • ${escapeHtml(d.label)}</b>
-              <small>${escapeHtml(d.start)} → ~${escapeHtml(dTl.finishTime.display)} • ${escapeHtml(dTl.totalDistKm)} km • ${escapeHtml(formatDuration(dTl.totalDriveMin))} drive • ${activeStops.length} active</small>
+              <small>${escapeHtml(d.start)} → ~${escapeHtml(dTl.finishTime.display)} • ${escapeHtml(String(dTl.totalDistKm))} km • ${escapeHtml(formatDuration(dTl.totalDriveMin))} drive • ${activeStops.length} active</small>
             </span>
           </button>
           <button class="alltrip-open" onclick="chooseDay('${d.date}')" title="Open this day">Open</button>
