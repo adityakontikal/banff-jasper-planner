@@ -458,10 +458,20 @@
     }
     if (id === 'icefield') {
       const a = S.attractions.find(function (x) { return x.id === 'icefieldAdventure'; });
-      const st = S.days.find(function (d) { return d.date === 'Sep 29'; }).stops.find(function (x) { return x.id === 'icefield29'; });
+      const d29 = S.days.find(function (d) { return d.date === 'Sep 29'; });
+      const st = d29.stops.find(function (x) { return x.id === 'icefield29'; });
       const on = value === 'pass' || value === 'buy';
       if (a) a.selected = on;
-      if (st) st.stayMin = on ? 165 : 45;
+      if (st) {
+        st.priority = 'nice';
+        st.enabled = on;
+        st.stayMin = on ? 165 : 45;
+      }
+      if (on) {
+        d29.stops.forEach(function (other) {
+          if (other !== st && other.priority === 'nice' && other.choiceGroup === 'sep29bonus') other.enabled = false;
+        });
+      }
     }
     if (id === 'sep29bonus') {
       const d = S.days.find(function (x) { return x.date === 'Sep 29'; });
