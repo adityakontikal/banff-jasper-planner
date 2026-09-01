@@ -2006,7 +2006,7 @@ function renderBudget() {
   const hint = document.getElementById('fuelHint');
   if (hint) hint.textContent = `Route currently ~${tripDriveKm().toFixed(0)} km. Rental is a standard gasoline sedan (Kia K4 or similar); fuel budget remains conservative until the exact vehicle is assigned.`;
   const bh = document.getElementById('budgetHint');
-  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.`;
+  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental base is booked at C$371.30; refundable C$1,000 deposit is not a trip cost. Insurance, extra drivers and possible 2.4% card fee are not included.' : '');
 }
 document.getElementById('flightChoice').onchange = e => { if (S.costs.flightLocked) { e.target.value = 'booked-westjet'; toast('Flights are booked and locked.'); return; } S.costs.flight = e.target.value; save(); };
 document.getElementById('rentalCost').onchange = e => { if (S.costs.rentalLocked) { e.target.value = S.costs.rental; toast('Rental is booked and locked.'); return; } S.costs.rental = Number(e.target.value || 0); save(); };
