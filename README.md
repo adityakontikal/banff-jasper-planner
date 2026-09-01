@@ -238,3 +238,34 @@ Effects on the itinerary:
 - Sep 30 uses **4:45 PM** as the rental-return target and keeps the YYC block through the booked **7:10 PM** flight departure.
 - Reset/preset/import recovery cannot downgrade these flight rows back to undecided; they remain **Paid / Locked**.
 - Rental car and hotels are the next unresolved booking categories.
+
+
+## Locked rental — Ascent Car Rental
+
+Rental is now a committed booking in the planner.
+
+- Supplier: **Ascent Car Rental**
+- Vehicle class: **Standard — Kia K4 or similar**
+- Pickup: **Sep 26, 2026 at 1:30 AM**
+- Pickup location: **YYC Economy Parking Lot, 2000 Airport Rd NE** (outside terminal)
+- Drop-off booking time: **Sep 30, 2026 at 6:00 PM**
+- Planner operational return target: **4:45 PM** for the booked 7:10 PM WestJet departure
+- Rental charge: **C$371.30 due at pickup**
+- Security deposit: **C$1,000**
+- Fuel: **full-to-full**
+- Mileage: **unlimited**
+- Supplier phone: **+1 604 416 4600**
+- Supplier email: **info@ascentcarrental.com**
+
+The exact booking/confirmation code and main-driver name are intentionally **not committed to the GitHub source**. They remain in the user's voucher.
+
+Important follow-ups from the voucher:
+
+- supply driver-licence, payment-card and flight details to Ascent within 48 hours of booking or the booking is not guaranteed
+- pickup must be completed by **2:28 AM Sep 26** unless Ascent agrees to hold the car longer
+- confirm whether personal/credit-card rental insurance satisfies Ascent's requirements; otherwise counter insurance may be required
+- additional drivers are allowed for a fee and all added drivers must be present with documents at pickup
+- confirm the early-return/drop-off procedure at pickup because the booking says 6:00 PM but the trip plan returns at 4:45 PM
+- the voucher notes a possible **2.4% card fee** on accepted credit-card payments
+
+Hotels are now the next major unresolved booking category.
