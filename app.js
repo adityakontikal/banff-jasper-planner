@@ -725,7 +725,7 @@ const BOOK_TASKS = [
 
 const BASE = {
   settings: { title: 'Banff → Jasper Road Trip', travellers: 3, startDate: '2026-09-25', endDate: '2026-09-30', globalNote: 'Protect the major natural sights first; add paid attractions only when time and weather justify them.', lunchMin: 40, bufferMin: 8 },
-  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 371.30, rentalLocked: true, rentalDeposit: 1000, yyzParkingActual: 51.74, yyzParkingLocked: true, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
+  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 403.74, rentalPaid: 32.44, rentalDue: 371.30, rentalLocked: true, rentalDeposit: 1000, yyzParkingActual: 51.74, yyzParkingLocked: true, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
   selectedDay: 'Sep 26', showAllDays: false, showFuel: false,
   checklists: {},
   days: [
@@ -841,7 +841,7 @@ const BASE = {
   bookings: [
     { id: 'outbound', p: 1, item: 'WestJet • YYZ 10:25 PM → YYC 12:44 AM +1 • Fri Sep 25', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 4h 19m • arrives Sat Sep 26', link: 'https://www.westjet.com/' },
     { id: 'return', p: 2, item: 'WestJet • YYC 7:10 PM → YYZ 1:05 AM +1 • Wed Sep 30', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 3h 55m • arrives Thu Oct 1', link: 'https://www.westjet.com/' },
-    { id: 'rental', p: 3, item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM', estimate: 371.30, status: 'Booked', actual: '', confirm: 'Stored in voucher', locked: true, bookingGroup: 'ascent-rental', detail: 'Outside terminal • YYC Economy Parking Lot • unlimited mileage • full-to-full • C$1,000 deposit • pay C$371.30 at pickup', link: 'tel:+16044164600' },
+    { id: 'rental', p: 3, item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM', estimate: 403.74, status: 'Booked', actual: 32.44, confirm: 'Stored in voucher', locked: true, bookingGroup: 'ascent-rental', detail: 'Confirmed total C$403.74 • C$32.44 paid • C$371.30 due at pickup • C$1,000 refundable deposit • unlimited mileage • full-to-full', link: 'tel:+16044164600' },
     { id: 'yyzParking', p: 4, item: 'SpotHero • EZ Airport Parking — Uncovered Self Park • Sep 25 8:00 PM → Oct 1 8:00 PM', estimate: 51.74, status: 'Paid', actual: 51.74, confirm: 'Stored in SpotHero pass', locked: true, bookingGroup: 'spothero-parking', detail: 'YYZ airport parking • enter after Fri Sep 25 8:00 PM • exit before Thu Oct 1 8:00 PM • review facility instructions before entering', link: 'https://spothero.com/' },
     { id: 'h25', p: 4, item: 'Hotel Sep 25–27 (2 Nights) — Days Inn Cochrane', estimate: 350, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
     { id: 'h26', p: 5, item: 'Hotel Sep 26 (Included in 2-night Cochrane booking)', estimate: 0, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
@@ -993,7 +993,9 @@ applyLockedWestJetFlights(S);
 function applyLockedAscentRental(state) {
   if (!state) return;
   state.costs = state.costs || {};
-  state.costs.rental = 371.30;
+  state.costs.rental = 403.74;
+  state.costs.rentalPaid = 32.44;
+  state.costs.rentalDue = 371.30;
   state.costs.rentalLocked = true;
   state.costs.rentalDeposit = 1000;
 
@@ -1005,13 +1007,13 @@ function applyLockedAscentRental(state) {
   }
   Object.assign(b, {
     item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM',
-    estimate: 371.30,
+    estimate: 403.74,
     status: 'Booked',
-    actual: '',
+    actual: 32.44,
     confirm: 'Stored in voucher',
     locked: true,
     bookingGroup: 'ascent-rental',
-    detail: 'Outside terminal • YYC Economy Parking Lot • unlimited mileage • full-to-full • C$1,000 deposit • pay C$371.30 at pickup',
+    detail: 'Confirmed total C$403.74 • C$32.44 paid • C$371.30 due at pickup • C$1,000 refundable deposit • unlimited mileage • full-to-full',
     link: 'tel:+16044164600'
   });
 
@@ -1948,14 +1950,14 @@ function renderBookings() {
     const estimateCell = lockedFlight
       ? (b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>')
       : lockedRental
-        ? '<b>C$371.30 due at pickup</b>'
+        ? '<b>C$403.74 total</b><small style="display:block;color:var(--muted)">C$371.30 due at pickup</small>'
         : lockedParking
           ? '<b>C$51.74 paid</b>'
           : money(bookingEstimate(b));
     const actualCell = lockedFlight
       ? '<span class="date">combined fare</span>'
       : lockedRental
-        ? '<span class="date">not paid yet</span>'
+        ? '<b>C$32.44 paid</b>'
         : lockedParking
           ? '<b>C$51.74</b>'
           : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
@@ -2011,9 +2013,21 @@ document.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => { filt
 function renderAttractions() {
   document.getElementById('attGrid').innerHTML = S.attractions.filter(filterAtt).map(a => `<div class="card att ${a.type === 'free' ? 'free' : ''} ${a.type === 'paid' && a.selected ? 'selected' : ''}"><div class="row"><span class="badge">${a.day}</span><span class="badge">${a.rating}</span></div><h3>${escapeHtml(a.name)}</h3><div class="cost">${a.type === 'free' ? '$0' : money(a.cost)}</div><div class="date">~${a.time}h practical time</div><p>${escapeHtml(a.desc)}</p><p><b>If skipped:</b> ${escapeHtml(a.skip)}</p><div class="rec">${escapeHtml(a.rec)}</div><div class="row" style="margin-top:9px"><a class="btn small" href="${a.link}" target="_blank">Details</a>${a.type === 'paid' ? `<label class="switch"><input type="checkbox" ${a.selected ? 'checked' : ''} onchange="toggleAtt('${a.id}',this.checked)"><span class="slider"></span></label>` : '<span class="badge must">IN PLAN</span>'}</div></div>`).join('');
 }
-function toggleAtt(id, v) {
+const PAID_CRUISE_IDS = ['maligneCruise', 'minnewankaCruise'];
+function setPaidAttractionSelection(id, selected) {
   const a = S.attractions.find(x => x.id === id);
-  if (a) a.selected = v;
+  if (!a) return;
+  if (selected && PAID_CRUISE_IDS.includes(id)) {
+    S.attractions.forEach(other => {
+      if (other.id !== id && PAID_CRUISE_IDS.includes(other.id)) other.selected = false;
+    });
+  }
+  a.selected = !!selected;
+}
+function toggleAtt(id, v) {
+  setPaidAttractionSelection(id, v);
+  if (id === 'maligneCruise' && S.decisions) S.decisions.maligne = v ? 'book' : 'skip';
+  if (id === 'minnewankaCruise' && v && S.decisions) S.decisions.maligne = 'skip';
   if (id === 'maligneCruise') {
     const st = S.days.find(d => d.date === 'Sep 28')?.stops.find(s => s.id === 'maligne');
     if (st) st.stayMin = v ? 150 : 60;
@@ -2030,7 +2044,11 @@ function toggleAtt(id, v) {
 }
 
 function renderBudget() {
-  const rows = [['Flights', flightTotal()], ['Hotels', hotelTotal()], ['Rental car', S.costs.rental], ['Park admission', S.costs.park], ['Moraine/Louise shuttle', S.costs.shuttle], ['Fuel + parking', S.costs.fuel], ['Food', S.costs.food], ['Selected paid attractions', attractionCost()], ['Misc', S.costs.misc]];
+  const selectedPaid = S.attractions.filter(a => a.type === 'paid' && a.selected);
+  const paidRows = selectedPaid.length
+    ? selectedPaid.map(a => ['Paid attraction • ' + a.name, Number(a.cost || 0)])
+    : [['Paid attractions', 0]];
+  const rows = [['Flights', flightTotal()], ['Hotels', hotelTotal()], ['Rental car • confirmed total', S.costs.rental], ['Park admission', S.costs.park], ['Moraine/Louise shuttle', S.costs.shuttle], ['Fuel + parking', S.costs.fuel], ['Food', S.costs.food], ...paidRows, ['Misc', S.costs.misc]];
   document.getElementById('budgetRows').innerHTML = rows.map(x => `<tr><td>${x[0]}</td><td>${money(x[1])}</td></tr>`).join('');
   document.getElementById('budgetTotal').textContent = money(total());
   document.getElementById('budgetPP').textContent = money(total() / Math.max(1, S.settings.travellers));
@@ -2045,7 +2063,7 @@ function renderBudget() {
   const hint = document.getElementById('fuelHint');
   if (hint) hint.textContent = `Route currently ~${tripDriveKm().toFixed(0)} km. Rental is a standard gasoline sedan (Kia K4 or similar); fuel budget remains conservative until the exact vehicle is assigned.`;
   const bh = document.getElementById('budgetHint');
-  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental base is booked at C$371.30; refundable C$1,000 deposit is not a trip cost. Insurance, extra drivers and possible 2.4% card fee are not included.' : '') + (S.costs.yyzParkingLocked ? ' SpotHero YYZ parking is paid at C$51.74 and is already covered inside the Fuel + parking budget rather than added again.' : '');
+  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental confirmed total is C$403.74: C$32.44 already paid and C$371.30 due at pickup. The refundable C$1,000 deposit is not a trip cost; a possible 2.4% credit-card fee is not included.' : '') + (S.costs.yyzParkingLocked ? ' SpotHero YYZ parking is paid at C$51.74 and is already covered inside the Fuel + parking budget rather than added again.' : '');
 }
 document.getElementById('flightChoice').onchange = e => { if (S.costs.flightLocked) { e.target.value = 'booked-westjet'; toast('Flights are booked and locked.'); return; } S.costs.flight = e.target.value; save(); };
 document.getElementById('rentalCost').onchange = e => { if (S.costs.rentalLocked) { e.target.value = S.costs.rental; toast('Rental is booked and locked.'); return; } S.costs.rental = Number(e.target.value || 0); save(); };

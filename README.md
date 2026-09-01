@@ -250,7 +250,9 @@ Rental is now a committed booking in the planner.
 - Pickup location: **YYC Economy Parking Lot, 2000 Airport Rd NE** (outside terminal)
 - Drop-off booking time: **Sep 30, 2026 at 6:00 PM**
 - Planner operational return target: **4:45 PM** for the booked 7:10 PM WestJet departure
-- Rental charge: **C$371.30 due at pickup**
+- Confirmed rental total: **C$403.74**
+- Already paid: **C$32.44**
+- Remaining due at pickup: **C$371.30**
 - Security deposit: **C$1,000**
 - Fuel: **full-to-full**
 - Mileage: **unlimited**
@@ -268,6 +270,8 @@ Important follow-ups from the voucher:
 - confirm the early-return/drop-off procedure at pickup because the booking says 6:00 PM but the trip plan returns at 4:45 PM
 - the voucher notes a possible **2.4% card fee** on accepted credit-card payments
 
+The planner budgets the full **C$403.74** confirmed rental total, but the Book screen separately shows **C$32.44 paid** and **C$371.30 still due**. The C$1,000 deposit remains excluded from trip cost.
+
 ## Locked YYZ airport parking — SpotHero
 
 Toronto airport parking is now a committed paid booking in the planner.
@@ -282,5 +286,11 @@ Toronto airport parking is now a committed paid booking in the planner.
 The planner treats this as **Paid / Locked**, includes the C$51.74 in paid-booking progress, and keeps the existing Fuel + parking budget as the category envelope so the parking charge is not double-counted.
 
 The SpotHero rental/confirmation ID and vehicle plate are intentionally **not committed to the public GitHub source**; those remain in the user's SpotHero pass.
+
+## Paid-cruise budget rule
+
+The current plan reserves budget for **one paid cruise only: Maligne Lake Classic Cruise / Spirit Island**. Lake Minnewanka Cruise remains off by default.
+
+The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book Classic Cruise** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
 
 Hotels remain the next major unresolved booking category.

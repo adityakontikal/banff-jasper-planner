@@ -456,7 +456,8 @@
       const a = S.attractions.find(function (x) { return x.id === 'maligneCruise'; });
       const st = S.days.find(function (d) { return d.date === 'Sep 28'; }).stops.find(function (x) { return x.id === 'maligne'; });
       const reserveBudget = value === 'book' || value === 'hold';
-      if (a) a.selected = reserveBudget;
+      if (typeof setPaidAttractionSelection === 'function') setPaidAttractionSelection('maligneCruise', reserveBudget);
+      else if (a) a.selected = reserveBudget;
       if (st) st.stayMin = reserveBudget ? 150 : 60;
     }
     if (id === 'gondola') {
@@ -814,6 +815,15 @@
   injectUi();
 
   if (!S.decisions) S.decisions = deepClone(VERIFIED_DECISIONS);
+
+  // Older browser saves could have the Maligne decision and attraction flag out
+  // of sync. The decision is authoritative for budget reservation.
+  if (S.decisions && (S.decisions.maligne === 'book' || S.decisions.maligne === 'hold')) {
+    if (typeof setPaidAttractionSelection === 'function') setPaidAttractionSelection('maligneCruise', true);
+  } else if (S.decisions && S.decisions.maligne === 'skip') {
+    if (typeof setPaidAttractionSelection === 'function') setPaidAttractionSelection('maligneCruise', false);
+  }
+
   const hadSavedState = !!(localStorage.getItem(STORE_V6) || localStorage.getItem(STORE_V5) || localStorage.getItem(STORE_V4) || localStorage.getItem(STORE_V3));
   if (!hadSavedState) {
     S = configurePreset(deepClone(BASE), 'verified');
