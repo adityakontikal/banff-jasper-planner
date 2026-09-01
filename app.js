@@ -718,7 +718,6 @@ const BOOK_TASKS = [
   { id: 'rental-info', title: 'Complete Ascent rental file', due: '2026-09-03T18:00:00-04:00', detail: 'Voucher requires driver licence, payment-card and flight-number details within 48 hours or the booking is not guaranteed. Call +1 604 416 4600 or email info@ascentcarrental.com.', link: 'mailto:info@ascentcarrental.com', bookId: 'rental' },
   { id: 'rental-drivers', title: 'Decide additional rental drivers', due: '2026-09-20T18:00:00-04:00', detail: 'Only the booked main driver is guaranteed. Additional drivers cost extra and all added drivers must be present with valid documents at pickup.', link: 'tel:+16044164600', bookId: 'rental' },
   { id: 'yyz-parking-pass', title: 'Save SpotHero pass + review parking instructions', due: '2026-09-24T20:00:00-04:00', detail: 'EZ Airport Parking — Uncovered Self Park is paid. Enter after Sep 25 at 8:00 PM and exit before Oct 1 at 8:00 PM. Review the facility/entry instructions before driving in and keep the pass available offline. Vehicle and plate details stay only in SpotHero.', link: 'https://spothero.com/', bookId: 'yyzParking' },
-  { id: 'hotels', title: 'Book every 2-queen room', due: '2026-09-08T18:00:00-04:00', detail: 'Checkout must show 1 room • 3 adults • 2 Queen Beds. Do not accept “bed type assigned at check-in.” Prefer the same Hinton hotel Sep 27–28.', bookId: 'h26' },
   { id: 'maligne', title: 'Decide Maligne Lake Cruise', due: '2026-09-14T18:00:00-04:00', detail: 'Default paid highlight (~$348, 2.5 h). If yes, book a morning/midday sailing and protect Maligne Road time.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
   { id: 'parkpass', title: 'Buy Parks Canada Family/Group admission', due: '2026-09-26T10:00:00-06:00', detail: 'Daily family/group is $24.50 and covers the vehicle. Four park days ≈ $98. Discovery Pass family ($167.50) is worse value for this trip.', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/tarifs-fees', bookId: 'park' }
 ];
@@ -730,35 +729,34 @@ const BASE = {
   checklists: {},
   days: [
     {
-      date: 'Sep 25', label: 'Toronto → Calgary (arrives Sep 26) → Cochrane', start: '00:44', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
-      note: 'Booked WestJet arrives YYC at 12:44 AM Sep 26. Carry-on only; allow about 60 min for rental pickup, then drive to Cochrane. Expected hotel arrival roughly 2:20–2:30 AM.',
-      hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 25', label: 'Toronto → Calgary → Rental pickup • no hotel', start: '00:44', drive: 'Arrival logistics', sleep: 'No hotel — overnight transition',
+      note: 'WestJet arrives YYC at 12:44 AM Sep 26 and Ascent pickup is 1:30 AM. No Sep 25 hotel by choice; keep the current south→north→south route.',
+      hotel: null,
       stops: [
-        { id: 'yyc25', name: 'Calgary International Airport — WestJet arrival 12:44 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 60 },
-        { id: 'cochrane25', name: 'Cochrane Hotel (Check-in & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'yyc25', name: 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 15, notBefore: '01:30' }
       ]
     },
     {
-      date: 'Sep 26', label: 'Cochrane → Banff Highlights → Cochrane', start: '10:30', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
-      note: 'Late-night flight arrival is locked. Depart Cochrane at 10:30 AM to protect roughly 8 hours in the room / 6–7 hours of sleep while preserving the core Banff stops.',
-      hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 26', label: 'YYC → Banff Highlights → Cochrane', start: '05:45', drive: '~240 km', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      note: 'No arrival-night hotel. Leave the YYC area around 5:45 AM, keep the Banff-first route, and finish at the booked Super 8 Cochrane.',
+      hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
-        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 10:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45 for Banff', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
         { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
         { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
         { id: 'banff', name: 'Banff Town (Lunch & Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 60 },
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 20 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 15 },
         { id: 'johnston', name: 'Johnston Canyon', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 90 },
-        { id: 'cochrane26_ret', name: 'Cochrane Hotel (Return & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton',
-      note: 'Hardest & most scenic day. Cochrane start, Moraine + Louise morning shuttles, full Icefields Parkway northbound, ending at Hinton hotel.',
-      hotel: { name: 'Ramada by Wyndham Hinton', lat: 53.399, lng: -117.586 },
+      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
+      note: 'Hardest & most scenic day. Depart the booked Super 8 Cochrane, do Moraine + Louise and the Icefields Parkway northbound, then check into Hinton Lodge.',
+      hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
-        { id: 'cochrane27', name: 'Cochrane Hotel (Depart 06:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart 06:00)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'parkride', name: 'Lake Louise Park & Ride (Shuttle Hub)', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
         { id: 'moraine', name: 'Moraine Lake & Rockpile', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 75 },
         { id: 'louise', name: 'Lake Louise Lakeshore', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 60 },
@@ -769,30 +767,30 @@ const BASE = {
         { id: 'icefield', name: 'Columbia Icefield (Athabasca Glacier)', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 45 },
         { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'must', stayMin: 35 },
         { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 35 },
-        { id: 'hinton27', name: 'Hinton Hotel (Sleep)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'hinton27', name: 'Hinton Lodge (Booked • Check-in)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton',
-      note: 'Jasper & Maligne core day. Starts from Hinton, explores Pyramid Lake, Jasper town, Medicine Lake, and Maligne Lake Cruise.',
-      hotel: { name: 'Ramada by Wyndham Hinton', lat: 53.399, lng: -117.586 },
+      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
+      note: 'Jasper & Maligne core day. Start and finish at the same booked Hinton Lodge room.',
+      hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
-        { id: 'hinton28a', name: 'Hinton Hotel (Depart 07:00)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'hinton28a', name: 'Hinton Lodge (Depart 07:00)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'pyramid', name: 'Pyramid Lake & Pyramid Island', lat: 52.9210, lng: -118.1040, priority: 'must', stayMin: 40 },
         { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 20 },
         { id: 'jasper', name: 'Jasper Town (Lunch, Fuel & Bakery)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 60 },
         { id: 'medicine', name: 'Medicine Lake Viewpoint', lat: 52.8640, lng: -117.8000, priority: 'must', stayMin: 25 },
         { id: 'maligne', name: 'Maligne Lake & Spirit Island Cruise', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 135 },
         { id: 'annette', name: 'Lake Annette & Lake Edith', lat: 52.8840, lng: -118.0450, priority: 'cut', stayMin: 30 },
-        { id: 'hinton28b', name: 'Hinton Hotel (Sleep)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'hinton28b', name: 'Hinton Lodge (Return & Sleep)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 29', label: 'Hinton → Southbound Parkway → Cochrane', start: '06:30', drive: '~500 km', sleep: 'Cochrane',
-      note: 'Southbound Icefields Parkway run. Valley of the 5 Lakes, Icefield second look, Yoho Emerald Lake detour, ending at Cochrane hotel.',
-      hotel: { name: 'Days Inn Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 29', label: 'Hinton → Southbound Parkway → Calgary Airport Hotel', start: '06:30', drive: '~540 km', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
+      note: 'Southbound Icefields Parkway run. Continue to the booked Holiday Inn Calgary-Airport after the final scenic / Yoho choice.',
+      hotel: { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 },
       stops: [
-        { id: 'hinton29', name: 'Hinton Hotel (Depart 06:30)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'jasper29', name: 'Jasper (Southbound Fuel & Snacks)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 25 },
         { id: 'valley5', name: 'Valley of the Five Lakes', lat: 52.8450, lng: -118.0550, priority: 'nice', stayMin: 80 },
         { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15 },
@@ -800,26 +798,26 @@ const BASE = {
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15 },
         { id: 'bowlake29', name: 'Bow Lake (Southbound viewpoint)', lat: 51.6827, lng: -116.4650, priority: 'nice', stayMin: 20 },
         { id: 'emerald', name: 'Emerald Lake & Natural Bridge (Yoho)', lat: 51.4436, lng: -116.5310, priority: 'cut', stayMin: 75 },
-        { id: 'cochrane29', name: 'Cochrane Hotel (Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 30', label: 'Cochrane → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
-      note: 'Booked WestJet departs YYC at 7:10 PM. Target rental return around 4:45 PM; Toronto arrival is 1:05 AM on Oct 1.',
+      date: 'Sep 30', label: 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~30 km', sleep: 'Home',
+      note: 'Wake up already in Calgary. Keep the 4:45 PM rental-return target for the 7:10 PM WestJet departure.',
       hotel: null,
       stops: [
-        { id: 'cochrane30', name: 'Cochrane Hotel (Depart 10:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane30', name: 'Holiday Inn Calgary-Airport by IHG (Depart 10:00)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if time)', lat: 51.0550, lng: -114.0700, priority: 'nice', stayMin: 90, enabled: false },
         { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
     }
   ],
   hotels: {
-    'Sep 25': { choice: 0, price: 175, options: [['Days Inn & Suites by Wyndham Cochrane', '2 Queen Beds • kitchenette • sleeps 4', 'Night 1 of 2 — 35m drive from YYC on late arrival', 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/'], ['Super 8 by Wyndham Cochrane', '2 Queen Beds • sleeps 4', 'Free parking + hot breakfast', 'https://www.expedia.ca/Calgary-Hotels-Super-8-By-Wyndham-Cochrane.h910789.Hotel-Information'], ['Canalta Cochrane', '2 Queen Beds • sleeps 4', 'Comfort upgrade', 'https://ca.hotels.com/ho202031/ramada-by-wyndham-cochrane-cochrane-canada/']] },
-    'Sep 26': { choice: 0, price: 175, options: [['Days Inn & Suites by Wyndham Cochrane', '2 Queen Beds • kitchenette • sleeps 4', 'Night 2 of 2 — exact same room, no checkout!', 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/'], ['Super 8 by Wyndham Cochrane', '2 Queen Beds • sleeps 4', 'Free parking + hot breakfast', 'https://www.expedia.ca/Calgary-Hotels-Super-8-By-Wyndham-Cochrane.h910789.Hotel-Information'], ['Canalta Cochrane', '2 Queen Beds • sleeps 4', 'Comfort upgrade', 'https://ca.hotels.com/ho202031/ramada-by-wyndham-cochrane-cochrane-canada/']] },
-    'Sep 27': { choice: 0, price: 149, options: [['Baymont by Wyndham Hinton', '2 Queen Beds • sleeps 4', 'Check first for lowest final price', 'https://www.expedia.ca/Hinton-Hotels-White-Wolf-Inn.h84289.Hotel-Information'], ['Ramada by Wyndham Hinton', '2 Queen Beds • sleeps 4', 'Free parking + breakfast • good late arrival', 'https://www.expedia.ca/Hinton-Hotels-Ramada-By-Wyndham-Hinton.h9769746.Hotel-Information'], ['Best Western Plus Hinton Inn & Suites', '2 Queen Beds • sleeps 4', 'Upgrade • late check-in can be limited', 'https://www.expedia.ca/Hinton-Hotels-Best-Western-Plus-Hinton-Inn-Suites.h27550571.Hotel-Information']] },
-    'Sep 28': { choice: 0, price: 151, options: [['Same hotel as Sep 27', 'Keep exact 2 Queen room', 'Preferred — avoids repacking', 'https://www.expedia.ca/Hinton-Hotels-Ramada-By-Wyndham-Hinton.h9769746.Hotel-Information'], ['Baymont by Wyndham Hinton', '2 Queen Beds • sleeps 4', 'Low-cost backup', 'https://www.expedia.ca/Hinton-Hotels-White-Wolf-Inn.h84289.Hotel-Information'], ['Coast Hinton Hotel', '2 Queen Beds • sleeps 4', 'Backup', 'https://www.expedia.ca/Hinton-Hotels-Econo-Lodge-Suites-Hinton.h1153033.Hotel-Information']] },
-    'Sep 29': { choice: 0, price: 180, options: [['Days Inn & Suites by Wyndham Cochrane', '2 Queen Beds • sleeps 4 • kitchenette', 'Free parking + breakfast', 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/'], ['Super 8 by Wyndham Cochrane', '2 Queen Beds • sleeps 4 • kitchenette', 'Free parking + breakfast', 'https://www.expedia.ca/Calgary-Hotels-Super-8-By-Wyndham-Cochrane.h910789.Hotel-Information'], ['Canalta Cochrane', '2 Queen Beds • sleeps 4', 'Comfort upgrade', 'https://ca.hotels.com/ho202031/ramada-by-wyndham-cochrane-cochrane-canada/']] }
+    'Sep 25': { choice: 0, price: 0, locked: true, noHotel: true, priceLabel: 'No hotel', options: [['No hotel — intentional', 'Arrival after midnight • rental pickup 1:30 AM', 'Keep current route; use the pre-dawn window for positioning rather than a hotel night', '']] },
+    'Sep 26': { choice: 0, price: 301.28, locked: true, paid: 301.28, priceLabel: 'Booked total • paid', options: [['Super 8 by Wyndham Cochrane', '1 room • 3 adults • 2 Queen Beds', 'Sep 26 → Sep 27 • non-refundable • C$301.28 paid • C$100 property deposit', 'https://www.wyndhamhotels.com/en-ca/super-8/cochrane-alberta/super-8-hotel-and-suites-cochrane/overview']] },
+    'Sep 27': { choice: 0, price: 429.07, locked: true, groupTotal: true, priceLabel: '2-night booking total • due at property', options: [['Hinton Lodge', '1 room • 3 adults • Standard Room • 2 Queen Beds • Non Smoking', 'Sep 27 → Sep 29 • 2 nights • C$429.07 due at property • free cancellation until Sep 26 6:00 PM local', 'https://hintonlodge.ca/']] },
+    'Sep 28': { choice: 0, price: 0, locked: true, includedWith: 'Sep 27', priceLabel: 'Included in Sep 27–29 booking', options: [['Hinton Lodge — same room', 'Night 2 of the same 2-night booking', 'Already included in the C$429.07 Sep 27–29 reservation', 'https://hintonlodge.ca/']] },
+    'Sep 29': { choice: 0, price: 171.42, locked: true, paid: 171.42, priceLabel: 'Booked total • paid', options: [['Holiday Inn Calgary-Airport by IHG', '1 room • 3 adults • Standard Room • 2 Queen Beds (Low Floor)', 'Sep 29 → Sep 30 • C$171.42 paid • free cancellation until Sep 22 6:00 PM local • C$50 stay deposit + C$50/night breakage deposit', 'https://www.ihg.com/holidayinn/hotels/us/en/calgary/yycat/hoteldetail']] }
   },
   attractions: [
     { id: 'maligneCruise', name: 'Maligne Lake Cruise / Spirit Island', day: 'Sep 28', cost: 348, time: 2.5, type: 'paid', rating: '9/10', rec: 'RECOMMENDED #1', selected: true, desc: 'Most unique paid experience on the route.', skip: 'Maligne Lake shoreline is still free.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
@@ -843,11 +841,11 @@ const BASE = {
     { id: 'return', p: 2, item: 'WestJet • YYC 7:10 PM → YYZ 1:05 AM +1 • Wed Sep 30', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 3h 55m • arrives Thu Oct 1', link: 'https://www.westjet.com/' },
     { id: 'rental', p: 3, item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM', estimate: 403.74, status: 'Booked', actual: 32.44, confirm: 'Stored in voucher', locked: true, bookingGroup: 'ascent-rental', detail: 'Confirmed total C$403.74 • C$32.44 paid • C$371.30 due at pickup • C$1,000 refundable deposit • unlimited mileage • full-to-full', link: 'tel:+16044164600' },
     { id: 'yyzParking', p: 4, item: 'SpotHero • EZ Airport Parking — Uncovered Self Park • Sep 25 8:00 PM → Oct 1 8:00 PM', estimate: 51.74, status: 'Paid', actual: 51.74, confirm: 'Stored in SpotHero pass', locked: true, bookingGroup: 'spothero-parking', detail: 'YYZ airport parking • enter after Fri Sep 25 8:00 PM • exit before Thu Oct 1 8:00 PM • review facility instructions before entering', link: 'https://spothero.com/' },
-    { id: 'h25', p: 4, item: 'Hotel Sep 25–27 (2 Nights) — Days Inn Cochrane', estimate: 350, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
-    { id: 'h26', p: 5, item: 'Hotel Sep 26 (Included in 2-night Cochrane booking)', estimate: 0, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
-    { id: 'h27', p: 6, item: 'Hotel Sep 27 — Hinton', estimate: 149, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.expedia.ca/Hinton-Hotels-Ramada-By-Wyndham-Hinton.h9769746.Hotel-Information' },
-    { id: 'h28', p: 7, item: 'Hotel Sep 28 — Hinton (Same room)', estimate: 151, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.expedia.ca/Hinton-Hotels-Ramada-By-Wyndham-Hinton.h9769746.Hotel-Information' },
-    { id: 'h29', p: 8, item: 'Hotel Sep 29 — Cochrane', estimate: 180, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
+    { id: 'h25', p: 5, item: 'Sep 25 overnight — NO HOTEL (intentional)', estimate: 0, status: 'Done', actual: '', confirm: 'No hotel planned', locked: true, bookingGroup: 'no-hotel', detail: 'Booked flight arrives 12:44 AM Sep 26; Ascent rental pickup is 1:30 AM. Current route is retained without a Sep 25 hotel night.', link: '' },
+    { id: 'h26', p: 6, item: 'Super 8 by Wyndham Cochrane • Sep 26 → Sep 27 • 2 Queen Beds', estimate: 301.28, status: 'Paid', actual: 301.28, confirm: 'Stored in Hotels.com email', locked: true, bookingGroup: 'hotel-super8-cochrane', detail: '1 room • 3 adults • C$301.28 paid • non-refundable • C$100 deposit at property • check-out 11:00 AM', link: 'https://www.wyndhamhotels.com/en-ca/super-8/cochrane-alberta/super-8-hotel-and-suites-cochrane/overview' },
+    { id: 'h27', p: 7, item: 'Hinton Lodge • Sep 27 → Sep 29 • 2 nights • 2 Queen Beds', estimate: 429.07, status: 'Booked', actual: '', confirm: 'Stored in Hotels.com email', locked: true, bookingGroup: 'hotel-hinton-lodge', detail: '1 room • 3 adults • Standard Room • Non Smoking • C$429.07 due at property • free cancellation until Sep 26 6:00 PM local', link: 'https://hintonlodge.ca/' },
+    { id: 'h28', p: 8, item: 'Hinton Lodge • Sep 28 night (included in Sep 27–29 booking)', estimate: 0, status: 'Booked', actual: '', confirm: 'Same reservation as Sep 27', locked: true, bookingGroup: 'hotel-hinton-lodge', detail: 'Night 2 of the same room • included in C$429.07 two-night total', link: 'https://hintonlodge.ca/' },
+    { id: 'h29', p: 9, item: 'Holiday Inn Calgary-Airport by IHG • Sep 29 → Sep 30 • 2 Queen Beds', estimate: 171.42, status: 'Paid', actual: 171.42, confirm: 'Stored in Hotels.com email', locked: true, bookingGroup: 'hotel-holidayinn-yyc', detail: '1 room • 3 adults • Standard Room (Low Floor) • C$171.42 paid • free cancellation until Sep 22 6:00 PM local • check-out 11:00 AM', link: 'https://www.ihg.com/holidayinn/hotels/us/en/calgary/yycat/hoteldetail' },
     { id: 'park', p: 9, item: 'Parks Canada Family/Group admission (Sep 26–29)', estimate: 98, status: 'Not started', actual: '', confirm: '', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/tarifs-fees' },
     { id: 'shuttle', p: 10, item: 'Lake Louise + Moraine shuttle (book Sep 25 8:00 AM MDT)', estimate: 41.75, status: 'Waiting window', actual: '', confirm: '', link: 'https://reservation.pc.gc.ca/' }
   ]
@@ -957,9 +955,9 @@ function applyLockedWestJetFlights(state) {
   // Keep the route clock synchronized with the booked flight times.
   const d25 = (state.days || []).find(d => d.date === 'Sep 25');
   if (d25) {
-    d25.label = 'Toronto → Calgary Arrival → Cochrane';
+    d25.label = 'Toronto → Calgary → Rental pickup • no hotel';
     d25.start = '00:44';
-    d25.note = 'Booked WestJet arrives YYC at 12:44 AM on Sat Sep 26. Carry-on only; allow about 60 minutes for rental pickup, then drive to Cochrane. Expected hotel arrival is roughly 2:20–2:30 AM.';
+    d25.note = 'Booked WestJet arrives YYC at 12:44 AM on Sat Sep 26. No arrival-night hotel is planned; Ascent rental pickup is the next locked step.';
     const yyc = d25.stops && d25.stops.find(s => s.id === 'yyc25');
     if (yyc) {
       yyc.name = 'Calgary International Airport — WestJet arrival 12:44 AM';
@@ -969,16 +967,19 @@ function applyLockedWestJetFlights(state) {
 
   const d26 = (state.days || []).find(d => d.date === 'Sep 26');
   if (d26) {
-    d26.start = '10:30';
-    d26.note = 'Late-night arrival is now locked. Target a 10:30 AM departure from Cochrane to protect roughly 8 hours in the room / 6–7 hours of sleep while still preserving Minnewanka, Two Jack and Johnston Canyon.';
+    d26.start = '05:45';
+    d26.note = 'No Sep 25 hotel. Use the pre-dawn YYC window as buffer/rest time, then keep the Banff-first sightseeing order and finish at the booked Sep 26 Cochrane hotel.';
     const dep = d26.stops && d26.stops.find(s => s.id === 'cochrane26_dep');
-    if (dep) dep.name = 'Cochrane Hotel (Depart 10:30)';
+    if (dep) {
+      dep.name = 'YYC / Ascent rental — Depart 05:45 for Banff';
+      dep.lat = 51.1315; dep.lng = -114.0106; dep.isHotel = false;
+    }
   }
 
   const d30 = (state.days || []).find(d => d.date === 'Sep 30');
   if (d30) {
-    d30.label = 'Cochrane → Calgary Optional → YYC → Toronto';
-    d30.note = 'Booked WestJet departs YYC at 7:10 PM. Target rental return at about 4:45 PM, then keep the airport/terminal block through departure. Toronto arrival is 1:05 AM on Oct 1.';
+    d30.label = 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto';
+    d30.note = 'Booked WestJet departs YYC at 7:10 PM. The final hotel is already in Calgary; target rental return at about 4:45 PM, then keep the airport/terminal block through departure. Toronto arrival is 1:05 AM on Oct 1.';
     const yyc = d30.stops && d30.stops.find(s => s.id === 'yyc30');
     if (yyc) {
       yyc.name = 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM';
@@ -1019,7 +1020,7 @@ function applyLockedAscentRental(state) {
 
   const d25 = (state.days || []).find(d => d.date === 'Sep 25');
   if (d25) {
-    d25.note = 'WestJet arrives YYC at 12:44 AM Sep 26. Ascent rental pickup is booked for 1:30 AM at the YYC Economy Parking Lot (outside terminal). Pickup must be completed by 2:28 AM unless Ascent agrees to hold it longer. Expected Cochrane arrival remains roughly 2:20–2:40 AM.';
+    d25.note = 'WestJet arrives YYC at 12:44 AM Sep 26. Ascent rental pickup is booked for 1:30 AM at the YYC Economy Parking Lot (outside terminal). Pickup must be completed by 2:28 AM unless Ascent agrees to hold it longer. No Sep 25 hotel is planned; the early-morning gap is intentionally kept as a YYC-area buffer/rest window.';
     const yyc = d25.stops && d25.stops.find(s => s.id === 'yyc25');
     if (yyc) {
       yyc.name = 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM';
@@ -1074,6 +1075,158 @@ function applyLockedSpotHeroParking(state) {
 
 applyLockedAscentRental(S);
 applyLockedSpotHeroParking(S);
+
+function applyLockedHotelBookings(state) {
+  if (!state) return;
+  state.hotels = state.hotels || {};
+  state.bookings = state.bookings || [];
+
+  state.hotels['Sep 25'] = {
+    choice: 0, price: 0, locked: true, noHotel: true, priceLabel: 'No hotel',
+    options: [['No hotel — intentional', 'Arrival after midnight • rental pickup 1:30 AM', 'Keep current route; use the pre-dawn window for positioning rather than a hotel night', '']]
+  };
+  state.hotels['Sep 26'] = {
+    choice: 0, price: 301.28, locked: true, paid: 301.28, priceLabel: 'Booked total • paid',
+    options: [['Super 8 by Wyndham Cochrane', '1 room • 3 adults • 2 Queen Beds', 'Sep 26 → Sep 27 • non-refundable • C$301.28 paid • C$100 property deposit', 'https://www.wyndhamhotels.com/en-ca/super-8/cochrane-alberta/super-8-hotel-and-suites-cochrane/overview']]
+  };
+  state.hotels['Sep 27'] = {
+    choice: 0, price: 429.07, locked: true, groupTotal: true, priceLabel: '2-night booking total • due at property',
+    options: [['Hinton Lodge', '1 room • 3 adults • Standard Room • 2 Queen Beds • Non Smoking', 'Sep 27 → Sep 29 • 2 nights • C$429.07 due at property • free cancellation until Sep 26 6:00 PM local', 'https://hintonlodge.ca/']]
+  };
+  state.hotels['Sep 28'] = {
+    choice: 0, price: 0, locked: true, includedWith: 'Sep 27', priceLabel: 'Included in Sep 27–29 booking',
+    options: [['Hinton Lodge — same room', 'Night 2 of the same 2-night booking', 'Already included in the C$429.07 Sep 27–29 reservation', 'https://hintonlodge.ca/']]
+  };
+  state.hotels['Sep 29'] = {
+    choice: 0, price: 171.42, locked: true, paid: 171.42, priceLabel: 'Booked total • paid',
+    options: [['Holiday Inn Calgary-Airport by IHG', '1 room • 3 adults • Standard Room • 2 Queen Beds (Low Floor)', 'Sep 29 → Sep 30 • C$171.42 paid • free cancellation until Sep 22 6:00 PM local • C$50 stay deposit + C$50/night breakage deposit', 'https://www.ihg.com/holidayinn/hotels/us/en/calgary/yycat/hoteldetail']]
+  };
+
+  const facts = {
+    h25: {
+      item: 'Sep 25 overnight — NO HOTEL (intentional)', estimate: 0, status: 'Done', actual: '',
+      confirm: 'No hotel planned', bookingGroup: 'no-hotel',
+      detail: 'Booked flight arrives 12:44 AM Sep 26; Ascent rental pickup is 1:30 AM. Current route is retained without a Sep 25 hotel night.', link: ''
+    },
+    h26: {
+      item: 'Super 8 by Wyndham Cochrane • Sep 26 → Sep 27 • 2 Queen Beds', estimate: 301.28, status: 'Paid', actual: 301.28,
+      confirm: 'Stored in Hotels.com email', bookingGroup: 'hotel-super8-cochrane',
+      detail: '1 room • 3 adults • C$301.28 paid • non-refundable • C$100 deposit at property • check-out 11:00 AM',
+      link: 'https://www.wyndhamhotels.com/en-ca/super-8/cochrane-alberta/super-8-hotel-and-suites-cochrane/overview'
+    },
+    h27: {
+      item: 'Hinton Lodge • Sep 27 → Sep 29 • 2 nights • 2 Queen Beds', estimate: 429.07, status: 'Booked', actual: '',
+      confirm: 'Stored in Hotels.com email', bookingGroup: 'hotel-hinton-lodge',
+      detail: '1 room • 3 adults • Standard Room • Non Smoking • C$429.07 due at property • free cancellation until Sep 26 6:00 PM local',
+      link: 'https://hintonlodge.ca/'
+    },
+    h28: {
+      item: 'Hinton Lodge • Sep 28 night (included in Sep 27–29 booking)', estimate: 0, status: 'Booked', actual: '',
+      confirm: 'Same reservation as Sep 27', bookingGroup: 'hotel-hinton-lodge',
+      detail: 'Night 2 of the same room • included in C$429.07 two-night total',
+      link: 'https://hintonlodge.ca/'
+    },
+    h29: {
+      item: 'Holiday Inn Calgary-Airport by IHG • Sep 29 → Sep 30 • 2 Queen Beds', estimate: 171.42, status: 'Paid', actual: 171.42,
+      confirm: 'Stored in Hotels.com email', bookingGroup: 'hotel-holidayinn-yyc',
+      detail: '1 room • 3 adults • Standard Room (Low Floor) • C$171.42 paid • free cancellation until Sep 22 6:00 PM local • check-out 11:00 AM',
+      link: 'https://www.ihg.com/holidayinn/hotels/us/en/calgary/yycat/hoteldetail'
+    }
+  };
+
+  Object.entries(facts).forEach(([id, fact]) => {
+    let b = state.bookings.find(x => x.id === id);
+    if (!b) {
+      b = { id };
+      state.bookings.push(b);
+    }
+    Object.assign(b, fact, { locked: true });
+  });
+
+  // Current route stays south → north → south. Only the arrival-night logistics change.
+  const d25 = (state.days || []).find(d => d.date === 'Sep 25');
+  if (d25) {
+    d25.label = 'Toronto → Calgary → Rental pickup • no hotel';
+    d25.sleep = 'No hotel — overnight transition';
+    d25.hotel = null;
+    d25.note = 'WestJet arrives YYC at 12:44 AM Sep 26 and Ascent pickup is 1:30 AM. No Sep 25 hotel by choice. Keep the current south→north→south trip; use the pre-dawn window for positioning before the Banff day.';
+    d25.stops = (d25.stops || []).filter(s => s.id !== 'cochrane25');
+  }
+
+  const d26 = (state.days || []).find(d => d.date === 'Sep 26');
+  if (d26) {
+    d26.label = 'YYC → Banff First-Timer Highlights → Cochrane';
+    d26.start = '05:45';
+    d26.sleep = 'Super 8 by Wyndham Cochrane (BOOKED)';
+    d26.hotel = { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 };
+    d26.note = 'No arrival-night hotel. Keep the original Banff-first route: leave the YYC area around 5:45 AM, reach the Banff/Minnewanka area around sunrise, keep Minnewanka + Two Jack + Johnston Upper Falls as the core, then finish at the booked Super 8 Cochrane.';
+    const dep = (d26.stops || []).find(s => s.id === 'cochrane26_dep');
+    if (dep) {
+      dep.name = 'YYC / Ascent rental — Depart 05:45 for Banff';
+      dep.lat = 51.1315; dep.lng = -114.0106; dep.isHotel = false;
+    }
+    const ret = (d26.stops || []).find(s => s.id === 'cochrane26_ret');
+    if (ret) {
+      ret.name = 'Super 8 by Wyndham Cochrane (Booked • Check-in)';
+      ret.lat = 51.189327; ret.lng = -114.488785; ret.isHotel = true;
+    }
+  }
+
+  const d27 = (state.days || []).find(d => d.date === 'Sep 27');
+  if (d27) {
+    const dep = (d27.stops || []).find(s => s.id === 'cochrane27');
+    if (dep) { dep.name = 'Super 8 by Wyndham Cochrane (Depart 06:00)'; dep.lat = 51.189327; dep.lng = -114.488785; }
+    d27.sleep = 'Hinton Lodge (Night 1 of 2 • BOOKED)';
+    d27.hotel = { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 };
+    const end = (d27.stops || []).find(s => s.id === 'hinton27');
+    if (end) { end.name = 'Hinton Lodge (Booked • Check-in)'; end.lat = 53.38816; end.lng = -117.61821; end.isHotel = true; }
+  }
+
+  const d28 = (state.days || []).find(d => d.date === 'Sep 28');
+  if (d28) {
+    d28.sleep = 'Hinton Lodge (Night 2 of 2 • BOOKED)';
+    d28.hotel = { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 };
+    ['hinton28a','hinton28b'].forEach(id => {
+      const st = (d28.stops || []).find(s => s.id === id);
+      if (st) {
+        st.name = id === 'hinton28a' ? 'Hinton Lodge (Depart 07:00)' : 'Hinton Lodge (Return & Sleep)';
+        st.lat = 53.38816; st.lng = -117.61821; st.isHotel = true;
+      }
+    });
+  }
+
+  const d29 = (state.days || []).find(d => d.date === 'Sep 29');
+  if (d29) {
+    const dep = (d29.stops || []).find(s => s.id === 'hinton29');
+    if (dep) { dep.name = 'Hinton Lodge (Depart 06:30)'; dep.lat = 53.38816; dep.lng = -117.61821; dep.isHotel = true; }
+    d29.label = 'Hinton → Jasper / Parkway South → Yoho Option → Calgary Airport Hotel';
+    d29.drive = '~540 km';
+    d29.sleep = 'Holiday Inn Calgary-Airport by IHG (BOOKED)';
+    d29.hotel = { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 };
+    d29.note = 'Current southbound plan stays intact. After the Parkway / optional Yoho stop, continue to the booked Holiday Inn Calgary-Airport instead of Cochrane. This adds some driving on Sep 29 but makes Sep 30 much easier.';
+    const end = (d29.stops || []).find(s => s.id === 'cochrane29');
+    if (end) {
+      end.name = 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)';
+      end.lat = 51.06593; end.lng = -114.01186; end.isHotel = true;
+    }
+  }
+
+  const d30 = (state.days || []).find(d => d.date === 'Sep 30');
+  if (d30) {
+    d30.label = 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto';
+    d30.drive = '~30 km';
+    d30.note = 'Wake up already in Calgary at the booked Holiday Inn Calgary-Airport. Calgary sightseeing remains optional. Keep the Ascent rental return target at 4:45 PM for the 7:10 PM WestJet departure.';
+    const start = (d30.stops || []).find(s => s.id === 'cochrane30');
+    if (start) {
+      start.name = 'Holiday Inn Calgary-Airport by IHG (Depart 10:00)';
+      start.lat = 51.06593; start.lng = -114.01186; start.isHotel = true;
+    }
+  }
+
+  state.bookings.forEach((booking, index) => { booking.p = index + 1; });
+}
+
+applyLockedHotelBookings(S);
 lastSnap = JSON.stringify(S);
 persist();
 
@@ -1941,31 +2094,45 @@ function renderBookings() {
     const lockedFlight = b.locked && b.bookingGroup === 'westjet-flights';
     const lockedRental = b.locked && b.bookingGroup === 'ascent-rental';
     const lockedParking = b.locked && b.bookingGroup === 'spothero-parking';
-    const lockedBooking = lockedFlight || lockedRental || lockedParking;
-    const statusCell = lockedFlight || lockedParking
-      ? '<span class="badge must">PAID • LOCKED</span>'
-      : lockedRental
-        ? '<span class="badge must">BOOKED • LOCKED</span>'
-        : `<select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
-    const estimateCell = lockedFlight
-      ? (b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>')
-      : lockedRental
-        ? '<b>C$403.74 total</b><small style="display:block;color:var(--muted)">C$371.30 due at pickup</small>'
-        : lockedParking
-          ? '<b>C$51.74 paid</b>'
-          : money(bookingEstimate(b));
-    const actualCell = lockedFlight
-      ? '<span class="date">combined fare</span>'
-      : lockedRental
-        ? '<b>C$32.44 paid</b>'
-        : lockedParking
-          ? '<b>C$51.74</b>'
-          : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
+    const lockedHotel = b.locked && /^hotel-/.test(b.bookingGroup || '');
+    const noHotel = b.locked && b.bookingGroup === 'no-hotel';
+    const lockedBooking = lockedFlight || lockedRental || lockedParking || lockedHotel || noHotel;
+
+    let statusCell;
+    if (lockedFlight || lockedParking || (lockedHotel && b.status === 'Paid')) statusCell = '<span class="badge must">PAID • LOCKED</span>';
+    else if (lockedRental || lockedHotel) statusCell = '<span class="badge must">BOOKED • LOCKED</span>';
+    else if (noHotel) statusCell = '<span class="badge">NO HOTEL • LOCKED</span>';
+    else statusCell = `<select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
+
+    let estimateCell;
+    if (lockedFlight) estimateCell = b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>';
+    else if (lockedRental) estimateCell = '<b>C$403.74 total</b><small style="display:block;color:var(--muted)">C$371.30 due at pickup</small>';
+    else if (lockedParking) estimateCell = '<b>C$51.74 paid</b>';
+    else if (b.id === 'h26' && lockedHotel) estimateCell = '<b>C$301.28 paid</b>';
+    else if (b.id === 'h27' && lockedHotel) estimateCell = '<b>C$429.07 total</b><small style="display:block;color:var(--muted)">2 nights • due at property</small>';
+    else if (b.id === 'h28' && lockedHotel) estimateCell = '<span class="date">included</span>';
+    else if (b.id === 'h29' && lockedHotel) estimateCell = '<b>C$171.42 paid</b>';
+    else if (noHotel) estimateCell = '<b>C$0</b>';
+    else estimateCell = money(bookingEstimate(b));
+
+    let actualCell;
+    if (lockedFlight) actualCell = '<span class="date">combined fare</span>';
+    else if (lockedRental) actualCell = '<b>C$32.44 paid</b>';
+    else if (lockedParking) actualCell = '<b>C$51.74</b>';
+    else if (b.id === 'h26' && lockedHotel) actualCell = '<b>C$301.28</b>';
+    else if (b.id === 'h27' && lockedHotel) actualCell = '<span class="date">due at property</span>';
+    else if (b.id === 'h28' && lockedHotel) actualCell = '<span class="date">same reservation</span>';
+    else if (b.id === 'h29' && lockedHotel) actualCell = '<b>C$171.42</b>';
+    else if (noHotel) actualCell = '<span class="date">—</span>';
+    else actualCell = `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
+
     const confirmCell = lockedBooking
-      ? `<span class="date">${lockedRental ? 'confirmation in voucher' : (lockedParking ? 'stored in SpotHero pass' : 'Booked')}</span>`
+      ? `<span class="date">${lockedRental ? 'confirmation in voucher' : (lockedParking ? 'stored in SpotHero pass' : (lockedHotel ? 'stored in Hotels.com email' : (noHotel ? 'intentional' : 'Booked')))}</span>`
       : `<input class="input" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)">`;
-    const actionLabel = lockedRental ? 'Call supplier' : (lockedParking ? 'SpotHero' : 'Airline');
-    return `<div class="bookrow ${lockedBooking ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}<a class="btn small" href="${b.link}" target="_blank">${actionLabel}</a></div>`;
+
+    const actionLabel = lockedRental ? 'Call supplier' : (lockedParking ? 'SpotHero' : (lockedHotel ? 'Hotel' : 'Airline'));
+    const action = b.link ? `<a class="btn small" href="${b.link}" target="_blank">${actionLabel}</a>` : '<span></span>';
+    return `<div class="bookrow ${lockedBooking ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}${action}</div>`;
   }).join('');
 }
 function updateBooking(i, k, v) {
@@ -1978,19 +2145,33 @@ function updateBooking(i, k, v) {
   save();
 }
 function resetBookings() {
-  if (confirm('Reset booking statuses, actual paid amounts and confirmations? Locked flights, rental and YYZ parking will stay booked.')) {
+  if (confirm('Reset booking statuses, actual paid amounts and confirmations? Locked flights, rental, YYZ parking and booked hotels will stay fixed.')) {
     S.bookings = deepClone(BASE.bookings);
     applyLockedWestJetFlights(S);
     applyLockedAscentRental(S);
     applyLockedSpotHeroParking(S);
+    applyLockedHotelBookings(S);
     save();
   }
 }
 
 function renderHotels() {
-  document.getElementById('hotelGrid').innerHTML = Object.entries(S.hotels).map(([date, h]) => `<div class="card"><div class="row"><div><div class="date">${date}</div><h3>${date === 'Sep 25' ? 'Calgary Airport' : date === 'Sep 27' || date === 'Sep 28' ? 'Hinton' : 'Cochrane'}</h3></div><span class="badge must">2 QUEENS</span></div>${h.options.map((o, i) => `<div class="card hotelopt ${h.choice === i ? 'sel' : ''}" style="margin-top:8px" onclick="chooseHotel('${date}',${i})"><div class="row"><b>${escapeHtml(o[0])}</b><span>${h.choice === i ? '✓' : ''}</span></div><small>${escapeHtml(o[1])}<br>${escapeHtml(o[2])}</small><a class="btn small" style="margin-top:7px" href="${o[3]}" target="_blank" onclick="event.stopPropagation()">Verify exact room</a></div>`).join('')}<div class="hotelprice"><span>Final/estimated night total</span><input class="input" type="number" value="${h.price}" onchange="setHotelPrice('${date}',this.value)"></div></div>`).join('');
+  document.getElementById('hotelGrid').innerHTML = Object.entries(S.hotels).map(([date, h]) => {
+    const title = h.noHotel ? 'No hotel' : (date === 'Sep 27' || date === 'Sep 28' ? 'Hinton' : (date === 'Sep 29' ? 'Calgary Airport' : 'Cochrane'));
+    const badge = h.noHotel ? 'NO HOTEL' : (h.locked ? 'BOOKED' : '2 QUEENS');
+    const options = h.options.map((o, i) => {
+      const clickable = h.locked ? '' : `onclick="chooseHotel('${date}',${i})"`;
+      const link = o[3] ? `<a class="btn small" style="margin-top:7px" href="${o[3]}" target="_blank" onclick="event.stopPropagation()">${h.locked ? 'Hotel' : 'Verify exact room'}</a>` : '';
+      return `<div class="card hotelopt ${h.choice === i ? 'sel' : ''}" style="margin-top:8px" ${clickable}><div class="row"><b>${escapeHtml(o[0])}</b><span>${h.choice === i ? '✓' : ''}</span></div><small>${escapeHtml(o[1])}<br>${escapeHtml(o[2])}</small>${link}</div>`;
+    }).join('');
+    const price = h.locked
+      ? `<div class="hotelprice"><span>${escapeHtml(h.priceLabel || 'Booked total')}</span><b>${h.noHotel ? 'C$0' : (h.includedWith ? 'Included' : money(h.price))}</b></div>`
+      : `<div class="hotelprice"><span>Final/estimated night total</span><input class="input" type="number" value="${h.price}" onchange="setHotelPrice('${date}',this.value)"></div>`;
+    return `<div class="card"><div class="row"><div><div class="date">${date}</div><h3>${title}</h3></div><span class="badge ${h.locked && !h.noHotel ? 'must' : ''}">${badge}</span></div>${options}${price}</div>`;
+  }).join('');
 }
 function chooseHotel(date, i) {
+  if (S.hotels[date] && S.hotels[date].locked) { toast('This hotel choice is booked and locked.'); renderHotels(); return; }
   S.hotels[date].choice = i;
   const opt = S.hotels[date].options[i];
   const mapIds = { 'Sep 25': 'h25', 'Sep 26': 'h26', 'Sep 27': 'h27', 'Sep 28': 'h28', 'Sep 29': 'h29' };
@@ -2000,7 +2181,7 @@ function chooseHotel(date, i) {
   if (day && day.hotel) day.hotel.name = opt[0];
   save();
 }
-function setHotelPrice(date, v) { S.hotels[date].price = Number(v || 0); save(); }
+function setHotelPrice(date, v) { if (S.hotels[date] && S.hotels[date].locked) { toast('This hotel price is booked and locked.'); renderHotels(); return; } S.hotels[date].price = Number(v || 0); save(); }
 
 function filterAtt(a) {
   if (filter === 'all') return true;

@@ -6,35 +6,34 @@
 
   const VERIFIED_DAYS = [
     {
-      date: 'Sep 25', label: 'Toronto → Calgary (arrives Sep 26) → Cochrane', start: '00:44', drive: '~42 km', sleep: 'Cochrane (Night 1 of 2)',
-      note: 'LOCKED FLIGHT: WestJet YYZ 10:25 PM Sep 25 → YYC 12:44 AM Sep 26. Carry-on only; allow about 60 min for rental pickup, then drive to Cochrane. Expected hotel arrival roughly 2:20–2:30 AM.',
-      hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 25', label: 'Toronto → Calgary → Rental pickup • no hotel', start: '00:44', drive: 'Arrival logistics', sleep: 'No hotel — overnight transition',
+      note: 'LOCKED: WestJet arrives YYC at 12:44 AM Sep 26 and Ascent pickup is 1:30 AM. No Sep 25 hotel by choice. Current south→north→south route remains unchanged.',
+      hotel: null,
       stops: [
-        { id: 'yyc25', name: 'Calgary International Airport — WestJet arrival 12:44 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 60 },
-        { id: 'cochrane25', name: 'Cochrane Hotel (Check-in & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'yyc25', name: 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 15, notBefore: '01:30' }
       ]
     },
     {
-      date: 'Sep 26', label: 'Cochrane → Banff First-Timer Highlights → Cochrane', start: '10:30', drive: '~210 km', sleep: 'Cochrane (Night 2 of 2)',
-      note: 'Booked flight reaches YYC after midnight, so Sep 26 starts at 10:30 AM to protect roughly 8 hours in the room / 6–7 hours of sleep. Minnewanka + Two Jack + Johnston Upper Falls stay protected.',
-      hotel: { name: 'Days Inn & Suites Cochrane', lat: 51.189, lng: -114.467 },
+      date: 'Sep 26', label: 'YYC → Banff First-Timer Highlights → Cochrane', start: '05:45', drive: '~240 km', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      note: 'No arrival-night hotel. Keep the original Banff-first route: leave the YYC area around 5:45 AM and reach the Banff/Minnewanka area around sunrise. Core stops remain Minnewanka + Two Jack + Johnston Upper Falls.',
+      hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
-        { id: 'cochrane26_dep', name: 'Cochrane Hotel (Depart 10:30)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45 for Banff', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
         { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
         { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
         { id: 'banff', name: 'Banff Town (Fast Lunch + Short Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 45 },
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 15 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 10 },
         { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120 },
-        { id: 'cochrane26_ret', name: 'Cochrane Hotel (Return & Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton (Night 1 of 2)',
+      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
       note: 'Hardest day. Budget-first Cochrane start means no true sunrise at Moraine without sacrificing sleep. Reserve Moraine as first destination. Model at least 30 min shuttle waits. After the lakes, protect Bow Lake, Peyto and the free Athabasca Glacier stop; Sunwapta and Mistaya are optional if daylight slips.',
-      hotel: { name: 'Ramada / Baymont Hinton (whichever final 3-adult 2Q total is lower)', lat: 53.399, lng: -117.586 },
+      hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
-        { id: 'cochrane27', name: 'Cochrane Hotel (Depart 06:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart 06:00)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'parkride', name: 'Lake Louise Park & Ride — Check-in / Wait', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
         { id: 'moraine', name: 'Moraine Lake + Rockpile (includes connector wait)', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 105 },
         { id: 'louise', name: 'Lake Louise Lakeshore (includes return-shuttle wait)', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 90 },
@@ -45,30 +44,30 @@
         { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Rest / Snack)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 15 },
         { id: 'icefield', name: 'Columbia Icefield — Free Athabasca Glacier Stop', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 45 },
         { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'nice', stayMin: 25 },
-        { id: 'hinton27', name: 'Hinton Hotel (Sleep)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'hinton27', name: 'Hinton Lodge (Booked • Check-in)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton (Night 2 of 2)',
+      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
       note: 'Maligne Lake Cruise is the premium anchor. Pyramid is the worthwhile lake/photo stop; Patricia is cut-first. Jasper is fuel/fast food only. Medicine Lake is on-route. Annette/Edith stay cut unless the cruise day is running early.',
-      hotel: { name: 'Same Hinton hotel as Sep 27', lat: 53.399, lng: -117.586 },
+      hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
-        { id: 'hinton28a', name: 'Hinton Hotel (Depart 07:00)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'hinton28a', name: 'Hinton Lodge (Depart 07:00)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'pyramid', name: 'Pyramid Lake & Pyramid Island', lat: 52.9210, lng: -118.1040, priority: 'must', stayMin: 40 },
         { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 15 },
         { id: 'jasper', name: 'Jasper Town (Fuel + Fast Food / Grab-and-Go)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 35 },
         { id: 'medicine', name: 'Medicine Lake Viewpoint', lat: 52.8640, lng: -117.8000, priority: 'must', stayMin: 20 },
         { id: 'maligne', name: 'Maligne Lake + Spirit Island Classic Cruise', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 150 },
         { id: 'annette', name: 'Lake Annette & Lake Edith', lat: 52.8840, lng: -118.0450, priority: 'cut', stayMin: 25 },
-        { id: 'hinton28b', name: 'Hinton Hotel (Sleep)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'hinton28b', name: 'Hinton Lodge (Return & Sleep)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 29', label: 'Hinton → Jasper / Parkway South → Yoho Option → Cochrane', start: '06:30', drive: '~500 km', sleep: 'Cochrane',
-      note: 'Second-chance + choice day. Athabasca Falls is protected here. Valley of Five Lakes, paid Icefield Adventure and Emerald/Natural Bridge are all NICE alternatives — normally choose one major bonus, not all three. Repeated Bow/Icefield viewpoints become cuttable if Sep 27 weather was good.',
-      hotel: { name: 'Days Inn / Super 8 Cochrane (lowest final 2Q/3-adult total)', lat: 51.189, lng: -114.467 },
+      date: 'Sep 29', label: 'Hinton → Jasper / Parkway South → Yoho Option → Calgary Airport Hotel', start: '06:30', drive: '~540 km', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
+      note: 'Second-chance + choice day. The southbound Parkway plan stays intact; after the final scenic/Yoho choice, continue to the booked Holiday Inn Calgary-Airport. This adds some driving tonight but removes the Cochrane→Calgary transfer on flight day.',
+      hotel: { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 },
       stops: [
-        { id: 'hinton29', name: 'Hinton Hotel (Depart 06:30)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'jasper29', name: 'Jasper (Southbound Fuel + Snacks)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 25 },
         { id: 'valley5', name: 'Valley of the Five Lakes — Emerald Loop Option', lat: 52.8450, lng: -118.0550, priority: 'nice', stayMin: 110, choiceGroup: 'sep29bonus' },
         { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 35 },
@@ -77,15 +76,15 @@
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 10 },
         { id: 'bowlake29', name: 'Bow Lake (Repeat only if Sep 27 weather was poor)', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
         { id: 'emerald', name: 'Emerald Lake + Natural Bridge (Yoho Option)', lat: 51.4436, lng: -116.5310, priority: 'nice', stayMin: 75, choiceGroup: 'sep29bonus' },
-        { id: 'cochrane29', name: 'Cochrane Hotel (Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 30', label: 'Cochrane → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~65 km', sleep: 'Home',
-      note: 'LOCKED FLIGHT: WestJet YYC 7:10 PM Sep 30 → YYZ 1:05 AM Oct 1. Target rental return about 4:45 PM. Calgary remains optional before that hard airport deadline.',
+      date: 'Sep 30', label: 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~30 km', sleep: 'Home',
+      note: 'Wake up already in Calgary at the booked Holiday Inn Calgary-Airport. Calgary sightseeing remains optional. Keep the 4:45 PM Ascent rental-return target for the booked 7:10 PM WestJet flight.',
       hotel: null,
       stops: [
-        { id: 'cochrane30', name: 'Cochrane Hotel (Depart 10:00)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'cochrane30', name: 'Holiday Inn Calgary-Airport by IHG (Depart 10:00)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if flight timing leaves room)', lat: 51.0550, lng: -114.0700, priority: 'cut', stayMin: 90 },
         { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
@@ -93,7 +92,6 @@
   ];
 
   const VERIFIED_DECISIONS = {
-    hotel26: 'budget-rule',
     lakeLouise: 'shoreline',
     maligne: 'book',
     pyramid: 'pyramid',
@@ -135,6 +133,7 @@
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(BASE);
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(BASE);
     if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(BASE);
+    if (typeof applyLockedHotelBookings === 'function') applyLockedHotelBookings(BASE);
 
     // NICE classification is permanent; enabled only controls whether it participates
     // in the live route. Never promote a selected NICE stop to MUST.
@@ -410,6 +409,7 @@
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(next);
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(next);
     if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(next);
+    if (typeof applyLockedHotelBookings === 'function') applyLockedHotelBookings(next);
     S = next;
     localStorage.setItem(PRESET_MARK, name);
     persist();
@@ -421,27 +421,6 @@
     if (!S.decisions) S.decisions = deepClone(VERIFIED_DECISIONS);
     S.decisions[id] = value;
 
-    if (id === 'hotel26') {
-      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
-      const d27 = S.days.find(function (d) { return d.date === 'Sep 27'; });
-      const ret = d26 && d26.stops.find(function (s) { return s.id === 'cochrane26_ret'; });
-      const dep = d27 && d27.stops.find(function (s) { return s.id === 'cochrane27'; });
-      const h = S.hotels && S.hotels['Sep 26'];
-      const mountainIdx = h ? h.options.findIndex(function (o) { return /Mountain-area/.test(o[0]); }) : -1;
-      if (value === 'mountain' && mountainIdx >= 0) {
-        h.choice = mountainIdx;
-        if (ret) { ret.name = 'Canmore / Dead Man\'s Flats Hotel (Return & Sleep)'; ret.lat = 51.089; ret.lng = -115.359; }
-        if (dep) { dep.name = 'Canmore / Dead Man\'s Flats Hotel (Depart 06:00)'; dep.lat = 51.089; dep.lng = -115.359; }
-        d26.sleep = 'Canmore / Dead Man\'s Flats (only because price delta ≤ C$100)';
-        d27.label = 'Canmore/Dead Man\'s Flats → Moraine/Louise → Icefields Parkway → Hinton';
-      } else if (value === 'budget-rule') {
-        if (h && /Mountain-area/.test(h.options[h.choice] && h.options[h.choice][0])) h.choice = 0;
-        if (ret) { ret.name = 'Cochrane Hotel (Return & Sleep)'; ret.lat = 51.189; ret.lng = -114.467; }
-        if (dep) { dep.name = 'Cochrane Hotel (Depart 06:00)'; dep.lat = 51.189; dep.lng = -114.467; }
-        d26.sleep = 'Cochrane (Night 2 of 2)';
-        d27.label = 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton';
-      }
-    }
     if (id === 'shuttle') {
       const b = S.bookings.find(function (x) { return x.id === 'shuttle'; });
       if (b && (value === 'booked' || value === 'backup')) b.status = 'Booked';
@@ -523,15 +502,6 @@
   }
 
   const DECISION_FLOW = [
-    {
-      id: 'hotel26', when: 'NOW • HOTEL', title: 'Where do you sleep Sep 26?',
-      detail: 'Budget wins unless the location upgrade is cheap enough. Cochrane → Lake Louise Ski Resort is about 1h57; Canmore → Ski Resort about 1h04.',
-      options: [
-        ['budget-rule', 'Cochrane unless mountain hotel ≤ +C$100', 'Recommended'],
-        ['mountain', 'Canmore / Dead Man\'s Flats if ≤ +C$100', 'Buys ~50 min+ on Sep 27 morning'],
-        ['pending', 'Still comparing', 'Do not lock route yet']
-      ]
-    },
     {
       id: 'shuttle', when: 'SEP 25 • 8:00 AM MDT RELEASE', title: 'How are Moraine + Lake Louise locked?',
       detail: '60% of seats release at 8:00 AM MDT two days before Sep 27. Choose Moraine as first destination. Regular shuttles start 6:30 AM; plan at least 30 min waits.',
@@ -624,7 +594,7 @@
       ['Outbound flight booked', isBooked('outbound')],
       ['Rental with workable late pickup booked', isBooked('rental')],
       ['Toronto airport parking booked', isBooked('yyzParking')],
-      ['All 5 hotel nights locked as 1 room / 3 adults / exact 2 Queens', ['h25','h26','h27','h28','h29'].every(isBooked)],
+      ['Hotel plan locked: no-hotel Sep 25 + all 4 booked nights confirmed for 3 adults / 2 Queens', ['h25','h26','h27','h28','h29'].every(isBooked)],
       ['Parks Canada admission handled', isBooked('park')],
       ['Moraine/Louise transport reservation locked', isBooked('shuttle') || S.decisions.shuttle === 'booked' || S.decisions.shuttle === 'backup'],
       ['Maligne Cruise decision locked', S.decisions.maligne === 'book' || S.decisions.maligne === 'skip'],
@@ -779,33 +749,6 @@
       return oldGoogleRouteUrl(filtered);
     };
 
-    const oldChooseHotel = chooseHotel;
-    chooseHotel = function (date, idx) {
-      oldChooseHotel(date, idx);
-      if (date !== 'Sep 26') return;
-      const h = S.hotels['Sep 26'];
-      const opt = h && h.options[idx];
-      const mountain = opt && /Mountain-area/.test(opt[0]);
-      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
-      const d27 = S.days.find(function (d) { return d.date === 'Sep 27'; });
-      const ret = d26 && d26.stops.find(function (s) { return s.id === 'cochrane26_ret'; });
-      const dep = d27 && d27.stops.find(function (s) { return s.id === 'cochrane27'; });
-      if (mountain) {
-        if (ret) { ret.name = 'Canmore / Dead Man\'s Flats Hotel (Return & Sleep)'; ret.lat = 51.089; ret.lng = -115.359; }
-        if (dep) { dep.name = 'Canmore / Dead Man\'s Flats Hotel (Depart 06:00)'; dep.lat = 51.089; dep.lng = -115.359; }
-        d26.sleep = 'Canmore / Dead Man\'s Flats (only because price delta ≤ C$100)';
-        d27.label = 'Canmore/Dead Man\'s Flats → Moraine/Louise → Icefields Parkway → Hinton';
-        if (S.decisions) S.decisions.hotel26 = 'mountain';
-      } else {
-        if (ret) { ret.name = 'Cochrane Hotel (Return & Sleep)'; ret.lat = 51.189; ret.lng = -114.467; }
-        if (dep) { dep.name = 'Cochrane Hotel (Depart 06:00)'; dep.lat = 51.189; dep.lng = -114.467; }
-        d26.sleep = 'Cochrane (Night 2 of 2)';
-        d27.label = 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton';
-        if (S.decisions) S.decisions.hotel26 = 'budget-rule';
-      }
-      persist();
-      renderAll();
-    };
   }
 
   patchBase();
