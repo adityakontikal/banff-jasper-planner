@@ -102,6 +102,9 @@
   ];
 
   const FINAL_CHECKS = [
+    ['rental_file', 'Ascent file completed: licence + payment card + flight number'],
+    ['rental_insurance', 'Rental insurance / own coverage proof confirmed'],
+    ['rental_drivers', 'Additional drivers decided; all added drivers present at pickup'],
     ['offline_maps', 'Offline maps downloaded'],
     ['tickets_saved', 'Tickets + confirmations saved on every phone'],
     ['layers_ready', 'Warm layers / rain shell in the car'],
@@ -245,10 +248,16 @@
       const b = groupPrimaryBooking(g);
       const state = done ? 'Done' : (b ? b.status : 'Not started');
       const lockedFlight = b && b.locked && b.bookingGroup === 'westjet-flights';
-      const sub = lockedFlight ? ('Paid • ' + b.item.replace(/^WestJet\s*•\s*/, '')) : state;
+      const lockedRental = b && b.locked && b.bookingGroup === 'ascent-rental';
+      const lockedBooking = lockedFlight || lockedRental;
+      const sub = lockedFlight
+        ? ('Paid • ' + b.item.replace(/^WestJet\s*•\s*/, ''))
+        : lockedRental
+          ? ('Booked • ' + b.item.replace(/^Ascent Car Rental\s*•\s*/, '') + ' • C$371.30 due at pickup')
+          : state;
       const href = b && b.link ? b.link : '#';
       return '<div class="pp-check-row ' + (done ? 'done' : '') + '">' +
-        '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' ' + (lockedFlight ? 'disabled' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(sub) + '</small></span></label>' +
+        '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' ' + (lockedBooking ? 'disabled' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(sub) + '</small></span></label>' +
         (href !== '#' ? '<a href="' + href + '" target="_blank">Open</a>' : '') +
       '</div>';
     }).join('');
