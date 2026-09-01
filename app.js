@@ -724,7 +724,7 @@ const BOOK_TASKS = [
 
 const BASE = {
   settings: { title: 'Banff → Jasper Road Trip', travellers: 3, startDate: '2026-09-25', endDate: '2026-09-30', globalNote: 'Protect the major natural sights first; add paid attractions only when time and weather justify them.', lunchMin: 40, bufferMin: 8 },
-  costs: { flight: 'mixed', rental: 450, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
+  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 450, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
   selectedDay: 'Sep 26', showAllDays: false, showFuel: false,
   checklists: {},
   days: [
@@ -838,8 +838,8 @@ const BASE = {
     { id: 'maligneCanyonFree', name: 'Maligne Canyon', day: 'Sep 28', cost: 0, time: 1, type: 'free', rating: '8/10', rec: 'OPTIONAL', selected: false, desc: 'Slot canyon near Jasper.', skip: 'No core lake lost.', link: 'https://www.google.com/maps/search/Maligne+Canyon' }
   ],
   bookings: [
-    { id: 'return', p: 1, item: 'Return flight — Air Canada AC152', estimate: 651, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.aircanada.com/en-ca/flights-from-calgary-to-toronto' },
-    { id: 'outbound', p: 2, item: 'Outbound flight', estimate: 477, status: 'Decide', actual: '', confirm: '', link: 'https://www.google.com/travel/flights?hl=en&q=YYZ%20YYC%20Sep%2025%202026' },
+    { id: 'outbound', p: 1, item: 'WestJet • YYZ 10:25 PM → YYC 12:44 AM +1 • Fri Sep 25', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 4h 19m • arrives Sat Sep 26', link: 'https://www.westjet.com/' },
+    { id: 'return', p: 2, item: 'WestJet • YYC 7:10 PM → YYZ 1:05 AM +1 • Wed Sep 30', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 3h 55m • arrives Thu Oct 1', link: 'https://www.westjet.com/' },
     { id: 'rental', p: 3, item: 'YYC rental — compact/standard SUV', estimate: 450, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.ca.kayak.com/Calgary-Airport-Car-Rentals.YYC.cap.ksp' },
     { id: 'h25', p: 4, item: 'Hotel Sep 25–27 (2 Nights) — Days Inn Cochrane', estimate: 350, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
     { id: 'h26', p: 5, item: 'Hotel Sep 26 (Included in 2-night Cochrane booking)', estimate: 0, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
@@ -914,7 +914,81 @@ if (!S.checklists) S.checklists = {};
 if (S.costs.food == null) S.costs.food = BASE.costs.food;
 if (S.settings.lunchMin == null) S.settings.lunchMin = 40;
 if (S.settings.bufferMin == null) S.settings.bufferMin = 8;
+
+function applyLockedWestJetFlights(state) {
+  if (!state) return;
+  state.costs = state.costs || {};
+  state.costs.flight = 'booked-westjet';
+  state.costs.flightActual = 966.63;
+  state.costs.flightLocked = true;
+
+  const facts = {
+    outbound: {
+      p: 1,
+      item: 'WestJet • YYZ 10:25 PM → YYC 12:44 AM +1 • Fri Sep 25',
+      detail: 'Nonstop • 4h 19m • arrives Sat Sep 26',
+      link: 'https://www.westjet.com/'
+    },
+    return: {
+      p: 2,
+      item: 'WestJet • YYC 7:10 PM → YYZ 1:05 AM +1 • Wed Sep 30',
+      detail: 'Nonstop • 3h 55m • arrives Thu Oct 1',
+      link: 'https://www.westjet.com/'
+    }
+  };
+
+  Object.entries(facts).forEach(([id, fact]) => {
+    let b = (state.bookings || []).find(x => x.id === id);
+    if (!b) {
+      b = { id, estimate: 0, actual: '', confirm: '' };
+      state.bookings = state.bookings || [];
+      state.bookings.push(b);
+    }
+    Object.assign(b, fact, {
+      status: 'Paid',
+      estimate: 0,
+      locked: true,
+      bookingGroup: 'westjet-flights'
+    });
+  });
+
+  // Keep the route clock synchronized with the booked flight times.
+  const d25 = (state.days || []).find(d => d.date === 'Sep 25');
+  if (d25) {
+    d25.label = 'Toronto → Calgary Arrival → Cochrane';
+    d25.start = '00:44';
+    d25.note = 'Booked WestJet arrives YYC at 12:44 AM on Sat Sep 26. Carry-on only; allow about 60 minutes for rental pickup, then drive to Cochrane. Expected hotel arrival is roughly 2:20–2:30 AM.';
+    const yyc = d25.stops && d25.stops.find(s => s.id === 'yyc25');
+    if (yyc) {
+      yyc.name = 'Calgary International Airport — WestJet arrival 12:44 AM';
+      yyc.stayMin = 60;
+    }
+  }
+
+  const d26 = (state.days || []).find(d => d.date === 'Sep 26');
+  if (d26) {
+    d26.start = '10:30';
+    d26.note = 'Late-night arrival is now locked. Target a 10:30 AM departure from Cochrane to protect roughly 8 hours in the room / 6–7 hours of sleep while still preserving Minnewanka, Two Jack and Johnston Canyon.';
+    const dep = d26.stops && d26.stops.find(s => s.id === 'cochrane26_dep');
+    if (dep) dep.name = 'Cochrane Hotel (Depart 10:30)';
+  }
+
+  const d30 = (state.days || []).find(d => d.date === 'Sep 30');
+  if (d30) {
+    d30.label = 'Cochrane → Calgary Optional → YYC → Toronto';
+    d30.note = 'Booked WestJet departs YYC at 7:10 PM. Target rental return at about 4:45 PM, then keep the airport/terminal block through departure. Toronto arrival is 1:05 AM on Oct 1.';
+    const yyc = d30.stops && d30.stops.find(s => s.id === 'yyc30');
+    if (yyc) {
+      yyc.name = 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM';
+      yyc.notBefore = '16:45';
+      yyc.stayMin = 145;
+    }
+  }
+}
+
+applyLockedWestJetFlights(S);
 lastSnap = JSON.stringify(S);
+persist();
 
 function toast(msg) {
   const wrap = document.getElementById('toasts');
@@ -1058,6 +1132,7 @@ function computeDayTimeline(d) {
         depMin: null,
         arrTime: { display: 'Bypassed' },
         depTime: { display: 'Bypassed' },
+        waitBeforeMin: 0,
         prevLeg: null
       });
       continue;
@@ -1083,6 +1158,15 @@ function computeDayTimeline(d) {
       lunchAt = formatMinutesToTime(currMin - lunchMin).display;
     }
 
+    let waitBeforeMin = 0;
+    if (st.notBefore) {
+      const notBeforeMin = parseTimeToMinutes(st.notBefore);
+      if (Number.isFinite(notBeforeMin) && currMin < notBeforeMin) {
+        waitBeforeMin = notBeforeMin - currMin;
+        currMin = notBeforeMin;
+      }
+    }
+
     const arrMin = currMin;
     const depMin = currMin + stayMin;
     currMin = depMin;
@@ -1097,6 +1181,7 @@ function computeDayTimeline(d) {
       depMin,
       arrTime: formatMinutesToTime(arrMin),
       depTime: formatMinutesToTime(depMin),
+      waitBeforeMin,
       prevLeg
     });
 
@@ -1162,9 +1247,9 @@ function isBooked(id) {
 function hotelTotal() { return Object.values(S.hotels).reduce((n, h) => n + Number(h.price || 0), 0); }
 function attractionCost() { return S.attractions.filter(a => a.type === 'paid' && a.selected).reduce((n, a) => n + Number(a.cost || 0), 0); }
 function attractionHours() { return S.attractions.filter(a => a.type === 'paid' && a.selected).reduce((n, a) => n + Number(a.time || 0), 0); }
-function flightTotal() { return S.costs.flight === 'mixed' ? 1128 : 1353; }
+function flightTotal() { if (S.costs.flightLocked && S.costs.flightActual != null) return Number(S.costs.flightActual || 0); return S.costs.flight === 'mixed' ? 1128 : 1353; }
 function total() { return flightTotal() + hotelTotal() + Number(S.costs.rental || 0) + Number(S.costs.fuel || 0) + Number(S.costs.food || 0) + Number(S.costs.misc || 0) + Number(S.costs.park || 0) + Number(S.costs.shuttle || 0) + attractionCost(); }
-function paid() { return S.bookings.reduce((n, b) => n + Number(b.actual || 0), 0); }
+function paid() { const lockedFlights = S.costs.flightLocked ? Number(S.costs.flightActual || 0) : 0; return lockedFlights + S.bookings.filter(b => !S.costs.flightLocked || !['outbound','return'].includes(b.id)).reduce((n, b) => n + Number(b.actual || 0), 0); }
 function ready() { const core = S.bookings; const n = core.filter(b => ['Booked', 'Paid', 'Done'].includes(b.status)).length; return core.length ? n / core.length : 0; }
 function tripDriveKm() { return S.days.reduce((n, d) => n + Number(computeDayTimeline(d).totalDistKm || 0), 0); }
 function fuelSuggest() { const km = tripDriveKm(); return Math.round(km * 0.12 * 1.75 + 45); }
@@ -1755,6 +1840,7 @@ function renderDayCards() {
 }
 
 function bookingEstimate(b) {
+  if ((b.id === 'outbound' || b.id === 'return') && S.costs.flightLocked) return 0;
   if (b.id === 'outbound') return S.costs.flight === 'mixed' ? 477 : 702;
   if (b.id === 'return') return 651;
   if (b.id === 'rental') return Number(S.costs.rental || 0);
@@ -1764,10 +1850,39 @@ function bookingEstimate(b) {
 }
 function renderBookings() {
   const statuses = ['Not started', 'Ready to book', 'Decide', 'Waiting window', 'Booked', 'Paid', 'Done', 'Skip'];
-  document.getElementById('bookingRows').innerHTML = S.bookings.map((b, i) => `<div class="bookrow"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b></div><select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select><div>${money(bookingEstimate(b))}</div><input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)"><input class="input" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)"><a class="btn small" href="${b.link}" target="_blank">Open</a></div>`).join('');
+  document.getElementById('bookingRows').innerHTML = S.bookings.map((b, i) => {
+    const lockedFlight = b.locked && b.bookingGroup === 'westjet-flights';
+    const statusCell = lockedFlight
+      ? '<span class="badge must">PAID • LOCKED</span>'
+      : `<select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
+    const estimateCell = lockedFlight
+      ? (b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>')
+      : money(bookingEstimate(b));
+    const actualCell = lockedFlight
+      ? '<span class="date">combined fare</span>'
+      : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
+    const confirmCell = lockedFlight
+      ? '<span class="date">Booked</span>'
+      : `<input class="input" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)">`;
+    return `<div class="bookrow ${lockedFlight ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}<a class="btn small" href="${b.link}" target="_blank">Airline</a></div>`;
+  }).join('');
 }
-function updateBooking(i, k, v) { S.bookings[i][k] = v; save(); }
-function resetBookings() { if (confirm('Reset booking statuses, actual paid amounts and confirmations?')) { S.bookings = deepClone(BASE.bookings); save(); } }
+function updateBooking(i, k, v) {
+  if (S.bookings[i] && S.bookings[i].locked) {
+    toast('This booking is locked.');
+    renderBookings();
+    return;
+  }
+  S.bookings[i][k] = v;
+  save();
+}
+function resetBookings() {
+  if (confirm('Reset booking statuses, actual paid amounts and confirmations? Locked flights will stay booked.')) {
+    S.bookings = deepClone(BASE.bookings);
+    applyLockedWestJetFlights(S);
+    save();
+  }
+}
 
 function renderHotels() {
   document.getElementById('hotelGrid').innerHTML = Object.entries(S.hotels).map(([date, h]) => `<div class="card"><div class="row"><div><div class="date">${date}</div><h3>${date === 'Sep 25' ? 'Calgary Airport' : date === 'Sep 27' || date === 'Sep 28' ? 'Hinton' : 'Cochrane'}</h3></div><span class="badge must">2 QUEENS</span></div>${h.options.map((o, i) => `<div class="card hotelopt ${h.choice === i ? 'sel' : ''}" style="margin-top:8px" onclick="chooseHotel('${date}',${i})"><div class="row"><b>${escapeHtml(o[0])}</b><span>${h.choice === i ? '✓' : ''}</span></div><small>${escapeHtml(o[1])}<br>${escapeHtml(o[2])}</small><a class="btn small" style="margin-top:7px" href="${o[3]}" target="_blank" onclick="event.stopPropagation()">Verify exact room</a></div>`).join('')}<div class="hotelprice"><span>Final/estimated night total</span><input class="input" type="number" value="${h.price}" onchange="setHotelPrice('${date}',this.value)"></div></div>`).join('');
@@ -1819,6 +1934,7 @@ function renderBudget() {
   document.getElementById('budgetTotal').textContent = money(total());
   document.getElementById('budgetPP').textContent = money(total() / Math.max(1, S.settings.travellers));
   document.getElementById('flightChoice').value = S.costs.flight;
+  document.getElementById('flightChoice').disabled = !!S.costs.flightLocked;
   document.getElementById('rentalCost').value = S.costs.rental;
   document.getElementById('fuelCost').value = S.costs.fuel;
   document.getElementById('miscCost').value = S.costs.misc;
@@ -1829,7 +1945,7 @@ function renderBudget() {
   const bh = document.getElementById('budgetHint');
   if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.`;
 }
-document.getElementById('flightChoice').onchange = e => { S.costs.flight = e.target.value; save(); };
+document.getElementById('flightChoice').onchange = e => { if (S.costs.flightLocked) { e.target.value = 'booked-westjet'; toast('Flights are booked and locked.'); return; } S.costs.flight = e.target.value; save(); };
 document.getElementById('rentalCost').onchange = e => { S.costs.rental = Number(e.target.value || 0); save(); };
 document.getElementById('fuelCost').onchange = e => { S.costs.fuel = Number(e.target.value || 0); save(); };
 document.getElementById('miscCost').onchange = e => { S.costs.misc = Number(e.target.value || 0); save(); };
