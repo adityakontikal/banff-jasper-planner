@@ -356,17 +356,29 @@ const SPOT_INFO = {
     cut: 'Skip if running behind on the drive to Yoho or Cochrane.',
     official: 'https://parks.canada.ca/pn-np/ab/banff', tag: 'Lakes • Quick Parkway'
   },
+  naturalbridge: {
+    title: 'Natural Bridge — Kicking Horse River', photoQuery: 'Natural Bridge Yoho National Park Kicking Horse River', time: '15–25 min', rating: '8.8/10',
+    timingOptions: [{ label: 'Bridge viewpoints', min: 20 }, { label: 'Short riverside stroll', min: 35 }],
+    parking: 'Dedicated Natural Bridge day-use parking off Emerald Lake Road.',
+    parkingRating: 'Moderate', bestWindow: 'Before Emerald Lake on the same Yoho detour',
+    restrooms: 'Vault toilets at the day-use area', cell: 'Weak / Spotty', effort: 'Very short marked walk from parking',
+    desc: 'A separate Yoho stop where the Kicking Horse River has carved through a natural rock bridge. It is not at Emerald Lake and now has its own map pin.',
+    todo: 'Use the marked viewpoints, watch the turquoise river force through the rock channel, then continue to Emerald Lake.',
+    reviews: 'Short, high-value stop that pairs naturally with Emerald Lake without pretending both attractions are at one coordinate.',
+    cut: 'Keep tied to the Emerald Lake bonus; skip both if the Sep 29 southbound day is running late.',
+    official: 'https://parks.canada.ca/pn-np/bc/yoho/activ/places', tag: 'Yoho • River feature'
+  },
   emerald: {
-    title: 'Emerald Lake & Natural Bridge (Yoho)', photoQuery: 'Emerald Lake Yoho National Park Alberta British Columbia', time: '60–90 min', rating: '9.4/10',
-    timingOptions: [{ label: 'Natural Bridge + Lakeshore View', min: 45 }, { label: 'Lakeshore Walk & Lodge Loop', min: 75 }, { label: 'Full Emerald Lake Circuit (5.2 km)', min: 120 }],
-    parking: 'Paved parking lot at Emerald Lake and separate roadside lot at Natural Bridge.',
-    parkingRating: 'Moderate', bestWindow: 'Mid-afternoon (14:30–17:00)',
-    restrooms: 'Flush washrooms at Emerald Lake Lodge area; vault toilets at Natural Bridge', cell: 'Weak / Spotty', effort: 'Natural Bridge: Flat (< 50m); Emerald Lake: Flat paved/gravel path',
-    desc: 'The crowning glory of Yoho National Park. Emerald Lake features incandescent green waters framed by the President Range and the historic log cabins of Emerald Lake Lodge. The nearby Natural Bridge is a roaring rock arch carved by the Kicking Horse River.',
-    todo: 'First stop at Natural Bridge to watch the violent turquoise torrent surge through solid rock. Then drive to Emerald Lake, walk across the wooden bridge to the lodge, and stroll the quiet eastern shoreline.',
-    reviews: '"The green color of this lake looks fake in photos, but in person it is even brighter! The wooden bridge and lodge look like a fairytale." — Yoho Visitor Review',
-    cut: 'This is a 35 km detour from Lake Louise. Only do it on Sep 29 if you have at least 2 hours of daylight remaining.',
-    official: 'https://parks.canada.ca/pn-np/bc/yoho', tag: 'Yoho • Scenic Masterpiece'
+    title: 'Emerald Lake (Yoho)', photoQuery: 'Emerald Lake Yoho National Park British Columbia', time: '45–90 min', rating: '9.4/10',
+    timingOptions: [{ label: 'Bridge + lakeshore view', min: 45 }, { label: 'Lakeshore / lodge area', min: 60 }, { label: 'Full Emerald Lake Circuit (5.2 km)', min: 120 }],
+    parking: 'Paved parking at Emerald Lake; this is separate from Natural Bridge parking.',
+    parkingRating: 'Moderate / fills at popular times', bestWindow: 'Late afternoon if the southbound schedule stays healthy',
+    restrooms: 'Facilities around the Emerald Lake Lodge / day-use area', cell: 'Weak / Spotty', effort: 'Flat lakeshore access for the short visit',
+    desc: 'Emerald Lake is its own destination in Yoho National Park, with vivid green water and the President Range surrounding the lake.',
+    todo: 'Walk the bridge/lakeshore area for the classic view. Natural Bridge is a separate stop on Emerald Lake Road and has its own map pin.',
+    reviews: '"The green color of this lake looks fake in photos, but in person it is even brighter!" — Yoho visitor sentiment',
+    cut: 'Treat Emerald Lake + Natural Bridge as one optional Sep 29 bonus package, but keep them as two real map locations.',
+    official: 'https://parks.canada.ca/pn-np/bc/yoho/activ/places', tag: 'Yoho • Scenic Masterpiece'
   },
   gondola: {
     title: 'Banff Gondola (Sulphur Mountain Summit)', photoQuery: 'Banff Gondola Sulphur Mountain', time: '1.5–2.0 hr', rating: '8.2/10',
@@ -670,13 +682,14 @@ const CATALOG = [
   { id: 'crowfoot', name: 'Crowfoot Glacier Viewpoint', lat: 51.6630, lng: -116.4810, stayMin: 12, priority: 'nice' },
   { id: 'herbert', name: 'Herbert Lake', lat: 51.4520, lng: -116.2150, stayMin: 12, priority: 'nice' },
   { id: 'vermilion', name: 'Vermilion Lakes', lat: 51.1810, lng: -115.5950, stayMin: 25, priority: 'nice' },
-  { id: 'gondola', name: 'Banff Gondola', lat: 51.1414, lng: -115.5781, stayMin: 100, priority: 'nice' },
+  { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain', lat: 51.14821, lng: -115.55614, stayMin: 120, priority: 'must' },
   { id: 'hotspringsloc', name: 'Banff Upper Hot Springs', lat: 51.1683, lng: -115.5715, stayMin: 60, priority: 'cut' },
   { id: 'malignecanyon', name: 'Maligne Canyon', lat: 52.9203, lng: -118.0108, stayMin: 50, priority: 'nice' },
   { id: 'valley5', name: 'Valley of the Five Lakes', lat: 52.8450, lng: -118.0550, stayMin: 80, priority: 'nice' },
   { id: 'tangle', name: 'Tangle Falls', lat: 52.2820, lng: -117.2860, stayMin: 12, priority: 'nice' },
   { id: 'weeping', name: 'Weeping Wall', lat: 52.1480, lng: -116.9830, stayMin: 8, priority: 'cut' },
-  { id: 'emerald', name: 'Emerald Lake & Natural Bridge', lat: 51.4436, lng: -116.5310, stayMin: 75, priority: 'cut' }
+  { id: 'naturalbridge', name: 'Natural Bridge — Kicking Horse River', lat: 51.381632, lng: -116.530455, stayMin: 20, priority: 'nice' },
+  { id: 'emerald', name: 'Emerald Lake', lat: 51.44321, lng: -116.53153, stayMin: 60, priority: 'nice' }
 ];
 
 const GAS_STOPS = [
@@ -747,6 +760,7 @@ const BASE = {
         { id: 'banff', name: 'Banff Town (Lunch & Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 60 },
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 20 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 15 },
+        { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' },
         { id: 'johnston', name: 'Johnston Canyon', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 90 },
         { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
@@ -797,7 +811,8 @@ const BASE = {
         { id: 'icefield29', name: 'Columbia Icefield (Second Chance / Adventure)', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 60 },
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15 },
         { id: 'bowlake29', name: 'Bow Lake (Southbound viewpoint)', lat: 51.6827, lng: -116.4650, priority: 'nice', stayMin: 20 },
-        { id: 'emerald', name: 'Emerald Lake & Natural Bridge (Yoho)', lat: 51.4436, lng: -116.5310, priority: 'cut', stayMin: 75 },
+        { id: 'naturalbridge', name: 'Natural Bridge — Kicking Horse River (Yoho Option)', lat: 51.381632, lng: -116.530455, priority: 'nice', stayMin: 20, choiceGroup: 'sep29bonus', enabled: false },
+        { id: 'emerald', name: 'Emerald Lake (Yoho Option)', lat: 51.44321, lng: -116.53153, priority: 'nice', stayMin: 60, choiceGroup: 'sep29bonus', enabled: false },
         { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
@@ -821,7 +836,7 @@ const BASE = {
   },
   attractions: [
     { id: 'maligneCruise', name: 'Maligne Lake Cruise / Spirit Island', day: 'Sep 28', cost: 348, time: 2.5, type: 'paid', rating: '9/10', rec: 'RECOMMENDED #1', selected: true, desc: 'Most unique paid experience on the route.', skip: 'Maligne Lake shoreline is still free.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
-    { id: 'banffGondola', name: 'Banff Gondola', day: 'Sep 26', cost: 315, time: 2, type: 'paid', rating: '8/10', rec: 'WEATHER PICK #2', selected: false, desc: 'Sulphur Mountain summit + boardwalk.', skip: 'Skip if cloudy; natural mountain views remain abundant.', link: 'https://www.banffjaspercollection.com/attractions/banff-gondola/' },
+    { id: 'banffGondola', name: 'Banff Gondola', day: 'Sep 26', cost: 315, time: 2, type: 'paid', rating: '9/10', rec: 'MUST — IF VISIBILITY IS GOOD', selected: true, desc: 'Strong yes in clear weather: Sulphur Mountain summit + boardwalk. Keep the budget reserved until the 24–48h weather check.', skip: 'Skip only if cloud/fog ruins summit visibility.', link: 'https://www.banffjaspercollection.com/attractions/banff-gondola/' },
     { id: 'icefieldAdventure', name: 'Columbia Icefield Adventure + Skywalk', day: 'Sep 29', cost: 378, time: 2, type: 'paid', rating: '8/10', rec: 'TIME PICK #3', selected: false, desc: 'Ice Explorer onto glacier + Skywalk.', skip: 'Glacier and Icefield viewpoints remain free beyond park entry.', link: 'https://www.banffjaspercollection.com/attractions/columbia-icefield/' },
     { id: 'hotSprings', name: 'Banff Upper Hot Springs', day: 'Sep 26', cost: 59.25, time: 1.5, type: 'paid', rating: '7/10', rec: 'OPTIONAL', selected: false, desc: 'Cheap relaxation at end of day.', skip: 'No scenery lost.', link: 'https://hotsprings.ca/banff/' },
     { id: 'jasperSkytram', name: 'Jasper SkyTram', day: 'Sep 28', cost: 243, time: 2, type: 'paid', rating: '7/10', rec: 'ALTERNATIVE', selected: false, desc: 'Alpine tram views above Jasper.', skip: 'Parkway already provides extensive mountain views.', link: 'https://www.jasperskytram.com/' },
@@ -1269,30 +1284,144 @@ function toast(msg) {
 }
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
 function escapeAttr(s) { return escapeHtml(s); }
-function googleMapsForStop(s) { return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.lat + ',' + s.lng)}`; }
-function googleMapsDirectionsToStop(s) { return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.lat + ',' + s.lng)}&travelmode=driving`; }
+
+const GOOGLE_MAP_QUERIES = {
+  yyc25: 'Calgary International Airport YYC, 2000 Airport Rd NE, Calgary, AB',
+  cochrane26_dep: 'Calgary International Airport YYC Economy Parking Lot, Calgary, AB',
+  minnewanka: 'Lake Minnewanka, Banff National Park, Alberta',
+  twojack: 'Two Jack Lake, Banff National Park, Alberta',
+  banff: 'Banff Avenue, Banff, Alberta',
+  bowfalls: 'Bow Falls, Banff, Alberta',
+  surprise: 'Surprise Corner Viewpoint, Banff, Alberta',
+  gondola: 'Banff Gondola, 100 Mountain Ave, Banff, AB',
+  johnston: 'Johnston Canyon, Bow Valley Parkway, Banff National Park, Alberta',
+  cochrane26_ret: 'Super 8 by Wyndham Cochrane, 11 West Side Dr, Cochrane, AB',
+  cochrane27: 'Super 8 by Wyndham Cochrane, 11 West Side Dr, Cochrane, AB',
+  parkride: 'Lake Louise Ski Resort Park and Ride, 1 Whitehorn Rd, Lake Louise, AB',
+  parkride_return: 'Lake Louise Ski Resort Park and Ride, 1 Whitehorn Rd, Lake Louise, AB',
+  moraine: 'Moraine Lake, Banff National Park, Alberta',
+  louise: 'Lake Louise Lakeshore, Lake Louise, Alberta',
+  bowlake: 'Bow Lake, Banff National Park, Alberta',
+  bowlake29: 'Bow Lake, Banff National Park, Alberta',
+  peyto: 'Peyto Lake Viewpoint, Icefields Parkway, Alberta',
+  mistaya: 'Mistaya Canyon Trailhead, Icefields Parkway, Alberta',
+  saskcrossing: 'The Crossing Resort, Saskatchewan River Crossing, Alberta',
+  icefield: 'Athabasca Glacier, Icefields Parkway, Alberta',
+  icefield29: 'Athabasca Glacier, Icefields Parkway, Alberta',
+  sunwapta: 'Sunwapta Falls, Jasper National Park, Alberta',
+  athfalls: 'Athabasca Falls, Jasper National Park, Alberta',
+  hinton27: 'Hinton Lodge, 752 Carmichael Lane, Hinton, AB',
+  hinton28a: 'Hinton Lodge, 752 Carmichael Lane, Hinton, AB',
+  hinton28b: 'Hinton Lodge, 752 Carmichael Lane, Hinton, AB',
+  hinton29: 'Hinton Lodge, 752 Carmichael Lane, Hinton, AB',
+  pyramid: 'Pyramid Island, Jasper National Park, Alberta',
+  patricia: 'Patricia Lake, Jasper National Park, Alberta',
+  jasper: 'Jasper, Alberta',
+  jasper29: 'Jasper, Alberta',
+  medicine: 'Medicine Lake, Jasper National Park, Alberta',
+  maligne: 'Maligne Lake, Jasper National Park, Alberta',
+  annette: 'Lake Annette, Jasper National Park, Alberta',
+  valley5: 'Valley of the Five Lakes Trailhead, Jasper National Park, Alberta',
+  stutfield: 'Stutfield Glacier Viewpoint, Icefields Parkway, Alberta',
+  waterfowl: 'Waterfowl Lakes, Banff National Park, Alberta',
+  emerald: 'Emerald Lake, Yoho National Park, British Columbia',
+  naturalbridge: 'Natural Bridge, Yoho National Park, British Columbia',
+  cochrane29: 'Holiday Inn Calgary-Airport by IHG, 1250 McKinnon Dr NE, Calgary, AB',
+  cochrane30: 'Holiday Inn Calgary-Airport by IHG, 1250 McKinnon Dr NE, Calgary, AB',
+  canmore: "Prince's Island Park, Calgary, AB",
+  yyc30: 'Calgary International Airport YYC, 2000 Airport Rd NE, Calgary, AB'
+};
+
+const CURATED_COMMONS_FILES = {
+  minnewanka: ['Lake Minnewanka Panorama.jpg', 'Lake Minnewanka 11092005.jpg'],
+  twojack: ['Two Jack Lake - Banff.jpg', 'Two Jack Lake Banff.jpg'],
+  gondola: ['Gondola Lift -- Sulphur Mountain Banff, Alberta Province (CA) September 2019 (49278742638).jpg', 'Banff from Sulphur Mountain 2020.jpg'],
+  johnston: ['Johnston Canyon, Banff National Park, Alberta, 2025-07-12 05.jpg', 'Johnston Canyon Trail, Johnston Canyon, Banff National Park, Alberta, 2025-07-12 02.jpg'],
+  moraine: ['1 moraine lake pano 2019.jpg'],
+  louise: ['Lake Louise Canada Banff.JPG'],
+  bowlake: ['Bow Lake -- Banff National Park, Alberta Province, Canada September 2019 (49396463706).jpg', 'Bow Lake in Banff National Park (49380878573).jpg'],
+  bowlake29: ['Bow Lake -- Banff National Park, Alberta Province, Canada September 2019 (49396463706).jpg'],
+  peyto: ['Peyto Lake, Banff National Park, Alberta, Canada.jpg', 'Classic view of a cloudfree Peyto Lake, Banff National Park, Alberta, Canada (4110933448).jpg'],
+  icefield: ['Athabasca Glacier, Jasper National Park (7780237404).jpg'],
+  icefield29: ['Athabasca Glacier, Jasper National Park (7780237404).jpg'],
+  athfalls: ['Jasper Athabasca Falls.jpg'],
+  pyramid: ['Pyramid Lake (Alberta).jpg', 'Pyramid Lake 01.jpg'],
+  medicine: ['Medicine Lake, Jasper National Park, Canada (54880322287).jpg', 'Medicine Lake Alberta (1).jpg'],
+  maligne: ['Spirit Island on Maligne Lake.jpg', 'Spirit Island, Maligne Lake, Jasper NP.jpg'],
+  emerald: ['Emerald Lake - Yoho National Park, BC, Canada.jpg', 'Emerald Lake-Yoho.jpg'],
+  naturalbridge: ['Natural Bridge, Yoho NP, west view 20240825 3.jpg', 'Natural Bridge in Yoho National Park.jpg']
+};
+
+function googleMapsQueryForStop(s) {
+  if (!s) return '';
+  if (s.mapQuery) return s.mapQuery;
+  return GOOGLE_MAP_QUERIES[s.id] || String(s.name || '').replace(/\s*\([^)]*\)/g, '').replace(/\s*[—•].*$/, '').trim();
+}
+function googleMapsForStop(s) {
+  const q = googleMapsQueryForStop(s);
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || (s.lat + ',' + s.lng))}`;
+}
+function googleMapsDirectionsToStop(s) {
+  const q = googleMapsQueryForStop(s);
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q || (s.lat + ',' + s.lng))}&travelmode=driving`;
+}
 function getSpotInfo(stop) {
   const k = SPOT_ALIASES[stop.id] || stop.id;
-  return SPOT_INFO[k] || GENERIC_INFO[k] || { title: stop.name, photoQuery: stop.name + ' Alberta Canada', time: 'Flexible', parking: 'Use signed/designated parking and follow local restrictions.', desc: 'A custom stop in your itinerary. You can rename, move or reprioritize it from the map editor.', todo: 'Review the map position and decide how long you want to spend here.', cut: 'Treat as optional unless you mark it Must.', official: googleMapsForStop(stop), tag: 'Custom stop' };
+  const info = SPOT_INFO[k] || GENERIC_INFO[k];
+  if (info) return Object.assign({ _key: k }, info);
+  return { _key: k, title: stop.name, photoQuery: stop.name + ' Alberta Canada', time: 'Flexible', parking: 'Use signed/designated parking and follow local restrictions.', desc: 'A custom stop in your itinerary. You can rename, move or reprioritize it from the map editor.', todo: 'Review the map position and decide how long you want to spend here.', cut: 'Treat as optional unless you mark it Must.', official: googleMapsForStop(stop), tag: 'Custom stop' };
 }
 function findStop(date, id) { const d = S.days.find(x => x.date === date); if (!d) return null; return { day: d, stop: d.stops.find(x => x.id === id), index: d.stops.findIndex(x => x.id === id) }; }
 function commonsSearchUrl(q) { return 'https://commons.wikimedia.org/w/index.php?search=' + encodeURIComponent(q) + '&title=Special:MediaSearch&type=image'; }
 function stripTags(v) { const d = document.createElement('div'); d.innerHTML = v || ''; return d.textContent || d.innerText || ''; }
-async function getCommonsPhotos(q, limit = 4) {
-  const key = q + '|' + limit;
+function commonsPhotoFromPage(p) {
+  const ii = p && p.imageinfo && p.imageinfo[0];
+  if (!ii) return null;
+  const m = ii.extmetadata || {};
+  return { src: ii.thumburl || ii.url, full: ii.url, title: String(p.title || '').replace(/^File:/, ''), artist: stripTags(m.Artist?.value || m.Credit?.value || ''), license: m.LicenseShortName?.value || '', source: ii.descriptionurl || ii.url };
+}
+async function getCommonsFiles(fileNames) {
+  const names = (fileNames || []).filter(Boolean);
+  if (!names.length) return [];
+  const key = 'files|' + names.join('|');
   if (photoCache[key]) return photoCache[key];
-  const u = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=' + limit + '&gsrsearch=' + encodeURIComponent(q) + '&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1100&format=json&origin=*';
+  const titles = names.map(x => 'File:' + x).join('|');
+  const u = 'https://commons.wikimedia.org/w/api.php?action=query&titles=' + encodeURIComponent(titles) + '&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1100&format=json&origin=*';
   try {
     const r = await fetch(u);
     const j = await r.json();
     const pages = Object.values(j.query?.pages || {}).filter(x => x.imageinfo?.[0]);
-    const arr = pages.map(p => {
-      const ii = p.imageinfo[0], m = ii.extmetadata || {};
-      return { src: ii.thumburl || ii.url, full: ii.descriptionurl || ii.url, title: p.title.replace(/^File:/, ''), artist: stripTags(m.Artist?.value || m.Credit?.value || ''), license: m.LicenseShortName?.value || '', source: ii.descriptionurl || '' };
-    });
+    const byTitle = new Map(pages.map(p => [String(p.title || '').replace(/^File:/, ''), commonsPhotoFromPage(p)]));
+    const arr = names.map(name => byTitle.get(name)).filter(Boolean);
     photoCache[key] = arr;
     return arr;
   } catch (e) { return []; }
+}
+async function getCommonsPhotos(q, limit = 4) {
+  const key = q + '|' + limit;
+  if (photoCache[key]) return photoCache[key];
+  const u = 'https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=' + Math.max(limit, 8) + '&gsrsearch=' + encodeURIComponent(q) + '&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=1100&format=json&origin=*';
+  try {
+    const r = await fetch(u);
+    const j = await r.json();
+    const pages = Object.values(j.query?.pages || {}).filter(x => x.imageinfo?.[0]);
+    const words = String(q || '').toLowerCase().split(/\s+/).filter(x => x.length > 3);
+    const ranked = pages.map(p => {
+      const title = String(p.title || '').toLowerCase();
+      const score = words.reduce((n, w) => n + (title.includes(w) ? 1 : 0), 0);
+      return { score, photo: commonsPhotoFromPage(p) };
+    }).filter(x => x.photo).sort((a, b) => b.score - a.score).slice(0, limit).map(x => x.photo);
+    photoCache[key] = ranked;
+    return ranked;
+  } catch (e) { return []; }
+}
+async function getSpotPhotos(inf, limit = 4) {
+  const curated = CURATED_COMMONS_FILES[inf && inf._key] || [];
+  if (curated.length) {
+    const exact = await getCommonsFiles(curated);
+    if (exact.length) return exact.slice(0, limit);
+  }
+  return getCommonsPhotos(inf.photoQuery, limit);
 }
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -2247,9 +2376,18 @@ function toggleAtt(id, v) {
     const st = S.days.find(d => d.date === 'Sep 29')?.stops.find(s => s.id === 'icefield29');
     if (st) st.stayMin = v ? 150 : 60;
   }
-  if (id === 'banffGondola' && v) {
+  if (id === 'banffGondola') {
     const day = S.days.find(d => d.date === 'Sep 26');
-    if (day && !day.stops.some(s => s.id === 'gondola')) toast('Gondola is on — add the Sulphur Mountain stop from + Add stop if you want it on the map.');
+    if (day) {
+      let st = day.stops.find(s => s.id === 'gondola');
+      if (!st && v) {
+        st = { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' };
+        const johnstonIndex = day.stops.findIndex(s => s.id === 'johnston');
+        day.stops.splice(johnstonIndex >= 0 ? johnstonIndex : day.stops.length - 1, 0, st);
+      }
+      if (st) st.priority = v ? 'must' : 'cut';
+    }
+    if (S.decisions) S.decisions.gondola = v ? 'yes' : 'no';
   }
   save();
 }
@@ -2657,13 +2795,15 @@ function closeSpotModal() {
 }
 async function renderModalPhotos(inf) {
   const grid = document.getElementById('modalPhotoGrid');
-  grid.innerHTML = Array.from({ length: 4 }, () => '<div class="photo"><div class="pholder">Loading real location photo…</div></div>').join('');
-  document.getElementById('modalPhotoSource').innerHTML = `Photos: Wikimedia Commons for <a class="info-link" target="_blank" href="${commonsSearchUrl(inf.photoQuery)}">${escapeHtml(inf.photoQuery)}</a>`;
-  const photos = await getCommonsPhotos(inf.photoQuery, 6);
-  const slice = photos.slice(0, 4);
-  grid.innerHTML = (slice.length ? slice : [null, null, null, null]).map(p => p
-    ? `<a class="photo" href="${p.source}" target="_blank"><img src="${p.src}" alt="${escapeAttr(inf.title)}"><div class="photo-credit">${escapeHtml(p.artist || 'Wikimedia Commons')}${p.license ? ' • ' + escapeHtml(p.license) : ''}</div></a>`
-    : `<div class="photo"><div class="pholder">No matching Commons photo loaded.<br>Use source link above.</div></div>`).join('');
+  grid.innerHTML = Array.from({ length: 4 }, () => '<div class="photo"><div class="pholder">Loading curated real location photo…</div></div>').join('');
+  const curated = CURATED_COMMONS_FILES[inf._key] || [];
+  document.getElementById('modalPhotoSource').innerHTML = curated.length
+    ? 'Photos: hand-picked real images from Wikimedia Commons — no generated imagery.'
+    : `Photos: real Wikimedia Commons results for <a class="info-link" target="_blank" href="${commonsSearchUrl(inf.photoQuery)}">${escapeHtml(inf.photoQuery)}</a>`;
+  const photos = await getSpotPhotos(inf, 4);
+  grid.innerHTML = (photos.length ? photos : [null, null, null, null]).map(p => p
+    ? `<a class="photo" href="${p.source}" target="_blank"><img src="${p.src}" alt="${escapeAttr(inf.title)}" loading="lazy"><div class="photo-credit">${escapeHtml(p.artist || 'Wikimedia Commons')}${p.license ? ' • ' + escapeHtml(p.license) : ''}</div></a>`
+    : `<div class="photo"><div class="pholder">No verified real photo loaded.<br>Use the source link instead.</div></div>`).join('');
 }
 function renderModalMiniMap(stop) {
   if (modalMiniMap) { modalMiniMap.remove(); modalMiniMap = null; }
@@ -2682,7 +2822,7 @@ async function hydrateDayThumbs(d) {
       el.innerHTML = `<div class="fallback">${escapeHtml(inf.title)}</div>`;
       continue;
     }
-    const p = await getCommonsPhotos(inf.photoQuery, 1);
+    const p = await getSpotPhotos(inf, 1);
     if (document.getElementById('thumb_' + st.id)) {
       el.innerHTML = p[0] ? `<img src="${p[0].src}" alt="${escapeAttr(inf.title)}"><div class="photo-credit">${escapeHtml(p[0].artist || 'Wikimedia Commons')} • ${escapeHtml(p[0].license)}</div>` : `<div class="fallback">Photo gallery available in popup</div>`;
     }
