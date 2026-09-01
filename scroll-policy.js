@@ -130,7 +130,7 @@
           min-height: 100% !important;
           max-height: none !important;
           overflow-x: hidden !important;
-          overflow-y: visible !important;
+          overflow-y: auto !important;
           overscroll-behavior-y: auto !important;
           touch-action: pan-y pinch-zoom !important;
           -webkit-overflow-scrolling: touch;
@@ -302,7 +302,7 @@
           min-height: 360px !important;
           max-height: 620px !important;
           overflow: hidden !important;
-          touch-action: pan-x pan-y !important;
+          touch-action: none !important;
         }
 
         #mapview .adaptive-route-clock {
