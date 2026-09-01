@@ -101,10 +101,14 @@
     { id: 'shuttle', label: 'Moraine / Lake Louise shuttle', ids: ['shuttle'] }
   ];
 
+  const RENTAL_CHECKS = [
+    ['rental_file', 'Send Ascent: driver licence + payment-card + flight-number details'],
+    ['rental_insurance', 'Confirm rental insurance / own-coverage proof'],
+    ['rental_drivers', 'Decide additional drivers; all added drivers must attend pickup'],
+    ['rental_early_return', 'Confirm early-return procedure for the planned 4:45 PM drop-off']
+  ];
+
   const FINAL_CHECKS = [
-    ['rental_file', 'Ascent file completed: licence + payment card + flight number'],
-    ['rental_insurance', 'Rental insurance / own coverage proof confirmed'],
-    ['rental_drivers', 'Additional drivers decided; all added drivers present at pickup'],
     ['offline_maps', 'Offline maps downloaded'],
     ['tickets_saved', 'Tickets + confirmations saved on every phone'],
     ['layers_ready', 'Warm layers / rain shell in the car'],
@@ -262,6 +266,11 @@
       '</div>';
     }).join('');
 
+    const rentalRows = RENTAL_CHECKS.map(function (x) {
+      const done = checked(x[0]);
+      return '<label class="pp-check-row compact ' + (done ? 'done' : '') + '"><span class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' onchange="toggleCheck(\'' + x[0] + '\')"><span class="pp-check-box"></span><span><b>' + escapeHtml(x[1]) + '</b></span></span></label>';
+    }).join('');
+
     const finalRows = FINAL_CHECKS.map(function (x) {
       const done = checked(x[0]);
       return '<label class="pp-check-row compact ' + (done ? 'done' : '') + '"><span class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' onchange="toggleCheck(\'' + x[0] + '\')"><span class="pp-check-box"></span><span><b>' + escapeHtml(x[1]) + '</b></span></span></label>';
@@ -271,6 +280,7 @@
       '<div class="pp-section-head"><div><h2>Before you go</h2><p>' + completed + ' of ' + BOOKING_GROUPS.length + ' core bookings done</p></div><button onclick="setView(\'bookings\')">Open booking details</button></div>' +
       '<div class="pp-progress"><span style="width:' + Math.round(completed / BOOKING_GROUPS.length * 100) + '%"></span></div>' +
       '<div class="pp-check-list">' + rows + '</div>' +
+      '<div class="pp-rental-followup"><div class="pp-followup-head"><b>Rental follow-up</b><span>Do the first item within 48 hours of booking</span></div><div class="pp-check-list">' + rentalRows + '</div></div>' +
       '<details class="pp-final-checks"><summary>Departure-day checklist</summary><div class="pp-check-list">' + finalRows + '</div></details>' +
     '</section>';
   }
@@ -520,6 +530,11 @@
       .pp-check-row.done .pp-check-box:after{content:'✓';color:#061610;font-size:11px;font-weight:900}
       .pp-check-main b{display:block;font-size:12px}
       .pp-check-main small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+      .pp-rental-followup{margin-top:14px;border:1px solid #6e5830;border-radius:9px;background:#211c11;padding:10px 11px}
+      .pp-followup-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:5px}
+      .pp-followup-head b{font-size:11px;color:#e7c783}
+      .pp-followup-head span{font-size:8.5px;color:#c7b27f}
+      .pp-rental-followup .pp-check-list{border-top:1px solid rgba(255,255,255,.08)}
       .pp-final-checks{margin-top:12px}
       .pp-final-checks summary{cursor:pointer;color:#b8cfdd;font-size:11px}
       .pp-check-row.compact{min-height:42px}
