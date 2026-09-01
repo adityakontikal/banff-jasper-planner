@@ -70,13 +70,13 @@
       stops: [
         { id: 'hinton29', name: 'Hinton Hotel (Depart 06:30)', lat: 53.399, lng: -117.586, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'jasper29', name: 'Jasper (Southbound Fuel + Snacks)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 25 },
-        { id: 'valley5', name: 'Valley of the Five Lakes — Emerald Loop Option', lat: 52.8450, lng: -118.0550, priority: 'nice', stayMin: 110 },
+        { id: 'valley5', name: 'Valley of the Five Lakes — Emerald Loop Option', lat: 52.8450, lng: -118.0550, priority: 'nice', stayMin: 110, choiceGroup: 'sep29bonus' },
         { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 35 },
         { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 10 },
-        { id: 'icefield29', name: 'Columbia Icefield — Second Chance / Adventure Option', lat: 52.2203, lng: -117.2249, priority: 'nice', stayMin: 45 },
+        { id: 'icefield29', name: 'Columbia Icefield — Second Chance / Adventure Option', lat: 52.2203, lng: -117.2249, priority: 'nice', stayMin: 45, choiceGroup: 'sep29bonus' },
         { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 10 },
         { id: 'bowlake29', name: 'Bow Lake (Repeat only if Sep 27 weather was poor)', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
-        { id: 'emerald', name: 'Emerald Lake + Natural Bridge (Yoho Option)', lat: 51.4436, lng: -116.5310, priority: 'nice', stayMin: 75 },
+        { id: 'emerald', name: 'Emerald Lake + Natural Bridge (Yoho Option)', lat: 51.4436, lng: -116.5310, priority: 'nice', stayMin: 75, choiceGroup: 'sep29bonus' },
         { id: 'cochrane29', name: 'Cochrane Hotel (Sleep)', lat: 51.189, lng: -114.467, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
@@ -121,6 +121,8 @@
   }
 
   function patchBase() {
+    BASE.presetVersion = 'verified-2026-08-31-v1';
+    BASE.activePreset = 'verified';
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
     BASE.settings.globalNote = 'Verified Aug 31, 2026. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Three drivers; long/night driving is acceptable. Protect 6–7h sleep / ~8–9h in-room time. Must = first-timer core; Nice = consider/choose; Cut = keep in data but sacrifice first.';
     BASE.settings.lunchMin = 30;
@@ -331,13 +333,7 @@
   }
 
   function isVerifiedState(state) {
-    if (!state || !state.days || state.days.length !== VERIFIED_DAYS.length) return false;
-    const sig = function (days) {
-      return days.map(function (d) {
-        return [d.date, d.start].concat(d.stops.map(function (s) { return s.id + ':' + s.priority + ':' + s.stayMin; })).join('|');
-      }).join('||');
-    };
-    return sig(state.days) === sig(VERIFIED_DAYS);
+    return !!state && state.presetVersion === 'verified-2026-08-31-v1';
   }
 
   function preserveProgress(next, old) {
@@ -364,6 +360,8 @@
   }
 
   function configurePreset(next, name) {
+    next.presetVersion = 'verified-2026-08-31-v1';
+    next.activePreset = name;
     next.decisions = deepClone(VERIFIED_DECISIONS);
     const maligne = next.attractions.find(function (a) { return a.id === 'maligneCruise'; });
     const gondola = next.attractions.find(function (a) { return a.id === 'banffGondola'; });
@@ -641,6 +639,42 @@
     document.head.appendChild(st);
   }
 
+  function patchTimelineEngine() {
+    const oldComputeDayTimeline = computeDayTimeline;
+    computeDayTimeline = function (day) {
+      if (!day || !day.stops) return oldComputeDayTimeline(day);
+      const pendingGroups = [];
+      if (S.decisions && S.decisions.sep29bonus === 'pending') pendingGroups.push('sep29bonus');
+      if (!pendingGroups.length) return oldComputeDayTimeline(day);
+
+      const clone = deepClone(day);
+      const optionIds = new Set();
+      clone.stops.forEach(function (st) {
+        if (st.choiceGroup && pendingGroups.includes(st.choiceGroup) && st.priority === 'nice') {
+          optionIds.add(st.id);
+          st.priority = 'cut';
+        }
+      });
+      const tl = oldComputeDayTimeline(clone);
+      tl.items.forEach(function (it) {
+        if (optionIds.has(it.stop.id)) {
+          const original = day.stops.find(function (s) { return s.id === it.stop.id; });
+          it.stop = original || it.stop;
+          it.isCut = false;
+          it.isOptionPending = true;
+          it.arrTime = { display: 'OPTION' };
+          it.depTime = { display: 'OPTION' };
+          it.stayMin = 0;
+          it.plannedStayMin = original ? getDefaultStayMin(original) : it.plannedStayMin;
+        }
+      });
+      tl.activeCount = day.stops.filter(function (s) {
+        return s.priority !== 'cut' && !(s.choiceGroup && pendingGroups.includes(s.choiceGroup));
+      }).length;
+      return tl;
+    };
+  }
+
   function patchRenderers() {
     const oldRenderPlan = renderPlan;
     renderPlan = function () {
@@ -650,7 +684,7 @@
       const active = isVerifiedState(S);
       root.insertAdjacentHTML('afterbegin',
         '<div class="verified-banner ' + (active ? '' : 'warn') + '"><div><b>' + (active ? '✓ Verified budget-first preset active' : 'Verified preset available') + '</b><p>' +
-        (active ? 'Times, priorities and the Sep 29 choice fork match the Aug 31 verified plan.' : 'Your saved browser state predates the verified route. Apply the preset to update timings/priorities while preserving bookings and entered prices.') +
+        (active ? 'Based on the verified Aug 31 plan. Your MCQ choices and manual edits remain yours; Reset to verified restores the baseline.' : 'Your saved browser state predates the verified route. Apply the preset to update timings/priorities while preserving bookings and entered prices.') +
         '</p></div><div class="actions"><button class="btn small ' + (active ? '' : 'primary') + '" onclick="applyVerifiedPlannerPreset(\'verified\')">' + (active ? 'Reset to verified' : 'Apply verified preset') + '</button><button class="btn small" onclick="setView(\'lockview\');renderVerifiedLock()">Open Lock flow</button></div></div>');
     };
 
@@ -694,11 +728,14 @@
 
     const oldGoogleRouteUrl = googleRouteUrl;
     googleRouteUrl = function (stops) {
-      if (stops && stops.some(function (s) { return s.id === 'moraine'; })) {
-        const carOnly = stops.filter(function (s) { return s.id !== 'moraine' && s.id !== 'louise'; });
-        return oldGoogleRouteUrl(carOnly);
+      let filtered = stops || [];
+      if (S.decisions && S.decisions.sep29bonus === 'pending') {
+        filtered = filtered.filter(function (s) { return s.choiceGroup !== 'sep29bonus'; });
       }
-      return oldGoogleRouteUrl(stops);
+      if (filtered.some(function (s) { return s.id === 'moraine'; })) {
+        filtered = filtered.filter(function (s) { return s.id !== 'moraine' && s.id !== 'louise'; });
+      }
+      return oldGoogleRouteUrl(filtered);
     };
 
     const oldChooseHotel = chooseHotel;
@@ -748,6 +785,7 @@
   window.setVerifiedDecision = setDecision;
   window.renderVerifiedLock = renderLock;
 
+  patchTimelineEngine();
   patchRenderers();
   renderAll();
 
