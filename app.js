@@ -717,6 +717,7 @@ const BOOK_TASKS = [
   { id: 'shuttle-alarm', title: 'Set the Moraine/Louise shuttle alarm', due: '2026-09-25T08:00:00-06:00', detail: 'Sep 25 at 8:00 AM Mountain / 10:00 AM Toronto. Remaining Parks Canada seats drop 48 hours before departure. Book from Toronto before you fly. Choose Moraine Lake as first destination so you are guaranteed that lake.', link: 'https://reservation.pc.gc.ca/', bookId: 'shuttle' },
   { id: 'rental-info', title: 'Complete Ascent rental file', due: '2026-09-03T18:00:00-04:00', detail: 'Voucher requires driver licence, payment-card and flight-number details within 48 hours or the booking is not guaranteed. Call +1 604 416 4600 or email info@ascentcarrental.com.', link: 'mailto:info@ascentcarrental.com', bookId: 'rental' },
   { id: 'rental-drivers', title: 'Decide additional rental drivers', due: '2026-09-20T18:00:00-04:00', detail: 'Only the booked main driver is guaranteed. Additional drivers cost extra and all added drivers must be present with valid documents at pickup.', link: 'tel:+16044164600', bookId: 'rental' },
+  { id: 'yyz-parking-pass', title: 'Save SpotHero pass + review parking instructions', due: '2026-09-24T20:00:00-04:00', detail: 'EZ Airport Parking — Uncovered Self Park is paid. Enter after Sep 25 at 8:00 PM and exit before Oct 1 at 8:00 PM. Review the facility/entry instructions before driving in and keep the pass available offline. Vehicle and plate details stay only in SpotHero.', link: 'https://spothero.com/', bookId: 'yyzParking' },
   { id: 'hotels', title: 'Book every 2-queen room', due: '2026-09-08T18:00:00-04:00', detail: 'Checkout must show 1 room • 3 adults • 2 Queen Beds. Do not accept “bed type assigned at check-in.” Prefer the same Hinton hotel Sep 27–28.', bookId: 'h26' },
   { id: 'maligne', title: 'Decide Maligne Lake Cruise', due: '2026-09-14T18:00:00-04:00', detail: 'Default paid highlight (~$348, 2.5 h). If yes, book a morning/midday sailing and protect Maligne Road time.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
   { id: 'parkpass', title: 'Buy Parks Canada Family/Group admission', due: '2026-09-26T10:00:00-06:00', detail: 'Daily family/group is $24.50 and covers the vehicle. Four park days ≈ $98. Discovery Pass family ($167.50) is worse value for this trip.', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/tarifs-fees', bookId: 'park' }
@@ -724,7 +725,7 @@ const BOOK_TASKS = [
 
 const BASE = {
   settings: { title: 'Banff → Jasper Road Trip', travellers: 3, startDate: '2026-09-25', endDate: '2026-09-30', globalNote: 'Protect the major natural sights first; add paid attractions only when time and weather justify them.', lunchMin: 40, bufferMin: 8 },
-  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 371.30, rentalLocked: true, rentalDeposit: 1000, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
+  costs: { flight: 'booked-westjet', flightActual: 966.63, flightLocked: true, rental: 371.30, rentalLocked: true, rentalDeposit: 1000, yyzParkingActual: 51.74, yyzParkingLocked: true, fuel: 280, food: 540, misc: 80, park: 98, shuttle: 41.75 },
   selectedDay: 'Sep 26', showAllDays: false, showFuel: false,
   checklists: {},
   days: [
@@ -841,6 +842,7 @@ const BASE = {
     { id: 'outbound', p: 1, item: 'WestJet • YYZ 10:25 PM → YYC 12:44 AM +1 • Fri Sep 25', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 4h 19m • arrives Sat Sep 26', link: 'https://www.westjet.com/' },
     { id: 'return', p: 2, item: 'WestJet • YYC 7:10 PM → YYZ 1:05 AM +1 • Wed Sep 30', estimate: 0, status: 'Paid', actual: '', confirm: '', locked: true, bookingGroup: 'westjet-flights', detail: 'Nonstop • 3h 55m • arrives Thu Oct 1', link: 'https://www.westjet.com/' },
     { id: 'rental', p: 3, item: 'Ascent Car Rental • Kia K4 or similar • Sep 26 1:30 AM → Sep 30 6:00 PM', estimate: 371.30, status: 'Booked', actual: '', confirm: 'Stored in voucher', locked: true, bookingGroup: 'ascent-rental', detail: 'Outside terminal • YYC Economy Parking Lot • unlimited mileage • full-to-full • C$1,000 deposit • pay C$371.30 at pickup', link: 'tel:+16044164600' },
+    { id: 'yyzParking', p: 4, item: 'SpotHero • EZ Airport Parking — Uncovered Self Park • Sep 25 8:00 PM → Oct 1 8:00 PM', estimate: 51.74, status: 'Paid', actual: 51.74, confirm: 'Stored in SpotHero pass', locked: true, bookingGroup: 'spothero-parking', detail: 'YYZ airport parking • enter after Fri Sep 25 8:00 PM • exit before Thu Oct 1 8:00 PM • review facility instructions before entering', link: 'https://spothero.com/' },
     { id: 'h25', p: 4, item: 'Hotel Sep 25–27 (2 Nights) — Days Inn Cochrane', estimate: 350, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
     { id: 'h26', p: 5, item: 'Hotel Sep 26 (Included in 2-night Cochrane booking)', estimate: 0, status: 'Ready to book', actual: '', confirm: '', link: 'https://ca.hotels.com/ho247855/days-inn-suites-by-wyndham-cochrane-cochrane-canada/' },
     { id: 'h27', p: 6, item: 'Hotel Sep 27 — Hinton', estimate: 149, status: 'Ready to book', actual: '', confirm: '', link: 'https://www.expedia.ca/Hinton-Hotels-Ramada-By-Wyndham-Hinton.h9769746.Hotel-Information' },
@@ -1038,7 +1040,38 @@ function applyLockedAscentRental(state) {
   }
 }
 
+function applyLockedSpotHeroParking(state) {
+  if (!state) return;
+  state.costs = state.costs || {};
+  state.costs.yyzParkingActual = 51.74;
+  state.costs.yyzParkingLocked = true;
+
+  state.bookings = state.bookings || [];
+  let b = state.bookings.find(x => x.id === 'yyzParking');
+  if (!b) {
+    b = { id: 'yyzParking' };
+    const rentalIndex = state.bookings.findIndex(x => x.id === 'rental');
+    state.bookings.splice(rentalIndex >= 0 ? rentalIndex + 1 : state.bookings.length, 0, b);
+  }
+  Object.assign(b, {
+    item: 'SpotHero • EZ Airport Parking — Uncovered Self Park • Sep 25 8:00 PM → Oct 1 8:00 PM',
+    estimate: 51.74,
+    status: 'Paid',
+    actual: 51.74,
+    confirm: 'Stored in SpotHero pass',
+    locked: true,
+    bookingGroup: 'spothero-parking',
+    detail: 'YYZ airport parking • enter after Fri Sep 25 8:00 PM • exit before Thu Oct 1 8:00 PM • review facility instructions before entering',
+    link: 'https://spothero.com/'
+  });
+
+  // Keep the visible booking sequence stable for existing browser saves that
+  // predate this newly inserted authoritative booking.
+  state.bookings.forEach((booking, index) => { booking.p = index + 1; });
+}
+
 applyLockedAscentRental(S);
+applyLockedSpotHeroParking(S);
 lastSnap = JSON.stringify(S);
 persist();
 
@@ -1905,8 +1938,9 @@ function renderBookings() {
   document.getElementById('bookingRows').innerHTML = S.bookings.map((b, i) => {
     const lockedFlight = b.locked && b.bookingGroup === 'westjet-flights';
     const lockedRental = b.locked && b.bookingGroup === 'ascent-rental';
-    const lockedBooking = lockedFlight || lockedRental;
-    const statusCell = lockedFlight
+    const lockedParking = b.locked && b.bookingGroup === 'spothero-parking';
+    const lockedBooking = lockedFlight || lockedRental || lockedParking;
+    const statusCell = lockedFlight || lockedParking
       ? '<span class="badge must">PAID • LOCKED</span>'
       : lockedRental
         ? '<span class="badge must">BOOKED • LOCKED</span>'
@@ -1915,16 +1949,20 @@ function renderBookings() {
       ? (b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>')
       : lockedRental
         ? '<b>C$371.30 due at pickup</b>'
-        : money(bookingEstimate(b));
+        : lockedParking
+          ? '<b>C$51.74 paid</b>'
+          : money(bookingEstimate(b));
     const actualCell = lockedFlight
       ? '<span class="date">combined fare</span>'
       : lockedRental
         ? '<span class="date">not paid yet</span>'
-        : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
+        : lockedParking
+          ? '<b>C$51.74</b>'
+          : `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
     const confirmCell = lockedBooking
-      ? `<span class="date">${lockedRental ? 'confirmation in voucher' : 'Booked'}</span>`
+      ? `<span class="date">${lockedRental ? 'confirmation in voucher' : (lockedParking ? 'stored in SpotHero pass' : 'Booked')}</span>`
       : `<input class="input" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)">`;
-    const actionLabel = lockedRental ? 'Call supplier' : 'Airline';
+    const actionLabel = lockedRental ? 'Call supplier' : (lockedParking ? 'SpotHero' : 'Airline');
     return `<div class="bookrow ${lockedBooking ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}<a class="btn small" href="${b.link}" target="_blank">${actionLabel}</a></div>`;
   }).join('');
 }
@@ -1938,10 +1976,11 @@ function updateBooking(i, k, v) {
   save();
 }
 function resetBookings() {
-  if (confirm('Reset booking statuses, actual paid amounts and confirmations? Locked flights will stay booked.')) {
+  if (confirm('Reset booking statuses, actual paid amounts and confirmations? Locked flights, rental and YYZ parking will stay booked.')) {
     S.bookings = deepClone(BASE.bookings);
     applyLockedWestJetFlights(S);
     applyLockedAscentRental(S);
+    applyLockedSpotHeroParking(S);
     save();
   }
 }
@@ -2006,7 +2045,7 @@ function renderBudget() {
   const hint = document.getElementById('fuelHint');
   if (hint) hint.textContent = `Route currently ~${tripDriveKm().toFixed(0)} km. Rental is a standard gasoline sedan (Kia K4 or similar); fuel budget remains conservative until the exact vehicle is assigned.`;
   const bh = document.getElementById('budgetHint');
-  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental base is booked at C$371.30; refundable C$1,000 deposit is not a trip cost. Insurance, extra drivers and possible 2.4% card fee are not included.' : '');
+  if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental base is booked at C$371.30; refundable C$1,000 deposit is not a trip cost. Insurance, extra drivers and possible 2.4% card fee are not included.' : '') + (S.costs.yyzParkingLocked ? ' SpotHero YYZ parking is paid at C$51.74 and is already covered inside the Fuel + parking budget rather than added again.' : '');
 }
 document.getElementById('flightChoice').onchange = e => { if (S.costs.flightLocked) { e.target.value = 'booked-westjet'; toast('Flights are booked and locked.'); return; } S.costs.flight = e.target.value; save(); };
 document.getElementById('rentalCost').onchange = e => { if (S.costs.rentalLocked) { e.target.value = S.costs.rental; toast('Rental is booked and locked.'); return; } S.costs.rental = Number(e.target.value || 0); save(); };
@@ -2188,7 +2227,7 @@ lines.push('END:VCALENDAR');
 document.getElementById('importFile').onchange = e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
-  r.onload = () => { try { S = mergeBase(deepClone(BASE), JSON.parse(r.result)); persist(); renderAll(); toast('Trip imported.'); } catch (x) { alert('Could not import file.'); } };
+  r.onload = () => { try { S = mergeBase(deepClone(BASE), JSON.parse(r.result)); applyLockedWestJetFlights(S); applyLockedAscentRental(S); applyLockedSpotHeroParking(S); persist(); renderAll(); toast('Trip imported. Locked bookings were preserved.'); } catch (x) { alert('Could not import file.'); } };
   r.readAsText(f);
 };
 function resetAll() {
