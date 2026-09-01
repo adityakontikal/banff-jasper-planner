@@ -2131,6 +2131,7 @@ function renderDayEditor() {
             <span class="alltrip-stop-state ${isHotel ? 'hotel' : s.priority}">${stateLabel}</span>
           </button>
           <button class="alltrip-info" onclick="openSpotModal('${d.date}','${s.id}')" title="Place details">i</button>
+          <a class="alltrip-info" href="${googleMapsForStop(s)}" target="_blank" rel="noopener" title="Open exact place in Google Maps">↗</a>
         </div>`;
       });
 
@@ -2191,6 +2192,7 @@ function renderDayEditor() {
           <option value="cut" ${s.priority === 'cut' ? 'selected' : ''}>Cut</option>
         </select>
         <button class="iconbtn infoBtn" onclick="openSpotModal('${d.date}','${s.id}')" title="Photos and details">i</button>
+        <a class="iconbtn" href="${googleMapsForStop(s)}" target="_blank" rel="noopener" title="Open exact place in Google Maps">↗</a>
         <button class="iconbtn" onclick="toggleStopDone(${i})" title="Mark visited">${s.done ? '✓' : '○'}</button>
         <button class="iconbtn" onclick="removeStop(${i})" title="Remove">×</button>
       </div>
