@@ -401,24 +401,38 @@
     document.head.appendChild(st);
   }
 
+  function clearScrollInlineStyles(el) {
+    if (!el) return;
+    ['height','min-height','max-height','overflow','overflow-x','overflow-y','touch-action'].forEach(function (prop) {
+      el.style.removeProperty(prop);
+    });
+  }
+
   function normalizeViewport() {
     const mobile = window.matchMedia(MOBILE_QUERY).matches;
     document.documentElement.dataset.scrollMode = mobile ? 'document' : 'app';
 
     if (mobile) {
       // Clear stale inline scroll state left by earlier view-specific fixes.
-      document.documentElement.style.removeProperty('height');
-      document.documentElement.style.removeProperty('overflow');
-      document.body.style.removeProperty('height');
-      document.body.style.removeProperty('overflow');
+      ['height','min-height','max-height','overflow','overflow-x','overflow-y','touch-action'].forEach(function (prop) {
+        document.documentElement.style.removeProperty(prop);
+        document.body.style.removeProperty(prop);
+      });
+
+      const app = document.querySelector('.app');
+      clearScrollInlineStyles(app);
 
       // The retired Lock page must never remain as a hidden scroll owner.
       const lock = document.getElementById('lockview');
-      if (lock && !lock.classList.contains('on')) {
-        lock.style.removeProperty('height');
-        lock.style.removeProperty('overflow');
-      }
+      if (lock && !lock.classList.contains('on')) clearScrollInlineStyles(lock);
+      return;
     }
+
+    // Returning from a narrow/mobile viewport must restore CSS ownership to desktop.
+    clearScrollInlineStyles(document.documentElement);
+    clearScrollInlineStyles(document.body);
+    clearScrollInlineStyles(document.querySelector('.app'));
+    document.querySelectorAll('.view').forEach(clearScrollInlineStyles);
   }
 
   function enforceMobileDocumentScroll() {
