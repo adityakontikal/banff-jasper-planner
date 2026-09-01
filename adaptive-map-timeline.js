@@ -202,11 +202,25 @@
       .route-clock-day-copy{min-width:0}.route-clock-day-copy b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.route-clock-day-copy small{display:block;font-size:8.5px;color:var(--muted);margin-top:2px}
 
       @media(max-width:768px){
+        #mapview .mapwrap{
+          height:auto!important;
+          min-height:0!important;
+          overflow:visible!important;
+        }
+        #mapview #map{
+          position:relative!important;
+          inset:auto!important;
+          width:100%!important;
+          height:58vh!important;
+          min-height:390px!important;
+          border-radius:13px!important;
+          overflow:hidden!important;
+        }
+        #mapview .maplegend{display:none!important}
         .adaptive-route-clock{
           position:static!important;width:100%!important;max-height:none!important;margin:8px 0 0!important;
           border-radius:12px!important;box-shadow:none!important;
         }
-        #mapview .adaptive-route-clock{order:2}
         #mapview .sidebar{order:3!important}
         .route-clock-list{max-height:none!important;overflow:visible!important}
         .route-clock-summary{grid-template-columns:repeat(2,1fr)}
