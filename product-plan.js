@@ -130,7 +130,7 @@
     if (!group) return;
     group.ids.forEach(function (id) {
       const b = booking(id);
-      if (!b) return;
+      if (!b || b.locked) return;
       if (done) {
         if (!bookingDone(b)) b.status = 'Booked';
       } else {
@@ -244,9 +244,11 @@
       const done = groupDone(g);
       const b = groupPrimaryBooking(g);
       const state = done ? 'Done' : (b ? b.status : 'Not started');
+      const lockedFlight = b && b.locked && b.bookingGroup === 'westjet-flights';
+      const sub = lockedFlight ? ('Paid • ' + b.item.replace(/^WestJet\s*•\s*/, '')) : state;
       const href = b && b.link ? b.link : '#';
       return '<div class="pp-check-row ' + (done ? 'done' : '') + '">' +
-        '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(state) + '</small></span></label>' +
+        '<label class="pp-check-main"><input type="checkbox" ' + (done ? 'checked' : '') + ' ' + (lockedFlight ? 'disabled' : '') + ' onchange="setProductBookingDone(\'' + g.id + '\',this.checked)"><span class="pp-check-box"></span><span><b>' + escapeHtml(g.label) + '</b><small>' + escapeHtml(sub) + '</small></span></label>' +
         (href !== '#' ? '<a href="' + href + '" target="_blank">Open</a>' : '') +
       '</div>';
     }).join('');
