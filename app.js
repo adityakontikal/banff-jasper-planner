@@ -1337,11 +1337,11 @@ function renderMap() {
         const label = tripStopCode(day, s);
         const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut), draggable: false }).addTo(markerLayer);
 
-        m.bindTooltip(`<b>Day ${dayIdx + 1} (${day.date}): ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
+        m.bindTooltip(`<b>${tripStopCode(day, s)} • ${day.date}: ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
 
         m.bindPopup(`
           <div style="font-family:Inter,sans-serif;min-width:220px;">
-            <div style="font-size:10px;color:#8ba4b6;text-transform:uppercase;font-weight:700;">Day ${dayIdx + 1} • ${day.date}</div>
+            <div style="font-size:10px;color:#8ba4b6;text-transform:uppercase;font-weight:700;">${tripStopCode(day, s)} • ${day.date}</div>
             <b style="font-size:14px;color:#fff;display:block;margin:2px 0 4px;">${escapeHtml(s.name)}</b>
             <span class="rating-pill" style="margin:2px 0;display:inline-block;">⭐ <b>${inf.rating || '8.5/10'}</b></span>
             <span class="badge ${s.priority}" style="margin-left:4px;">${s.priority.toUpperCase()}</span>
@@ -1609,7 +1609,7 @@ function renderDayEditor() {
     html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" draggable="true" data-i="${i}">
       <div class="stoprow-top">
         <div class="grip" title="Drag to reorder">☰</div>
-        <div class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${i + 1}</div>
+        <div class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</div>
         <input class="stopname" value="${escapeAttr(s.name)}" onchange="renameStop(${i},this.value)">
         <select class="priority ${s.priority}" onchange="setPriority(${i},this.value)">
           <option value="must" ${s.priority === 'must' ? 'selected' : ''}>Must</option>
@@ -2391,7 +2391,7 @@ function searchPlaces(q) {
 }
 
 function renderAll() {
-  document.title = S.settings.title + ' — Trip Command Center';
+  document.title = S.settings.title + ' — Trip Planner';
   renderHero();
   renderDayEditor();
   renderMap();
