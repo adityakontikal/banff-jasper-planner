@@ -1022,6 +1022,10 @@ function getLeg(s1, s2) {
           renderOverview();
           renderDayCards();
           renderHero();
+          if (typeof window.renderProductPlan === 'function') {
+            const planView = document.getElementById('planview');
+            if (planView && planView.classList.contains('on')) window.renderProductPlan();
+          }
         }
       }
     }
