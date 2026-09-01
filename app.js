@@ -1500,11 +1500,16 @@ function renderDayEditor() {
   daySwitchHtml += S.days.map(x => `<button class="daybtn ${x.date === S.selectedDay ? 'on' : ''} ${x.date === today ? 'today' : ''}" onclick="chooseDay('${x.date}')" ondblclick="openDayGuide('${x.date}')" title="Click for map • Double-click for day guide">${x.date}</button>`).join('');
   document.getElementById('daySwitch').innerHTML = daySwitchHtml;
 
+  const sidebar = document.querySelector('#mapview .sidebar');
+  const sideEy = sidebar && sidebar.querySelector('.sidehead .ey');
+  if (sidebar) sidebar.classList.toggle('all-days-mode', isAllDays);
+  if (sideEy) sideEy.textContent = isAllDays ? 'Trip overview' : 'Day editor';
+
   if (isAllDays) {
-    document.getElementById('sideTitle').textContent = 'Full Trip Route';
-    document.getElementById('dayLabel').value = 'Calgary → Banff → Jasper (Complete Corridor)';
+    document.getElementById('sideTitle').textContent = 'Whole trip';
+    document.getElementById('dayLabel').value = '6-day Banff → Jasper route';
     document.getElementById('dayStart').value = 'Sep 25 – Sep 30';
-    document.getElementById('dayNote').value = 'Showing full multi-day itinerary. Click any pin or row to jump into that day.';
+    document.getElementById('dayNote').value = 'Click a stop to focus its pin. Open a day to edit its route, timing, priorities or dwell times.';
 
     let totalKm = 0;
     let totalDriveMin = 0;
@@ -1519,51 +1524,60 @@ function renderDayEditor() {
     });
 
     const filterMust = S.filterMustOnly;
-    document.getElementById('daySummary').innerHTML = `<b>🚗 ~${Math.round(totalKm)} km (~${formatDuration(totalDriveMin)})</b> • ⭐ <b>${totalMust} Musts</b> • 📍 ${totalStops} Active Stops`;
+    document.getElementById('daySummary').innerHTML =
+      `<span><b>~${Math.round(totalKm)} km</b> • ${formatDuration(totalDriveMin)} driving</span><span><b>${totalMust}</b> musts • <b>${totalStops}</b> active stops</span>`;
 
     const banner = document.getElementById('attBanner');
-    if (banner) {
-      banner.classList.remove('hidden');
-      banner.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;gap:6px;"><span><b>Viewing full trip corridor.</b></span><button class="btn small ${filterMust ? 'primary' : ''}" onclick="toggleMustFilter()">${filterMust ? '✓ Musts Only' : 'Filter: Musts Only'}</button></div>`;
-    }
+    if (banner) banner.classList.add('hidden');
 
     const list = document.getElementById('stopList');
     let html = '';
+
     S.days.forEach((d, dayIdx) => {
       const dayColorCode = dayColor(d.date);
       const dTl = computeDayTimeline(d);
+      const activeStops = d.stops.filter(s => s.priority !== 'cut');
       const displayStops = filterMust
         ? d.stops.filter(s => s.priority === 'must' || s.isHotel || /hotel|airport/i.test(getSpotInfo(s).tag || ''))
         : d.stops;
 
       if (displayStops.length === 0) return;
 
-      html += `<div class="all-day-header" style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:#092030;border-left:4px solid ${dayColorCode};border-radius:6px;margin:10px 0 6px;">
-        <div><b style="color:#fff;font-size:12px;">Day ${dayIdx + 1} • ${d.date}</b> <span style="font-size:11px;color:#8ba4b6;">(${escapeHtml(d.label)})</span></div>
-        <button class="btn small" style="padding:2px 7px;font-size:10px;" onclick="chooseDay('${d.date}')">Edit Day ↗</button>
-      </div>`;
+      html += `<section class="alltrip-day" style="--day-color:${dayColorCode}">
+        <div class="alltrip-day-head">
+          <button class="alltrip-day-main" onclick="chooseDay('${d.date}')">
+            <span class="alltrip-day-code">D${dayIdx + 1}</span>
+            <span class="alltrip-day-copy">
+              <b>${escapeHtml(d.date)} • ${escapeHtml(d.label)}</b>
+              <small>${escapeHtml(d.start)} → ~${escapeHtml(dTl.finishTime.display)} • ${escapeHtml(String(dTl.totalDistKm))} km • ${escapeHtml(formatDuration(dTl.totalDriveMin))} drive • ${activeStops.length} active</small>
+            </span>
+          </button>
+          <button class="alltrip-open" onclick="chooseDay('${d.date}')" title="Open this day">Open</button>
+        </div>
+        <div class="alltrip-stops">`;
 
-      displayStops.forEach((s, sIdx) => {
+      displayStops.forEach(s => {
         const inf = getSpotInfo(s);
         const isCut = s.priority === 'cut';
         const isHotel = s.isHotel || /hotel|transit \/ overnight|Airport/i.test(inf.tag || '');
-        const badgeColor = isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[s.priority] || COLORS.nice));
+        const code = tripStopCode(d, s);
+        const stateLabel = isHotel ? 'BASE' : s.priority.toUpperCase();
+        const dwell = getDefaultStayMin(s);
 
-        html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" style="margin-bottom:5px;">
-          <div class="stoprow-top" style="grid-template-columns:28px 1fr auto auto;">
-            <div class="stop-num-badge" style="background:${badgeColor};width:24px;height:24px;font-size:9.5px;" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</div>
-            <div style="font-weight:700;font-size:12px;color:#fff;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" onclick="focusStopOnMap(${s.lat}, ${s.lng})">${escapeHtml(s.name)}</div>
-            <span class="rating-pill" style="font-size:10px;">⭐ ${inf.rating || '8.5/10'}</span>
-            <button class="iconbtn infoBtn" onclick="openSpotModal('${d.date}','${s.id}')" title="Photos and details">i</button>
-          </div>
-          <div class="stoprow-sched" style="font-size:10.5px;">
-            <span class="badge ${s.priority}" style="font-size:9px;padding:2px 5px;">${s.priority.toUpperCase()}</span>
-            <span style="color:#8ba4b6;">⏱️ ~${getDefaultStayMin(s)} min</span>
-            <span style="color:#68b9ff;cursor:pointer;" onclick="focusStopOnMap(${s.lat}, ${s.lng})">📍 Focus Pin</span>
-          </div>
+        html += `<div class="alltrip-stop ${isCut ? 'is-cut' : ''}">
+          <button class="alltrip-stop-main" onclick="focusStopOnMap(${s.lat},${s.lng})" title="Focus ${escapeAttr(code)} on map">
+            <span class="alltrip-stop-code">${escapeHtml(code)}</span>
+            <span class="alltrip-stop-name">${escapeHtml(inf.title || s.name)}</span>
+            <span class="alltrip-stop-meta">${dwell ? escapeHtml(formatDuration(dwell)) : '—'}</span>
+            <span class="alltrip-stop-state ${isHotel ? 'hotel' : s.priority}">${stateLabel}</span>
+          </button>
+          <button class="alltrip-info" onclick="openSpotModal('${d.date}','${s.id}')" title="Place details">i</button>
         </div>`;
       });
+
+      html += `</div></section>`;
     });
+
     list.innerHTML = html;
     return;
   }
