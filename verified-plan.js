@@ -173,14 +173,6 @@
       });
     }
 
-    if (BASE.hotels && BASE.hotels['Sep 26'] && !BASE.hotels['Sep 26'].options.some(function (o) { return /Mountain-area/.test(o[0]); })) {
-      BASE.hotels['Sep 26'].options.push([
-        'Mountain-area 2Q strategy (Canmore / Dead Man\'s Flats)',
-        '1 room • 3 adults • exact 2 Queen Beds required',
-        'ONLY use if final total is no more than C$100 above the comparable Cochrane room. Saves roughly 50+ min toward Lake Louise next morning.',
-        'https://www.google.com/travel/hotels?q=Canmore%20Alberta%20Sep%2026%202026%203%20adults%202%20queen%20beds'
-      ]);
-    }
   }
 
   const VERIFIED_INFO = {
@@ -609,7 +601,7 @@
       '<div class="lock-metrics"><div><small>Core bookings</small><b>' + booked + '/' + coreBookings.length + '</b></div><div><small>Decisions resolved</small><b>' + answered + '/' + DECISION_FLOW.length + '</b></div><div class="' + budgetClass + '"><small>Selected estimate</small><b>' + money(totalNow) + '</b><span>Comfort target C$3k–3.5k</span></div></div></div>' +
       '<div class="lock-grid"><div class="glass panel"><div class="ph"><div><div class="ey">Timeline decision tree</div><h2>Answer these as the trip gets locked</h2></div></div><div class="lock-timeline">' + cards + '</div></div>' +
       '<div><div class="glass panel"><div class="ph"><div><div class="ey">Final lock</div><h2>What must be true before departure</h2></div></div><div class="final-lock-list">' + hardHtml + '</div></div>' +
-      '<div class="glass panel"><div class="ph"><div><div class="ey">Budget rule</div><h2>Do not pay for convenience blindly</h2></div></div><div class="note"><b>Sep 26 hotel:</b> keep Cochrane unless a confirmed mountain-area 2Q room is within C$100 total. The mountain room buys roughly 50+ minutes toward Lake Louise next morning.</div><div class="note" style="margin-top:8px"><b>Paid attractions:</b> Maligne is protected. Gondola and Icefield Adventure remain nice/conditional. Pursuit stays off by default.</div><div class="note warn" style="margin-top:8px"><b>Sep 29:</b> Valley Five Lakes, Icefield Adventure and Yoho are alternatives. Pick one big bonus; Athabasca Falls remains core.</div></div></div></div>';
+      '<div class="glass panel"><div class="ph"><div><div class="ey">Budget rule</div><h2>Keep paid extras intentional</h2></div></div><div class="note"><b>Hotels:</b> all nights are resolved and locked. Do not revive alternate-hotel comparisons in presets or saved-state recovery.</div><div class="note" style="margin-top:8px"><b>Paid attractions:</b> Maligne is protected. Gondola and Icefield Adventure remain nice/conditional. Pursuit stays off by default.</div><div class="note warn" style="margin-top:8px"><b>Sep 29:</b> Valley Five Lakes, Icefield Adventure and Yoho are alternatives. Pick one big bonus; Athabasca Falls remains core.</div></div></div></div>';
   }
 
   function injectUi() {
