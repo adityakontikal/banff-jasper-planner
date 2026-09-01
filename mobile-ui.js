@@ -10,7 +10,7 @@
   }
 
   function mobilePendingBookings() {
-    const ids = ['outbound','return','rental','h25','h26','h27','h28','h29','park','shuttle'];
+    const ids = ['outbound','return','rental','yyzParking','h25','h26','h27','h28','h29','park','shuttle'];
     return ids.map(id => S.bookings.find(b => b.id === id)).filter(Boolean).filter(b => !['Booked','Paid','Done'].includes(b.status));
   }
 
@@ -19,6 +19,7 @@
     if (b.id === 'outbound') return 'Outbound flight';
     if (b.id === 'return') return 'Return flight';
     if (b.id === 'rental') return 'Rental car';
+    if (b.id === 'yyzParking') return 'YYZ airport parking';
     if (/^h\d+/.test(b.id)) return b.item.replace(/^Hotel\s+/,'').replace(/\s+—.*$/,'');
     if (b.id === 'park') return 'Park admission';
     if (b.id === 'shuttle') return 'Moraine/Louise shuttle';
