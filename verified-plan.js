@@ -422,27 +422,6 @@
     if (!S.decisions) S.decisions = deepClone(VERIFIED_DECISIONS);
     S.decisions[id] = value;
 
-    if (id === 'hotel26') {
-      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
-      const d27 = S.days.find(function (d) { return d.date === 'Sep 27'; });
-      const ret = d26 && d26.stops.find(function (s) { return s.id === 'cochrane26_ret'; });
-      const dep = d27 && d27.stops.find(function (s) { return s.id === 'cochrane27'; });
-      const h = S.hotels && S.hotels['Sep 26'];
-      const mountainIdx = h ? h.options.findIndex(function (o) { return /Mountain-area/.test(o[0]); }) : -1;
-      if (value === 'mountain' && mountainIdx >= 0) {
-        h.choice = mountainIdx;
-        if (ret) { ret.name = 'Canmore / Dead Man\'s Flats Hotel (Return & Sleep)'; ret.lat = 51.089; ret.lng = -115.359; }
-        if (dep) { dep.name = 'Canmore / Dead Man\'s Flats Hotel (Depart 06:00)'; dep.lat = 51.089; dep.lng = -115.359; }
-        d26.sleep = 'Canmore / Dead Man\'s Flats (only because price delta ≤ C$100)';
-        d27.label = 'Canmore/Dead Man\'s Flats → Moraine/Louise → Icefields Parkway → Hinton';
-      } else if (value === 'budget-rule') {
-        if (h && /Mountain-area/.test(h.options[h.choice] && h.options[h.choice][0])) h.choice = 0;
-        if (ret) { ret.name = 'Cochrane Hotel (Return & Sleep)'; ret.lat = 51.189; ret.lng = -114.467; }
-        if (dep) { dep.name = 'Cochrane Hotel (Depart 06:00)'; dep.lat = 51.189; dep.lng = -114.467; }
-        d26.sleep = 'Cochrane (Night 2 of 2)';
-        d27.label = 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton';
-      }
-    }
     if (id === 'shuttle') {
       const b = S.bookings.find(function (x) { return x.id === 'shuttle'; });
       if (b && (value === 'booked' || value === 'backup')) b.status = 'Booked';
