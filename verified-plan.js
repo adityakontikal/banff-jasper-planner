@@ -134,6 +134,7 @@
     BASE.decisions = deepClone(VERIFIED_DECISIONS);
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(BASE);
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(BASE);
+    if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(BASE);
 
     // NICE classification is permanent; enabled only controls whether it participates
     // in the live route. Never promote a selected NICE stop to MUST.
@@ -408,6 +409,7 @@
     next = preserveProgress(next, S);
     if (typeof applyLockedWestJetFlights === 'function') applyLockedWestJetFlights(next);
     if (typeof applyLockedAscentRental === 'function') applyLockedAscentRental(next);
+    if (typeof applyLockedSpotHeroParking === 'function') applyLockedSpotHeroParking(next);
     S = next;
     localStorage.setItem(PRESET_MARK, name);
     persist();
@@ -599,7 +601,7 @@
     if (!root) return;
     if (!S.decisions) S.decisions = deepClone(VERIFIED_DECISIONS);
 
-    const coreBookings = ['return', 'outbound', 'rental', 'h25', 'h26', 'h27', 'h28', 'h29', 'park', 'shuttle'];
+    const coreBookings = ['return', 'outbound', 'rental', 'yyzParking', 'h25', 'h26', 'h27', 'h28', 'h29', 'park', 'shuttle'];
     const booked = coreBookings.filter(function (id) { return isBooked(id); }).length;
     const answered = DECISION_FLOW.filter(function (q) {
       const v = S.decisions[q.id];
@@ -620,6 +622,7 @@
       ['Return flight booked', isBooked('return')],
       ['Outbound flight booked', isBooked('outbound')],
       ['Rental with workable late pickup booked', isBooked('rental')],
+      ['Toronto airport parking booked', isBooked('yyzParking')],
       ['All 5 hotel nights locked as 1 room / 3 adults / exact 2 Queens', ['h25','h26','h27','h28','h29'].every(isBooked)],
       ['Parks Canada admission handled', isBooked('park')],
       ['Moraine/Louise transport reservation locked', isBooked('shuttle') || S.decisions.shuttle === 'booked' || S.decisions.shuttle === 'backup'],
