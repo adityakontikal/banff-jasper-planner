@@ -345,6 +345,7 @@
       return '<div class="pp-route-stop ' + statusClass + '" data-stop="' + escapeAttr(stop.id) + '">' +
         '<div class="pp-route-stop-top"><span class="pp-route-code">' + escapeHtml(code) + '</span><span class="pp-route-status">' + escapeHtml(status) + '</span>' + control + '</div>' +
         '<button class="pp-route-place" onclick="openSpotModal(\'' + day.date + '\',\'' + escapeAttr(stop.id) + '\')"><b>' + escapeHtml(info.title || stop.name) + '</b><small>' + escapeHtml(timing || 'Route stop') + '</small></button>' +
+        '<a class="btn small pp-route-map-link" href="' + googleMapsForStop(stop) + '" target="_blank" rel="noopener">Google Maps ↗</a>' +
         optionMeta +
       '</div>';
     }).join('');
