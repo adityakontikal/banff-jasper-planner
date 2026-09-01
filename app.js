@@ -400,7 +400,7 @@ const SPOT_INFO = {
     restrooms: 'Use terminal facilities before leaving', cell: 'Excellent (5G)', effort: 'Airport / parking-lot transfer',
     desc: 'Booked Ascent Car Rental pickup after the 12:44 AM WestJet arrival. Vehicle class is Standard — Kia K4 or similar.',
     todo: 'Go to the YYC Economy Parking Lot for Ascent pickup. If the flight is delayed, call +1 604 416 4600 before the 2:28 AM pickup deadline.',
-    reviews: '"Rental car center is attached directly to the main terminal parkade. Extremely convenient—no off-site shuttles needed." — Traveler Review',
+    reviews: 'Voucher-backed operational note: Ascent is outside the terminal in the YYC Economy Parking Lot and is listed as operating 00:00–23:59 daily.',
     cut: 'Mandatory flight arrival.',
     official: 'https://www.yyc.com/', tag: 'Airport Hub'
   },
@@ -412,7 +412,7 @@ const SPOT_INFO = {
     restrooms: 'Full airport terminal facilities', cell: 'Excellent (5G)', effort: 'Airport walk',
     desc: 'Final departure point. Booked WestJet departs YYC at 19:10 and lands YYZ at 01:05 on Oct 1. Target rental return around 16:45.',
     todo: 'Refuel to full, follow Ascent drop-off instructions, photograph the car/fuel level, and proceed to the terminal. Confirm the early-return procedure when collecting the car.',
-    reviews: '"Allow 30 minutes for rental return and bag drop before security." — Travel Tip',
+    reviews: 'Voucher-backed operational note: scheduled drop-off is 6:00 PM, but the trip plan intentionally returns earlier for the 7:10 PM flight.',
     cut: 'Non-negotiable departure.',
     official: 'https://www.yyc.com/', tag: 'Airport Hub'
   },
