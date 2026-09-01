@@ -1206,10 +1206,12 @@ function setOptionalStopEnabled(date, id, enabled) {
 }
 function divIcon(stop, label, isCut = false) {
   const isHotel = stop.isHotel || /hotel|transit \/ overnight|Airport/i.test(getSpotInfo(stop).tag || '');
-  const c = isCut ? '#384754' : (isHotel ? COLORS.hotel : (COLORS[stop.priority] || COLORS.nice));
-  const border = isCut ? '2px dashed #f0c36a' : '2px solid #07131d';
-  const textColor = isCut ? '#f0c36a' : (isHotel ? '#ffffff' : '#07131d');
-  const dim = stop.done ? 'opacity:.45;' : (isCut ? 'opacity:.7;' : '');
+  const disabledNice = stop.priority === 'nice' && !isStopEnabled(stop);
+  const actualCut = stop.priority === 'cut';
+  const c = actualCut ? '#384754' : (disabledNice ? '#536a78' : (isHotel ? COLORS.hotel : (COLORS[stop.priority] || COLORS.nice)));
+  const border = actualCut ? '2px dashed #f0c36a' : (disabledNice ? '2px solid #7e95a2' : '2px solid #07131d');
+  const textColor = actualCut ? '#f0c36a' : (disabledNice ? '#e1e9ed' : (isHotel ? '#ffffff' : '#07131d'));
+  const dim = stop.done ? 'opacity:.45;' : ((actualCut || disabledNice) ? 'opacity:.68;' : '');
   const txt = typeof label === 'number' ? (label + 1) : String(label);
   const coded = /^D\d+-\d+$/.test(txt);
   const width = coded ? Math.max(40, 14 + txt.length * 6) : 26;
@@ -1590,7 +1592,8 @@ function renderDayEditor() {
         const isCut = !isStopActive(s);
         const isHotel = s.isHotel || /hotel|transit \/ overnight|Airport/i.test(inf.tag || '');
         const code = tripStopCode(d, s);
-        const stateLabel = isHotel ? 'BASE' : s.priority.toUpperCase();
+        const disabledNice = s.priority === 'nice' && !isStopEnabled(s);
+        const stateLabel = isHotel ? 'BASE' : (disabledNice ? 'NICE OFF' : s.priority.toUpperCase());
         const dwell = getDefaultStayMin(s);
 
         html += `<div class="alltrip-stop ${isCut ? 'is-cut' : ''}">
@@ -1665,7 +1668,7 @@ function renderDayEditor() {
       </div>
       <div class="stoprow-sched">
         ${isCut 
-          ? `<span class="bypassed-pill">✂️ Bypassed from route</span>` 
+          ? (disabledNice ? `<span class="bypassed-pill nice-off-pill">NICE OFF • excluded from route</span>` : `<span class="bypassed-pill">CUT • bypassed from route</span>`) 
           : `<span class="time-pill">🕒 ${it.arrTime.display} → 🚪 ${it.depTime.display}</span>`
         }
         <span class="rating-pill" title="Visitor recommendation rating">⭐ ${inf.rating || '8.5/10'}</span>
