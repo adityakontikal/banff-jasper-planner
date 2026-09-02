@@ -122,7 +122,7 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 - Free Athabasca Glacier / Columbia Icefield stop
 - Pyramid Lake / Pyramid Island
 - Medicine Lake
-- Maligne Lake + booked Classic Cruise / Spirit Island
+- Maligne Lake + protected Spirit Island cruise (Classic vs Premium chosen when exact sailing is booked)
 - Athabasca Falls
 - Required fuel / shuttle / hotel / airport operational stops
 
