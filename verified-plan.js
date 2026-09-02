@@ -231,7 +231,6 @@
       }
       if (gondolaAtt) gondolaAtt.selected = false;
     }
-    state.presetVersion = 'verified-2026-09-01-v3';
     return state;
   }
 

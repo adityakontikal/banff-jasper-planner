@@ -51,6 +51,7 @@
         #bookings.view.on,
         #hotels.view.on,
         #attractions.view.on,
+        #checklistview.view.on,
         #packview.view.on,
         #fieldview.view.on,
         #budget.view.on,
@@ -175,6 +176,7 @@
         #bookings.view.on,
         #hotels.view.on,
         #attractions.view.on,
+        #checklistview.view.on,
         #packview.view.on,
         #fieldview.view.on,
         #budget.view.on,
@@ -203,6 +205,7 @@
         #bookings.view.on,
         #hotels.view.on,
         #attractions.view.on,
+        #checklistview.view.on,
         #packview.view.on,
         #fieldview.view.on,
         #budget.view.on,
@@ -232,6 +235,7 @@
         #bookingRows,
         #hotelCards,
         #attractionCards,
+        #checklistRoot,
         #budgetRoot,
         #settings {
           height: auto !important;

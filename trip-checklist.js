@@ -853,12 +853,12 @@
     if (!state) return;
     state.checklists = state.checklists || {};
     state.officialAuditVersion = AUDIT_VERSION;
-    state.presetVersion = 'verified-2026-09-01-v3';
 
     const migrate = [
       ['rental-info', 'rental_file'],
       ['rental-drivers', 'rental_drivers'],
-      ['shuttle-alarm', 'shuttle_alarm']
+      ['shuttle-alarm', 'shuttle_alarm'],
+      ['offline', 'offline_maps']
     ];
     migrate.forEach(function (pair) {
       if (state.checklists[pair[0]] && !state.checklists[pair[1]]) state.checklists[pair[1]] = true;

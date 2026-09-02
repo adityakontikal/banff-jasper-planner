@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check app.js && node --check verified-plan.js && node --check mobile-ui.js && node --check adaptive-map-timeline.js && node --check product-plan.js && node --check closure-policy.js && node --check scroll-policy.js && node --check server.js"
+    "check": "node --check app.js && node --check verified-plan.js && node --check mobile-ui.js && node --check adaptive-map-timeline.js && node --check product-plan.js && node --check trip-checklist.js && node --check closure-policy.js && node --check scroll-policy.js && node --check server.js"
   },
   "engines": {
     "node": ">=20.0.0"
