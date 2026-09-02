@@ -145,8 +145,8 @@
       source: 'gondola',
       facts: [
         'Sep 8–Oct 12, 2026: Banff Gondola operates daily 9 AM–9 PM; last ride up 7:30 PM. Last ride down is 10 minutes before close.',
-        'Advance purchase is highly recommended and purchased tickets are nonrefundable.',
-        'Same-day pre-purchased admission includes the Gondola/Brewster shuttle or Roam Route 1; 2026 Parks Canada parking near Sulphur Mountain is C$17.50/day and can fill.'
+        'Advance purchase is highly recommended and purchased tickets are nonrefundable. Online tickets are non-transferable and the purchaser must present the credit card used to buy the ticket.',
+        'Same-day pre-purchased admission includes the Gondola/Brewster shuttle or Roam Route 1; 2026 Parks Canada parking near Sulphur Mountain is C$17.50/day and can fill. Pursuit says arrive 20 minutes before the Gondola departure and be in line 10 minutes before.'
       ],
       patch: { time: 'Plan ~2 hr for gondola + summit boardwalk; official hours Sep 8–Oct 12 are 9 AM–9 PM, last ride up 7:30 PM.', parking: 'Prefer included transit with a same-day pre-purchased ticket. If driving, Parks Canada Sulphur Mountain parking is C$17.50/day May 15–Oct 12 and can fill.', parkingRating: 'Transit preferred / paid lot can fill', bestWindow: 'GOOD VISIBILITY — weather-gated MUST' }
     },
@@ -358,7 +358,7 @@
       facts: [
         'Sep 7–Oct 3, 2026 cruise operating window: 9 AM–5:30 PM; pre-purchase is recommended and purchased tickets are nonrefundable.',
         'Classic Cruise: about 1.5 hours with 15 minutes near Spirit Island. Premium: 2 hours, adults 16+, Pincushion Bay, 30 minutes near Spirit Island.',
-        'Operator says arrive at least 30 minutes before the booked cruise; bear spray is not permitted aboard the cruise.'
+        'Operator says arrive onsite at least 30 minutes before the booked cruise and be at the boarding dock at least 15 minutes before departure; bear spray is not permitted aboard the cruise.'
       ],
       patch: { time: 'Classic ~1.5 hr; Premium 2 hr. Planner must add early-arrival buffer.', parking: 'Use the Maligne Lake visitor parking and arrive early enough to park/check in before the sailing.', bestWindow: 'Book an exact Sep 28 sailing; protect its check-in time.' }
     },
@@ -499,6 +499,7 @@
     { cat: 'road', id: 'bowvalley_castle_route', title: 'Use Castle Junction vehicle access for Johnston Canyon', detail: 'Sep 1–Oct 6, 2026 the east Bow Valley Parkway is restricted to personal vehicles. Do NOT approach Johnston from the east end.', due: 'Sep 26' },
     { cat: 'road', id: 'app511', title: 'Save 511 Alberta for road checks', detail: 'Parks Canada tells Icefields Parkway travellers to check 511 Alberta before driving.', link: 'https://511.alberta.ca/' },
     { cat: 'road', id: 'road_check', title: 'Check 511 + Banff/Jasper/Yoho bulletins immediately before each long drive', detail: 'Conditions can change by hour; late-September rain can become snow.' },
+    { cat: 'road', id: 'jasper93a_check', title: 'Do not assume Highway 93A is a through-route in late September', detail: 'Parks Canada anticipates mid-Sep to mid-Nov 2026 roadwork with 93A accessible from the south entrance only / no through travel. Check 511 before relying on 93A.' },
     { cat: 'road', id: 'fuelplan', title: 'Start Parkway days with a full tank', detail: 'Services are sparse and there is one gas station along the 232 km Parkway.' },
     { cat: 'road', id: 'sep27_fuel', title: 'Sep 27: full tank before Lake Louise / Icefields Parkway', detail: 'Do not depend on cellular service to find fuel.' },
     { cat: 'road', id: 'sep29_fuel', title: 'Sep 29: fill in Hinton/Jasper before southbound Parkway', detail: 'Treat Jasper as the operational fuel reset.' },
@@ -597,6 +598,8 @@
       globalTask('gondola_visibility'),
       globalTask('gondola_ticket'),
       task('place:gondola:transport', 'Decide: included transit vs C$17.50 Parks Canada parking', 'Transit is preferred when using a same-day pre-purchased ticket.'),
+      task('place:gondola:creditcard', 'Bring the same credit card used for the online Gondola ticket', 'Pursuit requires the purchasing card for non-transferable online tickets.'),
+      task('place:gondola:arrival', 'Arrive ~20 min before the booked Gondola time; be in line at least 10 min before'),
       task('place:gondola:ticketoffline', 'Save Gondola ticket offline after purchase')
     ],
     johnston: [
@@ -656,7 +659,7 @@
       globalTask('maligne_ticket'),
       globalTask('maligne_departure_confirmed'),
       globalTask('tickets_saved'),
-      task('place:maligne:arrive', 'Arrive at least 30 min before booked sailing'),
+      task('place:maligne:arrive', 'Arrive onsite at least 30 min before sailing and be at the dock at least 15 min before departure'),
       task('place:maligne:bearspray', 'Leave bear spray safely secured before boarding — operator does not permit it on the cruise'),
       task('place:maligne:classicpremium', 'Confirm booked product: Classic 1.5h or Premium 2h', 'Premium is adults-only 16+ and adds Pincushion Bay + 30 min near Spirit Island.')
     ],
