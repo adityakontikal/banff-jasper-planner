@@ -1,6 +1,6 @@
 # 2026 itinerary verification notes
 
-Verified for the **Sep 25–30, 2026** plan on **Aug. 31, 2026**.
+Verified for the **Sep 25–30, 2026** plan through the **Sep. 1, 2026 official-source audit**.
 
 This file separates three different kinds of numbers used by the planner:
 
@@ -14,14 +14,18 @@ The verified preset is budget-first: 3 adults, 3 drivers, long/night driving acc
 
 | Item | Verified 2026 fact | Planner treatment | Source |
 | --- | --- | --- | --- |
+| Johnston Canyon vehicle access | Sep 1–Oct 6, 2026 personal vehicles are restricted on the east Bow Valley Parkway up to Johnston Canyon. Johnston remains vehicle-accessible via Castle Junction. | Sep 26 popup, Road tab and Checklist all require Castle Junction access. | https://parks.canada.ca/pn-np/ab/banff/bulletins/b9725292-f2ba-41cc-91a5-7816df981ce3 |
 | Moraine Lake access | Personal vehicles are prohibited. Regular Parks Canada shuttles originate at Lake Louise Park & Ride. | Never generates a Google car route through Moraine/Louise. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise |
 | Shuttle inventory | 40% of seats are released at season launch; remaining 60% at **8:00 AM Mountain Time two days before departure**. | Lock flow calls out the Sep 25 08:00 MDT release for Sep 27. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise/faq |
 | Regular shuttle hours | Regular Lake Louise / Moraine service begins at **06:30**; last return is **19:30**. Lake Connector runs during the day. | Sep 27 can use the first regular window, but the budget-first Cochrane start at 06:00 cannot produce a true sunrise Moraine visit. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise |
 | Shuttle waiting | Parks Canada warns visitors to expect at least ~30 min waiting at busy times and potentially longer during high ridership. | Adds explicit Park & Ride check-in/wait and larger lake dwell blocks rather than pretending transfers are instantaneous. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise |
-| Maligne Classic Cruise | About **1.5 h**; pre-purchase recommended; arrive at least **30 min early**. Sep 7–Oct 3 hours: **09:00–17:30**. | Protects a **150 min** Maligne block for early arrival + cruise + a small shoreline/parking buffer. | https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/location-hours/ |
+| Maligne Classic Cruise | **1.5 h**, including **15 min** near Spirit Island. Pre-purchase recommended; arrive onsite at least **30 min early** and be at the dock at least **15 min before departure**. Sep 7–Oct 3: **09:00–17:30**. | Classic remains the baseline timing until an exact ticket is booked. | https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/location-hours/ |
+| Maligne Premium Cruise | **2 h**, adults 16+, includes Pincushion Bay and **30 min** near Spirit Island. | Popup/checklist now distinguishes Classic vs Premium instead of treating every booking-widget fare as the same experience. | https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/experience/ |
+| Banff Gondola | Sep 8–Oct 12: **09:00–21:00**, last ride up **19:30**. Purchased tickets are nonrefundable. Online tickets are non-transferable and require the purchasing credit card. | Weather-gated **MUST**. Buy only after visibility check; checklist includes card, arrival and transport/parking prep. | https://www.banffjaspercollection.com/attractions/banff-gondola/hours-location/ |
 | Maligne drive risk | Operator advises allowing substantial extra time on Maligne Road for wildlife, traffic and parking; missed cruises are non-refundable. | Jasper is only a fuel/fast-food stop and Medicine is kept short; Patricia/Annette are sacrificed before the cruise. | https://prod.banffjaspercollection.com/attractions/maligne-lake-cruise/ |
 | Icefield Adventure | Ice Explorer + walk on Athabasca Glacier + Skywalk. Operator advertises **2.5–3 h**; Sep 7–30 hours are **09:00–17:00**, weather dependent. | NICE, off by default. If selected, the preset allocates **165 min (~2h45)**. | https://prod.banffjaspercollection.com/attractions/columbia-icefield-adventure/ |
 | Pursuit Pass | Does not replace park entry or Moraine/Louise transport. | SKIP by default; separate Pursuit-aware recovery preset exists if this decision changes. | https://www.banffjaspercollection.com/attractions/pursuit-pass/ |
+| Park pass receipt | Paid planner record: 3 × Family/Group Day Pass = C$73.50. Parks Canada daily passes are valid until 4 PM the following day. The purchase receipt specifically requires PRINT + DISPLAY on the left-hand side of the vehicle dashboard with date visible. | Purchase is auto-checked; print/display and late-Sep-29 coverage remain separate unchecked tasks. | https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes |
 
 ## Hiking / walking durations
 
@@ -109,7 +113,8 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 
 - Lake Minnewanka
 - Two Jack Lake
-- Johnston Canyon to Upper Falls
+- Banff Gondola **when summit visibility is good** (weather-gated MUST)
+- Johnston Canyon to Upper Falls **via Castle Junction vehicle access**
 - Moraine Lake + Rockpile
 - Lake Louise lakeshore
 - Bow Lake northbound
@@ -134,7 +139,6 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 - paid Icefield Adventure
 - Waterfowl Lakes
 - Emerald Lake + Natural Bridge
-- Banff Gondola
 
 ### CUT — keep in data, sacrifice first
 
@@ -165,16 +169,27 @@ The verified preset intentionally leaves three large bonus options visible:
 
 Athabasca Falls remains MUST regardless.
 
-## Current 2026 closures / recheck requirement
+## Current 2026 closures / restrictions / recheck requirement
 
-Jasper's 2024 wildfire recovery continues to affect access. Maligne Canyon and the Cavell area have had 2026 closures/restrictions. Trail/road status can change.
+Dynamic restrictions matter to this exact late-September trip:
+
+- **Bow Valley Parkway east → Johnston Canyon:** personal vehicle restriction Sep 1–Oct 6, 2026. Use Castle Junction.
+- **Lake Minnewanka Trail:** Parks Canada lists a current bear warning on Sep 1; recheck before Sep 26.
+- **Jasper Highway 93A:** Parks Canada anticipates mid-Sep to mid-Nov roadwork with no through travel / access from the south entrance only. Check 511 before relying on 93A.
+- **Maligne Canyon:** closed / not permitted for the 2026 season.
+- **Cavell Road / Cavell area:** closed / not permitted for the 2026 season.
+- **Valley of the Five Lakes:** reopened and open in current 2026 status.
+
+Trail/road status can change, so the master Checklist contains an explicit Sep 23–24 “re-run this official audit” item.
 
 Before departure and each Parkway/Maligne day, recheck:
 
 - https://511.alberta.ca/
-- https://parks.canada.ca/pn-np/ab/jasper/visit/etat-condition
+- https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed
+- https://parks.canada.ca/pn-np/ab/jasper/visit/routes-roads
 - https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/etat-sentiers-trail-conditions
-- https://parks.canada.ca/pn-np/ab/banff/visit/etat-condition
+- https://parks.canada.ca/pn-np/ab/banff/bulletins
+- https://parks.canada.ca/pn-np/ab/banff/activ/randonnee-hiking/etat-sentiers-trail-conditions
 
 ## Planning estimates that are intentionally *not* called official
 
@@ -201,7 +216,7 @@ These are trip-design values, not published attraction guarantees:
 They are deliberately easy to change in the app and are restored by the verified preset if experimentation gets messy.
 
 
-## Jasper wildfire-recovery closures — verified Aug. 31, 2026
+## Jasper wildfire-recovery closures — rechecked Sep. 1, 2026
 
 ### Hard exclusions
 
@@ -232,7 +247,7 @@ https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed
 
 ### Planner enforcement
 
-`closure-policy.js` is loaded last and acts as a safety policy over presets, imports and manual edits:
+`closure-policy.js` acts as the hard-closure safety layer over presets, imports and manual edits; `scroll-policy.js` intentionally remains the final loaded script to enforce the mobile document-scroll contract:
 
 - closed locations are never added to the active route or ETA chain
 - Google route generation filters them
@@ -241,3 +256,18 @@ https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed
 - name/search/catalog attempts to add them are blocked
 - the add-place catalog omits Maligne Canyon
 - detail views show Parks Canada closure information instead of navigation actions
+
+
+## Master checklist + per-place audit contract
+
+The Sep. 1 update centralizes completion state in **Checklist**:
+
+- booking-derived rows (flights, rental, YYZ parking, booked hotels, paid park admission) are checked automatically and cannot be manually falsified
+- unfinished preparation stays manual: park-pass printing/display, shuttle, Maligne ticket, Gondola weather/ticket, rental follow-up, offline maps, fuel, documents, gear and final condition checks
+- every one of the 44 verified route stop IDs resolves to a place-specific official/booking audit and a prerequisite list
+- popup prerequisites reuse the same checklist IDs as the master list, so checking “offline maps” or “print park pass” in one place updates it everywhere
+- the **Every place** category groups all 44 route stops by day and opens the same popup checklist
+- current warnings are date-stamped snapshots; they are not treated as permanent truth
+- the Checklist includes an explicit **Sep 23–24 re-run of the full official-source analysis**
+
+`trip-checklist.js` is loaded after the route/product-plan layer and before the hard-closure and final scroll-policy layers.
