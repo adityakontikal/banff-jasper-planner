@@ -387,12 +387,24 @@
         #spotModal .modal-stay-card{margin:7px 0 8px!important;padding:7px 8px!important}
         #spotModal .modal-stay-card summary{min-height:25px!important}
         #spotModal #modalDwellControls{margin:6px 0 0!important}
-        #spotModal #modalDwellControls .dwell-btn:not(.active):not(:last-child){display:none!important}
+        #spotModal #modalDwellControls .dwell-btn{font-size:9px!important;padding:5px 7px!important}
         #spotModal .modal-overview-photo{
-          display:block!important;height:128px!important;margin-bottom:4px!important
+          display:flex!important;
+          gap:6px!important;
+          height:128px!important;
+          margin-bottom:4px!important;
+          overflow-x:auto!important;
+          overflow-y:hidden!important;
+          scroll-snap-type:x proximity!important;
+          -webkit-overflow-scrolling:touch!important
         }
-        #spotModal .modal-overview-photo .photo{display:none!important}
-        #spotModal .modal-overview-photo .photo:first-child{display:block!important;height:128px!important}
+        #spotModal .modal-overview-photo .photo{
+          display:block!important;
+          flex:0 0 82%!important;
+          height:128px!important;
+          scroll-snap-align:start!important
+        }
+        #spotModal .modal-overview-photo .photo:first-child{height:128px!important}
         #spotModal .source-line{font-size:7.5px!important;line-height:1.25!important;margin:3px 0 0!important}
         #spotModal .modal-what-to-do{margin-top:7px!important;padding:8px 9px!important}
         #spotModal .modal-what-to-do #modalDo{font-size:10.5px!important;line-height:1.4!important}
