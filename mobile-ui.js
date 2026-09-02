@@ -167,14 +167,14 @@
 
     if (!document.getElementById('mobileBottomNav')) {
       document.body.insertAdjacentHTML('beforeend',
-        '<nav class="mobile-bottom-nav" id="mobileBottomNav">' +
+        '<nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile planner sections">' +
           '<button data-mobile-view="mobilequick" onclick="goMobilePlanner(\'mobilequick\')"><span>⌂</span><b>Quick</b></button>' +
           '<button data-mobile-view="overview" onclick="goMobilePlanner(\'overview\')"><span>☰</span><b>Days</b></button>' +
           '<button data-mobile-view="mapview" onclick="goMobilePlanner(\'mapview\')"><span>⌖</span><b>Map</b></button>' +
           '<button data-mobile-view="planview" onclick="goMobilePlanner(\'planview\')"><span>✓</span><b>Plan</b></button>' +
-          '<button onclick="showMobilePlannerMore(true)"><span>•••</span><b>More</b></button>' +
+          '<button aria-label="Open more planner sections" onclick="showMobilePlannerMore(true)"><span>•••</span><b>More</b></button>' +
         '</nav>' +
-        '<div class="mobile-more-sheet" id="mobileMoreSheet" onclick="if(event.target===this)showMobilePlannerMore(false)"><div class="mobile-more-panel"><div class="mobile-more-head"><b>More</b><button onclick="showMobilePlannerMore(false)">×</button></div><div class="mobile-more-grid">' +
+        '<div class="mobile-more-sheet" id="mobileMoreSheet" onclick="if(event.target===this)showMobilePlannerMore(false)"><div class="mobile-more-panel"><div class="mobile-more-head"><b>More</b><button aria-label="Close more planner sections" onclick="showMobilePlannerMore(false)">×</button></div><div class="mobile-more-grid">' +
           '<button onclick="goMobilePlanner(\'planview\')">Plan</button>' +
           '<button onclick="goMobilePlanner(\'checklistview\')">Master Checklist</button>' +
           '<button onclick="goMobilePlanner(\'bookings\')">Bookings</button>' +
@@ -777,7 +777,12 @@
   }
 
   function updateMobileNav(viewId) {
-    document.querySelectorAll('#mobileBottomNav [data-mobile-view]').forEach(b => b.classList.toggle('on', b.dataset.mobileView === viewId));
+    document.querySelectorAll('#mobileBottomNav [data-mobile-view]').forEach(b => {
+      const active = b.dataset.mobileView === viewId;
+      b.classList.toggle('on', active);
+      if (active) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
   }
 
   function patchSetView() {
