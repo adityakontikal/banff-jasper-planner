@@ -907,6 +907,6 @@
   renderAll();
 
   if (!isVerifiedState(S)) {
-    toast('Verified Aug 31 preset is ready. Open Plan or Data → Presets to apply it.');
+    toast('Verified Sep 1 official-audit preset is ready. Open Plan or Data → Presets to apply it.');
   }
 })();
