@@ -719,7 +719,7 @@
     let requested = location.hash ? location.hash.slice(1) : localStorage.getItem(VIEW_KEY);
     if (requested === 'lockview') requested = 'planview';
     if (requested === 'mobilequick' && !window.matchMedia('(max-width: 768px)').matches) requested = 'planview';
-    const valid = new Set(['planview','mapview','overview','bookings','hotels','attractions','packview','fieldview','budget','settings','finalize','mobilequick']);
+    const valid = new Set(['planview','checklistview','mapview','overview','bookings','hotels','attractions','packview','fieldview','budget','settings','finalize','mobilequick']);
     if (!requested || !valid.has(requested) || !document.getElementById(requested)) return;
     setView(requested);
   }
