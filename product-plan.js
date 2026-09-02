@@ -398,9 +398,8 @@
           '<div><small>Sep 25–30, 2026 • ' + S.settings.travellers + ' adults</small><h1>Banff → Jasper trip plan</h1><p>One place for bookings, decisions and the day-by-day route.</p></div>' +
           '<div class="pp-header-summary"><div><span>Budget</span><b>' + money(totalNow) + '</b><small>' + money(pp) + ' / person</small></div><div><span>Bookings</span><b>' + booked + '/' + BOOKING_GROUPS.length + '</b><small>' + unresolved + ' flexible decisions</small></div></div>' +
         '</header>' +
-        '<nav class="pp-subnav"><button onclick="scrollProductPlanTo(\'planItinerary\')">Route</button><button onclick="scrollProductPlanTo(\'planChecklist\')">Checklist</button><button onclick="scrollProductPlanTo(\'planDecisions\')">Decisions</button></nav>' +
+        '<nav class="pp-subnav"><button onclick="scrollProductPlanTo(\'planItinerary\')">Route</button><button onclick="setView(\'checklistview\')">Master checklist ↗</button><button onclick="scrollProductPlanTo(\'planDecisions\')">Decisions</button></nav>' +
         renderItinerary() +
-        renderChecklist() +
         renderDecisions() +
       '</div>';
   }
@@ -418,6 +417,7 @@
 
     const labels = {
       planview: 'Plan',
+      checklistview: 'Checklist',
       mapview: 'Map',
       overview: 'Days',
       bookings: 'Bookings',
