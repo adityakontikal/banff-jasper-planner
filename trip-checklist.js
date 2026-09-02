@@ -150,6 +150,17 @@
       ],
       patch: { time: 'Plan ~2 hr for gondola + summit boardwalk; official hours Sep 8–Oct 12 are 9 AM–9 PM, last ride up 7:30 PM.', parking: 'Prefer included transit with a same-day pre-purchased ticket. If driving, Parks Canada Sulphur Mountain parking is C$17.50/day May 15–Oct 12 and can fill.', parkingRating: 'Transit preferred / paid lot can fill', bestWindow: 'GOOD VISIBILITY — weather-gated MUST' }
     },
+    castlejunction: {
+      kind: 'Parks Canada road access',
+      source: 'bowValleyRestriction',
+      alert: 'MANDATORY ROUTING WAYPOINT: this is not sightseeing. It forces the legal personal-vehicle route to/from Johnston Canyon during the Sep 1–Oct 6, 2026 east Bow Valley Parkway restriction.',
+      facts: [
+        'Parks Canada explicitly says Johnston Canyon can be accessed by vehicle via Castle Junction during the restriction.',
+        'The planner includes Castle Junction immediately before and after Johnston Canyon so OSRM/Google route generation cannot silently use the prohibited east section.',
+        'Do not remove these zero-dwell waypoints unless Parks Canada changes the restriction.'
+      ],
+      patch: { time: '0 min drive-through routing waypoint', parking: 'No stop/parking required; remain on the legal road route.', parkingRating: 'Mandatory routing waypoint', bestWindow: 'Sep 26 legal vehicle access' }
+    },
     johnston: {
       kind: 'Parks Canada',
       source: 'bowValleyRestriction',
@@ -498,7 +509,7 @@
     { cat: 'transport', id: 'rental_early_return', title: 'Confirm 4:45 PM early-return procedure with Ascent', detail: 'Planner return target is earlier than the voucher’s scheduled return.' },
     { cat: 'transport', id: 'rental_fuel_return', title: 'Plan final refuel before YYC rental return', detail: 'Return to the contracted fuel level; photograph fuel gauge and vehicle condition.' },
 
-    { cat: 'road', id: 'bowvalley_castle_route', title: 'Use Castle Junction vehicle access for Johnston Canyon', detail: 'Sep 1–Oct 6, 2026 the east Bow Valley Parkway is restricted to personal vehicles. Do NOT approach Johnston from the east end.', due: 'Sep 26' },
+    { cat: 'road', id: 'bowvalley_castle_route', title: 'Keep both Castle Junction routing waypoints for Johnston Canyon', detail: 'Sep 1–Oct 6, 2026 the east Bow Valley Parkway is restricted to personal vehicles. The route now forces Castle Junction before AND after Johnston so navigation cannot use the prohibited east section.', due: 'Sep 26' },
     { cat: 'road', id: 'app511', title: 'Save 511 Alberta for road checks', detail: 'Parks Canada tells Icefields Parkway travellers to check 511 Alberta before driving.', link: 'https://511.alberta.ca/' },
     { cat: 'road', id: 'road_check', title: 'Check 511 + Banff/Jasper/Yoho bulletins immediately before each long drive', detail: 'Conditions can change by hour; late-September rain can become snow.' },
     { cat: 'road', id: 'jasper93a_check', title: 'Do not assume Highway 93A is a through-route in late September', detail: 'Parks Canada anticipates mid-Sep to mid-Nov 2026 roadwork with 93A accessible from the south entrance only / no through travel. Check 511 before relying on 93A.' },
@@ -603,6 +614,12 @@
       task('place:gondola:creditcard', 'Bring the same credit card used for the online Gondola ticket', 'Pursuit requires the purchasing card for non-transferable online tickets.'),
       task('place:gondola:arrival', 'Arrive ~20 min before the booked Gondola time; be in line at least 10 min before'),
       task('place:gondola:ticketoffline', 'Save Gondola ticket offline after purchase')
+    ],
+    castlejunction: [
+      globalTask('pass'),
+      globalTask('bowvalley_castle_route'),
+      task('place:castlejunction:driveonly', 'Treat Castle Junction as drive-through routing, not a sightseeing stop'),
+      task('place:castlejunction:noeast1a', 'Do not continue on the restricted east section of Bow Valley Parkway')
     ],
     johnston: [
       globalTask('pass'),
