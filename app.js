@@ -1380,6 +1380,7 @@ const CURATED_COMMONS_FILES = {
   minnewanka: ['Lake Minnewanka Panorama.jpg', 'Lake Minnewanka 11092005.jpg'],
   twojack: ['Two Jack Lake - Banff.jpg', 'Two Jack Lake Banff.jpg'],
   gondola: ['Gondola Lift -- Sulphur Mountain Banff, Alberta Province (CA) September 2019 (49278742638).jpg', 'Banff from Sulphur Mountain 2020.jpg'],
+  castlejunction: ['Alberta Highway 1A northwest of Castle Junction.jpg', 'Castle Junction from Silverton Falls, Banff, Alberta, 2025-07-11.jpg'],
   johnston: ['Johnston Canyon, Banff National Park, Alberta, 2025-07-12 05.jpg', 'Johnston Canyon Trail, Johnston Canyon, Banff National Park, Alberta, 2025-07-12 02.jpg'],
   moraine: ['1 moraine lake pano 2019.jpg'],
   louise: ['Lake Louise Canada Banff.JPG'],
