@@ -177,7 +177,12 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
 .leg-bridge b{color:var(--accent)}
 .stoprow{display:flex;flex-direction:column;gap:5px;background:#0d2536;border:1px solid var(--line);border-radius:10px;padding:7px;transition:.15s border-color}
 .stoprow:hover{border-color:#487491}
-.stoprow-top{display:grid;grid-template-columns:16px 24px 1fr 76px 24px 24px 24px;gap:5px;align-items:center}
+.stoprow-top{display:grid;grid-template-columns:16px 42px minmax(0,1fr) 72px;grid-template-areas:"grip badge name priority" ". . actions actions";gap:5px;align-items:center}
+.stoprow-top>.grip{grid-area:grip}
+.stoprow-top>.stop-num-badge{grid-area:badge}
+.stoprow-top>.stopname{grid-area:name;min-width:0}
+.stoprow-top>.priority{grid-area:priority;min-width:0}
+.stoprow-actions{grid-area:actions;display:flex;gap:5px;justify-content:flex-end;min-width:0}
 .stop-num-badge{width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid #07131d;color:#07131d;font-weight:900;display:grid;place-items:center;font-size:10.5px;cursor:pointer;user-select:none;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.45);transition:transform .15s ease}
 .stop-num-badge:hover{transform:scale(1.18);box-shadow:0 0 10px rgba(86,198,165,.6)}
 .stoprow-sched{display:flex;align-items:center;justify-content:space-between;gap:7px;background:#081a27;border:1px solid rgba(255,255,255,.07);border-radius:7px;padding:4px 7px;font-size:11px}
@@ -427,7 +432,7 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
       </div>
     </div>
     
-    <nav class="tabs" id="tabs">
+    <nav class="tabs" id="tabs" aria-label="Planner sections">
       <button class="on" data-view="planview">Plan</button>
       <button data-view="checklistview">Checklist</button>
       <button data-view="mapview">Map</button>
@@ -489,8 +494,8 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
   <aside class="sidebar">
     <div class="sidehead"><div class="row"><div><div class="ey">Day editor</div><b id="sideTitle">Sep 26</b></div><button class="btn small" onclick="fitSelectedDay()">Fit map</button></div><div class="dayswitch" id="daySwitch"></div></div>
     <div class="sidebody">
-      <div class="dayeditor"><input id="dayLabel" class="input" placeholder="Day label"><input id="dayStart" class="input" placeholder="Start"></div>
-      <textarea id="dayNote" class="textarea" placeholder="Day note"></textarea>
+      <div class="dayeditor"><input id="dayLabel" class="input" aria-label="Selected day label" placeholder="Day label"><input id="dayStart" class="input" aria-label="Selected day start time" placeholder="Start"></div>
+      <textarea id="dayNote" class="textarea" aria-label="Selected day planning note" placeholder="Day note"></textarea>
       <div class="summaryline" id="daySummary"></div>
       <div class="stoplist" id="stopList"></div>
       <div class="att-banner hidden" id="attBanner"></div>
@@ -499,10 +504,10 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
   </aside>
   <div class="mapwrap">
     <div class="maptoolbar">
-      <button class="btn small" id="mustFilterBtn" onclick="toggleMustFilter()">⭐ Musts only</button>
-      <button class="btn small" id="poiBtn" onclick="togglePOIs()">Explore all spots</button>
-      <button class="btn small" id="allDaysBtn" onclick="toggleAllDays()">Show all days</button>
-      <button class="btn small" id="fuelBtn" onclick="toggleFuel()">Fuel stops</button>
+      <button class="btn small" id="mustFilterBtn" aria-pressed="false" onclick="toggleMustFilter()">⭐ Musts only</button>
+      <button class="btn small" id="poiBtn" aria-pressed="false" onclick="togglePOIs()">Explore all spots</button>
+      <button class="btn small" id="allDaysBtn" aria-pressed="false" onclick="toggleAllDays()">Show all days</button>
+      <button class="btn small" id="fuelBtn" aria-pressed="false" onclick="toggleFuel()">Fuel stops</button>
       <button class="btn small" onclick="fitSelectedDay()">Fit selected</button>
       <button class="btn small" onclick="fitWholeTrip()">Fit whole trip</button>
       <button class="btn small primary" onclick="openTripHealthModal()">Trip health &amp; rules</button>
@@ -548,14 +553,14 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
 
 <section class="view" id="hotels"><div class="glass panel"><div class="ph"><div><div class="ey">1 room • 3 adults</div><h2>Two-queen hotel selector</h2><p>Choose a property per night, change the nightly total, and the trip budget updates immediately.</p></div></div><div class="g2" id="hotelGrid"></div></div></section>
 
-<section class="view" id="attractions"><div class="glass panel"><div class="ph"><div><div class="ey">Cost + time + uniqueness</div><h2>Attraction decision board</h2><p>Paid choices update both the budget and the day-load score.</p></div></div><div class="actions" style="margin-bottom:11px"><button class="btn small" data-filter="all">All</button><button class="btn small" data-filter="paid">Paid</button><button class="btn small" data-filter="free">Free</button><button class="btn small" data-filter="must">Recommended</button><button class="btn small" data-filter="skip">Skip / low priority</button></div><div class="attgrid" id="attGrid"></div></div></section>
+<section class="view" id="attractions"><div class="glass panel"><div class="ph"><div><div class="ey">Cost + time + uniqueness</div><h2>Attraction decision board</h2><p>Paid choices update both the budget and the day-load score.</p></div></div><div class="actions" style="margin-bottom:11px"><button class="btn small" data-filter="all" aria-pressed="true">All</button><button class="btn small" data-filter="paid" aria-pressed="false">Paid</button><button class="btn small" data-filter="free" aria-pressed="false">Free</button><button class="btn small" data-filter="must" aria-pressed="false">Recommended</button><button class="btn small" data-filter="skip" aria-pressed="false">Skip / low priority</button></div><div class="attgrid" id="attGrid"></div></div></section>
 
 <section class="view" id="packview"><div id="packRoot"></div></section>
 <section class="view" id="fieldview"><div id="fieldRoot"></div></section>
 
-<section class="view" id="budget"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Live budget</div><h2>Selected trip cost</h2></div></div><table><thead><tr><th>Category</th><th>Amount</th></tr></thead><tbody id="budgetRows"></tbody></table><div class="row" style="align-items:flex-end;margin-top:16px"><div><div class="ey">Trip total</div><div class="big" id="budgetTotal">$0</div></div><div style="text-align:right"><div class="ey">Per person</div><div class="big" id="budgetPP">$0</div></div></div><div class="note" style="margin-top:12px" id="budgetHint"></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Cost knobs</div><h2>Quick scenario controls</h2></div></div><div class="field"><label>Flight strategy</label><select id="flightChoice" class="select"><option value="booked-westjet">Booked WestJet round trip — C$966.63 total</option><option value="mixed">Flair outbound + Air Canada return (~$1,128)</option><option value="ac">All Air Canada base fares (~$1,353)</option></select></div><div class="field" style="margin-top:10px"><label>Rental-car estimate (CAD)</label><input id="rentalCost" class="input" type="number"></div><div class="field" style="margin-top:10px"><label>Fuel + parking buffer</label><input id="fuelCost" class="input" type="number"><small id="fuelHint" style="color:var(--muted);font-size:10px"></small></div><div class="field" style="margin-top:10px"><label>Food (3 adults, 5 days on the ground)</label><input id="foodCost" class="input" type="number"></div><div class="field" style="margin-top:10px"><label>Miscellaneous buffer</label><input id="miscCost" class="input" type="number"></div><div class="note warn" style="margin-top:12px">Canada Strong Pass ended Sep 7. You need a Parks Canada daily Family/Group pass for Sep 26–29 ($24.50/day ≈ $98). Map lines are planning-only — use the road-route button plus 511 Alberta before you drive.</div></div></div></section>
+<section class="view" id="budget"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Live budget</div><h2>Selected trip cost</h2></div></div><table><thead><tr><th>Category</th><th>Amount</th></tr></thead><tbody id="budgetRows"></tbody></table><div class="row" style="align-items:flex-end;margin-top:16px"><div><div class="ey">Trip total</div><div class="big" id="budgetTotal">$0</div></div><div style="text-align:right"><div class="ey">Per person</div><div class="big" id="budgetPP">$0</div></div></div><div class="note" style="margin-top:12px" id="budgetHint"></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Cost knobs</div><h2>Quick scenario controls</h2></div></div><div class="field"><label for="flightChoice">Flight strategy</label><select id="flightChoice" class="select"><option value="booked-westjet">Booked WestJet round trip — C$966.63 total</option><option value="mixed">Flair outbound + Air Canada return (~$1,128)</option><option value="ac">All Air Canada base fares (~$1,353)</option></select></div><div class="field" style="margin-top:10px"><label for="rentalCost">Rental-car estimate (CAD)</label><input id="rentalCost" class="input" type="number"></div><div class="field" style="margin-top:10px"><label for="fuelCost">Fuel + parking buffer</label><input id="fuelCost" class="input" type="number"><small id="fuelHint" style="color:var(--muted);font-size:10px"></small></div><div class="field" style="margin-top:10px"><label for="foodCost">Food (3 adults, 5 days on the ground)</label><input id="foodCost" class="input" type="number"></div><div class="field" style="margin-top:10px"><label for="miscCost">Miscellaneous buffer</label><input id="miscCost" class="input" type="number"></div><div class="note warn" id="parkPassBudgetNote" style="margin-top:12px"><b>Parks Canada admission already paid:</b> C$73.50 for the locked 3-day Family/Group purchase. Verify the printed receipt dates; only buy additional coverage if the printed validity ends before later park travel.</div></div></div></section>
 
-<section class="view" id="settings"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Easy modifications</div><h2>Trip settings</h2><p>These fields change the header and final summary without editing code.</p></div></div><div class="editorGrid"><div class="field"><label>Trip title</label><input id="tripTitleInput" class="input"></div><div class="field"><label>Travellers</label><input id="travellersInput" class="input" type="number" min="1"></div><div class="field"><label>Start date</label><input id="startDateInput" class="input" type="date"></div><div class="field"><label>End date</label><input id="endDateInput" class="input" type="date"></div></div><div class="field" style="margin-top:10px"><label>Global planning note</label><textarea id="globalNoteInput" class="textarea"></textarea></div><div class="editorGrid" style="margin-top:10px"><div class="field"><label>Lunch block (minutes, long days)</label><input id="lunchInput" class="input" type="number" min="0" step="5"></div><div class="field"><label>Buffer between stops (minutes)</label><input id="bufferInput" class="input" type="number" min="0" step="1"></div></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="saveSettings()">Save settings</button><button class="btn" onclick="exportState()">Export JSON</button><label class="btn">Import JSON<input id="importFile" type="file" accept=".json" style="display:none"></label><button class="btn" onclick="undoLast()">Undo last change</button></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Advanced</div><h2>Raw trip JSON</h2><p>For bulk edits. You can modify days/stops directly and apply.</p></div></div><textarea id="rawJson" class="textarea" style="min-height:390px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px"></textarea><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="applyRawJson()">Apply JSON</button><button class="btn" onclick="refreshRawJson()">Reload current</button><button class="btn danger" onclick="resetAll()">Reset all</button></div></div></div></section>
+<section class="view" id="settings"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Easy modifications</div><h2>Trip settings</h2><p>These fields change the header and final summary without editing code.</p></div></div><div class="editorGrid"><div class="field"><label for="tripTitleInput">Trip title</label><input id="tripTitleInput" class="input"></div><div class="field"><label for="travellersInput">Travellers</label><input id="travellersInput" class="input" type="number" min="1"></div><div class="field"><label for="startDateInput">Start date</label><input id="startDateInput" class="input" type="date"></div><div class="field"><label for="endDateInput">End date</label><input id="endDateInput" class="input" type="date"></div></div><div class="field" style="margin-top:10px"><label for="globalNoteInput">Global planning note</label><textarea id="globalNoteInput" class="textarea"></textarea></div><div class="editorGrid" style="margin-top:10px"><div class="field"><label for="lunchInput">Lunch block (minutes, long days)</label><input id="lunchInput" class="input" type="number" min="0" step="5"></div><div class="field"><label for="bufferInput">Buffer between stops (minutes)</label><input id="bufferInput" class="input" type="number" min="0" step="1"></div></div><div class="actions" style="margin-top:12px"><button class="btn primary" onclick="saveSettings()">Save settings</button><button class="btn" onclick="exportState()">Export JSON</button><label class="btn" for="importFile">Import JSON<input id="importFile" type="file" accept=".json" style="display:none"></label><button class="btn" onclick="undoLast()">Undo last change</button></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Advanced</div><h2>Raw trip JSON</h2><p>For bulk edits. You can modify days/stops directly and apply.</p></div></div><textarea id="rawJson" class="textarea" aria-label="Raw trip JSON" style="min-height:390px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px"></textarea><div class="actions" style="margin-top:10px"><button class="btn primary" onclick="applyRawJson()">Apply JSON</button><button class="btn" onclick="refreshRawJson()">Reload current</button><button class="btn danger" onclick="resetAll()">Reset all</button></div></div></div></section>
 
 <section class="view" id="finalize"><div class="g2"><div class="glass panel"><div class="ph"><div><div class="ey">Final plan</div><h2>Current selected itinerary</h2></div></div><div class="summary" id="finalSummary"></div></div><div class="glass panel"><div class="ph"><div><div class="ey">Take it with you</div><h2>Export / print / reference</h2></div></div><div class="actions"><button class="btn primary" onclick="exportState()">Export JSON</button><button class="btn" onclick="exportICS()">Add days to calendar (.ics)</button><button class="btn" onclick="copyFullPlan()">Copy full plan</button><button class="btn" onclick="window.print()">Print planner</button><a class="btn" target="_blank" href="https://docs.google.com/spreadsheets/d/1RE2LsjzYN-XCNRUZdKULyXvxF3ANyFp8Jc_Un80wq_8/edit">Open Google Sheet</a></div><div class="note" style="margin-top:12px"><b>Hotel rule:</b> final checkout must explicitly show 1 room • 3 adults • 2 Queen Beds. Do not accept “bed type assigned at check-in.”</div><div class="note warn" style="margin-top:9px"><b>Map rule:</b> marker-to-marker lines are for planning only, not turn-by-turn navigation.</div></div></div></section>
 
@@ -569,18 +574,18 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
         <h2 id="modalTitle" style="margin:2px 0 0;font-size:22px;">Lake Minnewanka</h2>
         <div class="modal-header-meta" id="modalHeaderMeta"></div>
       </div>
-      <button class="modal-close-btn" onclick="closeSpotModal()" title="Close (Esc)">×</button>
+      <button class="modal-close-btn" aria-label="Close place details" onclick="closeSpotModal()" title="Close (Esc)">×</button>
     </div>
     <div class="modal-body">
-      <nav class="modal-section-tabs" aria-label="Place information sections">
-        <button class="on" type="button" data-modal-tab="overview" onclick="setSpotModalTab('overview')">Overview</button>
-        <button type="button" data-modal-tab="prepare" onclick="setSpotModalTab('prepare')">Prepare <span id="modalPrepareCount"></span></button>
-        <button type="button" data-modal-tab="details" onclick="setSpotModalTab('details')">Details</button>
+      <nav class="modal-section-tabs" role="tablist" aria-label="Place information sections">
+        <button class="on" role="tab" aria-selected="true" type="button" data-modal-tab="overview" onclick="setSpotModalTab('overview')">Overview</button>
+        <button role="tab" aria-selected="false" type="button" data-modal-tab="prepare" onclick="setSpotModalTab('prepare')">Prepare <span id="modalPrepareCount"></span></button>
+        <button role="tab" aria-selected="false" type="button" data-modal-tab="details" onclick="setSpotModalTab('details')">Details</button>
       </nav>
 
       <div id="modalImportantRoot"></div>
 
-      <section class="modal-tab-panel on" data-modal-panel="overview">
+      <section class="modal-tab-panel on" role="tabpanel" data-modal-panel="overview">
         <div class="modal-quick-card">
           <div class="modal-quick-facts" id="modalQuickFacts"></div>
           <div class="actions modal-primary-actions" id="modalTopActions"></div>
@@ -599,12 +604,12 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
         <div class="note modal-what-to-do"><b>What to do</b><div id="modalDo"></div></div>
       </section>
 
-      <section class="modal-tab-panel" data-modal-panel="prepare">
+      <section class="modal-tab-panel" role="tabpanel" data-modal-panel="prepare">
         <div id="modalOfficialRoot"></div>
         <div id="modalPrereqRoot"></div>
       </section>
 
-      <section class="modal-tab-panel" data-modal-panel="details">
+      <section class="modal-tab-panel" role="tabpanel" data-modal-panel="details">
         <div class="modal-essentials" id="modalEssentials">
           <div class="modal-section-title"><span>Essentials</span><small id="modalEssentialsSummary"></small></div>
           <div id="modalLogistics" class="modal-logistics-grid"></div>
@@ -643,13 +648,13 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
       <button class="modal-close-btn" onclick="closeAddStopModal()">×</button>
     </div>
     <div class="modal-body">
-      <div class="field"><label>Search the map (name or “Peyto Lake”)</label><input id="placeSearch" class="input" placeholder="Type a place, then pick a result" autocomplete="off"></div>
+      <div class="field"><label for="placeSearch">Search the map (name or “Peyto Lake”)</label><input id="placeSearch" class="input" placeholder="Type a place, then pick a result" autocomplete="off"></div>
       <div class="search-results" id="placeResults"></div>
       <div class="ey" style="margin:14px 0 8px">Rockies catalog — tap to add</div>
       <div class="catalog-grid" id="catalogGrid"></div>
       <div class="editorGrid" style="margin-top:14px">
-        <div class="field"><label>Or name a custom pin</label><input id="customStopName" class="input" placeholder="Custom stop"></div>
-        <div class="field"><label>Stay</label><select id="customStay" class="select"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1.5 h</option></select></div>
+        <div class="field"><label for="customStopName">Or name a custom pin</label><input id="customStopName" class="input" placeholder="Custom stop"></div>
+        <div class="field"><label for="customStay">Stay</label><select id="customStay" class="select"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1.5 h</option></select></div>
       </div>
     </div>
     <div class="modal-footer">
