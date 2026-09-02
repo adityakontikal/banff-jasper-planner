@@ -2795,6 +2795,25 @@ function openGoogleRouteForOverview() {
   window.open(googleRouteUrl(d.stops), '_blank');
 }
 
+function setSpotModalTab(tab) {
+  const allowed = ['overview', 'prepare', 'details'];
+  const next = allowed.includes(tab) ? tab : 'overview';
+  document.querySelectorAll('#spotModal [data-modal-tab]').forEach(function (btn) {
+    btn.classList.toggle('on', btn.dataset.modalTab === next);
+  });
+  document.querySelectorAll('#spotModal [data-modal-panel]').forEach(function (panel) {
+    panel.classList.toggle('on', panel.dataset.modalPanel === next);
+  });
+  const body = document.querySelector('#spotModal .modal-body');
+  if (body) body.scrollTop = 0;
+
+  if (next === 'details' && window.matchMedia('(max-width: 768px)').matches && modalSpotId) {
+    const found = findStop(overviewDay, modalSpotId);
+    if (found && found.stop) setTimeout(function () { renderModalMiniMap(found.stop); }, 40);
+  }
+}
+window.setSpotModalTab = setSpotModalTab;
+
 function openSpotModal(date, id) {
   const f = findStop(date, id);
   if (!f || !f.stop) return;
@@ -2812,16 +2831,32 @@ function openSpotModal(date, id) {
     const routeState = it.isCut ? 'CUT' : stop.priority.toUpperCase();
     headerMeta.textContent = `${routeState} • ${it.arrTime.display}–${it.depTime.display} • ${it.stayMin} min`;
   }
-  const essentials = document.getElementById('modalEssentials');
-  if (essentials) essentials.open = !mobileModal;
+
+  const quickFacts = document.getElementById('modalQuickFacts');
+  if (quickFacts) {
+    const driveText = it.prevLeg ? it.prevLeg.durText : (it.isCut ? 'Bypassed' : 'Start');
+    quickFacts.innerHTML = `
+      <div class="modal-quick-fact"><small>Arrive</small><b>${it.arrTime.display}</b></div>
+      <div class="modal-quick-fact"><small>Leave</small><b>${it.depTime.display}</b></div>
+      <div class="modal-quick-fact"><small>Stay</small><b>${it.stayMin} min</b></div>
+      <div class="modal-quick-fact"><small>From prev</small><b>${escapeHtml(driveText)}</b></div>`;
+  }
+
+  const staySummary = document.getElementById('modalStaySummary');
+  if (staySummary) staySummary.textContent = it.stayMin + ' min • tap to adjust';
+  const dwellSection = document.getElementById('modalDwellSection');
+  if (dwellSection) dwellSection.open = !mobileModal;
+
   const essentialsSummary = document.getElementById('modalEssentialsSummary');
   if (essentialsSummary) {
     const parts = [];
     if (inf.rating) parts.push('⭐ ' + inf.rating);
     if (inf.parkingRating) parts.push('🚗 ' + inf.parkingRating);
-    if (inf.cell) parts.push('📶 ' + inf.cell);
+    if (inf.effort) parts.push('🥾 ' + inf.effort);
     essentialsSummary.textContent = parts.join(' • ');
   }
+
+  setSpotModalTab('overview');
 
   // Render Logistics Badges
   const logEl = document.getElementById('modalLogistics');
@@ -2873,9 +2908,9 @@ function openSpotModal(date, id) {
   document.getElementById('modalCut').textContent = inf.cut;
   document.getElementById('modalParking').textContent = inf.parking;
   document.getElementById('modalTopActions').innerHTML = `
-    <a class="btn primary small" href="${googleMapsForStop(stop)}" target="_blank">Open in Google Maps</a>
-    <a class="btn small" href="${googleMapsDirectionsToStop(stop)}" target="_blank">Directions here</a>
-    <a class="btn small" href="${inf.official}" target="_blank">Official / Info</a>`;
+    <a class="btn primary small" href="${googleMapsForStop(stop)}" target="_blank" rel="noopener">Maps ↗</a>
+    <a class="btn small" href="${googleMapsDirectionsToStop(stop)}" target="_blank" rel="noopener">Route ↗</a>
+    <a class="btn small" href="${inf.official}" target="_blank" rel="noopener">Official ↗</a>`;
   document.getElementById('modalMapActions').innerHTML = `
     <a class="btn primary small" href="${googleMapsForStop(stop)}" target="_blank">Google Maps</a>
     <button class="btn small" onclick="closeSpotModal();switchDayAndGoToMap('${day.date}')">Edit on Map</button>`;
@@ -2892,7 +2927,7 @@ function openSpotModal(date, id) {
   spotModal.classList.remove('hidden');
   const modalBody = spotModal.querySelector('.modal-body');
   if (modalBody) modalBody.scrollTop = 0;
-  setTimeout(() => renderModalMiniMap(stop), 60);
+  if (!mobileModal) setTimeout(() => renderModalMiniMap(stop), 60);
 }
 function closeSpotModal() {
   document.getElementById('spotModal').classList.add('hidden');
