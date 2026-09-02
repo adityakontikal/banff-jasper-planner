@@ -836,8 +836,10 @@
     const rows = tasksForStop(stop);
     const done = rows.filter(function (r) { return placeTaskDone(r, stop); }).length;
     const mobile = window.matchMedia('(max-width: 768px)').matches;
+    const existing = document.getElementById('modalPrereqDetails');
+    const keepOpen = !!(existing && existing.open);
     root.innerHTML =
-      '<details class="modal-prereq modal-collapse-card" id="modalPrereqDetails" ' + (mobile ? '' : 'open') + '>' +
+      '<details class="modal-prereq modal-collapse-card" id="modalPrereqDetails" ' + (!mobile || keepOpen ? 'open' : '') + '>' +
         '<summary class="modal-prereq-head modal-section-summary"><div><small>PRE-REQ CHECKLIST • ' + escapeHtml(tripStopCode(day, stop)) + '</small><b>Before this stop</b></div><span>' + done + '/' + rows.length + ' ready</span></summary>' +
         '<div class="modal-collapse-body">' +
           '<div class="modal-prereq-list">' +
