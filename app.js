@@ -2888,7 +2888,16 @@ function renderOverview() {
   }
   hydrateDayThumbs(d);
 }
-function chooseOverviewDay(date) { overviewDay = date; renderOverview(); }
+function chooseOverviewDay(date) {
+  overviewDay = date;
+  renderOverview();
+  if (window.matchMedia('(max-width: 768px)').matches) {
+    requestAnimationFrame(() => {
+      const active = document.querySelector('#overviewDayList .overview-daycard.active');
+      if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+  }
+}
 function switchDayAndGoToMap(date) { chooseDay(date); }
 function openGoogleRouteForOverview() {
   const d = S.days.find(x => x.date === overviewDay) || getDay();
