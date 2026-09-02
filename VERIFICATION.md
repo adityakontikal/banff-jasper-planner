@@ -264,9 +264,9 @@ The Sep. 1 update centralizes completion state in **Checklist**:
 
 - booking-derived rows (flights, rental, YYZ parking, booked hotels, paid park admission) are checked automatically and cannot be manually falsified
 - unfinished preparation stays manual: park-pass printing/display, shuttle, Maligne ticket, Gondola weather/ticket, rental follow-up, offline maps, fuel, documents, gear and final condition checks
-- every one of the 44 verified route stop IDs resolves to a place-specific official/booking audit and a prerequisite list
+- every one of the 46 verified route stop IDs resolves to a place-specific official/booking audit and a prerequisite list
 - popup prerequisites reuse the same checklist IDs as the master list, so checking “offline maps” or “print park pass” in one place updates it everywhere
-- the **Every place** category groups all 44 route stops by day and opens the same popup checklist
+- the **Every place** category groups all 46 route stops by day and opens the same popup checklist
 - current warnings are date-stamped snapshots; they are not treated as permanent truth
 - the Checklist includes an explicit **Sep 23–24 re-run of the full official-source analysis**
 
