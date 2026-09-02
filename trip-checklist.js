@@ -483,10 +483,14 @@
   const MASTER_ITEMS = [
     { cat: 'bookings', id: 'auto_outbound', title: 'Outbound WestJet flight paid / locked', detail: 'Derived from locked booking.', auto: function () { return bookingDone('outbound'); } },
     { cat: 'bookings', id: 'auto_return', title: 'Return WestJet flight paid / locked', detail: 'Derived from locked booking.', auto: function () { return bookingDone('return'); } },
-    { cat: 'bookings', id: 'auto_rental', title: 'Ascent rental booked', detail: 'Rental total is locked; remaining pickup payment stays in Budget.', auto: function () { return bookingDone('rental'); } },
+    { cat: 'bookings', id: 'auto_rental', title: 'Ascent rental booked', detail: 'Confirmed total C$403.74; booking itself is locked.', auto: function () { return bookingDone('rental'); } },
+    { cat: 'bookings', id: 'rental_due_payment', title: 'Have payment method ready for C$371.30 rental balance due at pickup', detail: 'C$32.44 is already paid. Budget also notes a possible 2.4% credit-card fee.' },
+    { cat: 'bookings', id: 'rental_deposit_capacity', title: 'Leave room for the C$1,000 refundable rental deposit authorization', detail: 'Deposit is not counted as trip cost but still needs available card capacity.' },
     { cat: 'bookings', id: 'auto_parking', title: 'YYZ airport parking paid', detail: 'Derived from locked SpotHero booking.', auto: function () { return bookingDone('yyzParking'); } },
     { cat: 'bookings', id: 'auto_h26', title: 'Sep 26 Super 8 Cochrane paid / locked', detail: '1 room • 3 adults • 2 Queens.', auto: function () { return bookingDone('h26'); } },
     { cat: 'bookings', id: 'auto_hinton', title: 'Sep 27–29 Hinton Lodge booked', detail: 'One two-night reservation; Sep 28 is not a second charge.', auto: function () { return bookingDone('h27') && bookingDone('h28'); } },
+    { cat: 'bookings', id: 'hinton_due_payment', title: 'Have C$429.07 Hinton Lodge balance ready at property', detail: 'The two-night reservation is booked but not prepaid.' },
+    { cat: 'bookings', id: 'hotel_deposit_capacity', title: 'Leave card room for hotel deposits / holds', detail: 'Planner booking data: Super 8 C$100 property deposit; Holiday Inn C$50 stay deposit + C$50/night breakage deposit.' },
     { cat: 'bookings', id: 'auto_h29', title: 'Sep 29 Holiday Inn Calgary-Airport paid / locked', detail: 'Final trip-night hotel.', auto: function () { return bookingDone('h29'); } },
     { cat: 'bookings', id: 'auto_park', title: 'Parks Canada 3-day Family/Group pass paid', detail: 'C$73.50 paid; printing/display is a separate task.', auto: function () { return bookingDone('park'); } },
     { cat: 'bookings', id: 'shuttle_booked', title: 'Book Sep 27 Moraine + Lake Louise shuttle', detail: '60% release Sep 25 at 8 AM Mountain / 10 AM Toronto. Choose Moraine as initial destination.', due: 'Sep 25 • 10:00 AM Toronto', auto: function () { return bookingDone('shuttle'); }, link: 'https://reservation.pc.gc.ca/' },
@@ -541,7 +545,8 @@
     { cat: 'final', id: 'maligne_departure_confirmed', title: 'Confirm exact Maligne departure + arrival buffer', detail: 'Operator recommends pre-purchase and at least 30 min early; planner route must match the exact sailing.', due: 'After booking' },
     { cat: 'final', id: 'layers_ready', title: 'Put warm layers / rain shell in the car cabin', detail: 'Not buried in luggage.' },
     { cat: 'final', id: 'snacks_ready', title: 'Load water + snacks into car', detail: 'Especially Sep 27 and Sep 29 Parkway days.' },
-    { cat: 'final', id: 'departure_walkaround', title: 'Rental pickup/return photo walkaround', detail: 'Photograph existing condition at pickup and final condition/fuel at return.' }
+    { cat: 'final', id: 'departure_walkaround', title: 'Rental pickup/return photo walkaround', detail: 'Photograph existing condition at pickup and final condition/fuel at return.' },
+    { cat: 'final', id: 'share_trip_plan', title: 'Share the final route + lodging plan with someone not on the trip', detail: 'Parks Canada recommends leaving a trip plan and keeping an emergency contact informed of changes.' }
   ];
 
   function itemDone(item) {
@@ -581,6 +586,8 @@
     yyc25: [
       globalTask('rental_file'),
       globalTask('id_cards_ready'),
+      globalTask('rental_due_payment'),
+      globalTask('rental_deposit_capacity'),
       task('place:yyc25:flight_delay_contact', 'If the flight is delayed, contact the rental supplier before the pickup deadline', 'Keep supplier details available offline.')
     ],
     yyc30: [
@@ -590,10 +597,12 @@
     ],
     cochrane: [
       task('place:cochrane:confirmation', 'Hotel confirmation available offline', 'Use the locked Super 8 booking.', function (stop) { return stop && (stop.id === 'cochrane26_ret' || stop.id === 'cochrane27') && bookingDone('h26'); }),
+      globalTask('hotel_deposit_capacity', 'Have card room for the C$100 Super 8 property deposit'),
       task('place:cochrane:morning_fuel', 'Fuel / snacks ready before the Sep 27 mountain drive')
     ],
     calgaryhotel: [
       task('place:calgaryhotel:confirmation', 'Hotel confirmation available offline', 'Use the locked Holiday Inn Calgary-Airport booking.', function () { return bookingDone('h29'); }),
+      globalTask('hotel_deposit_capacity', 'Have card room for Holiday Inn deposit / breakage hold'),
       task('place:calgaryhotel:flightday', 'Review Sep 30 rental-return + flight timing before sleep')
     ],
     minnewanka: [
@@ -667,7 +676,7 @@
     icefield29: [globalTask('pass'), globalTask('offline_maps'), task('place:icefield29:choice', 'Confirm this is the chosen Sep 29 bonus before spending 2.5–3h')],
     sunwapta: [globalTask('pass'), globalTask('offline_maps'), task('place:sunwapta:parking', 'Use designated parking; skip if safe parking is unavailable')],
     athfalls: [globalTask('pass'), globalTask('offline_maps'), task('place:athfalls:railings', 'Stay behind barriers / on paved official viewpoints')],
-    hinton: [task('place:hinton:confirmation', 'Hinton Lodge two-night confirmation saved offline', '', function () { return bookingDone('h27') && bookingDone('h28'); }), task('place:hinton:fuel', 'Fill / reset before Jasper or southbound Parkway')],
+    hinton: [task('place:hinton:confirmation', 'Hinton Lodge two-night confirmation saved offline', '', function () { return bookingDone('h27') && bookingDone('h28'); }), globalTask('hinton_due_payment'), task('place:hinton:fuel', 'Fill / reset before Jasper or southbound Parkway')],
     pyramid: [globalTask('pass'), task('place:pyramid:early', 'Aim early because Pyramid Island parking is very limited'), globalTask('bear_spray')],
     patricia: [globalTask('pass'), task('place:patricia:onlyif', 'Only add Patricia if Pyramid morning is ahead of schedule')],
     jasper: [globalTask('pass'), globalTask('road_check'), globalTask('jasper93a_check'), task('place:jasper:fuel', 'Fuel + food + washroom reset before Maligne Valley')],
