@@ -2805,7 +2805,24 @@ function openSpotModal(date, id) {
   const it = tl.items[index] || { arrTime: { display: '--' }, depTime: { display: '--' }, stayMin: getDefaultStayMin(stop), prevLeg: null };
   document.getElementById('modalDayLabel').textContent = `${day.date} • Stop ${index + 1} of ${day.stops.length} (${stop.priority.toUpperCase()})`;
   document.getElementById('modalTitle').textContent = inf.title;
-  
+
+  const mobileModal = window.matchMedia('(max-width: 768px)').matches;
+  const headerMeta = document.getElementById('modalHeaderMeta');
+  if (headerMeta) {
+    const routeState = it.isCut ? 'CUT' : stop.priority.toUpperCase();
+    headerMeta.textContent = `${routeState} • ${it.arrTime.display}–${it.depTime.display} • ${it.stayMin} min`;
+  }
+  const essentials = document.getElementById('modalEssentials');
+  if (essentials) essentials.open = !mobileModal;
+  const essentialsSummary = document.getElementById('modalEssentialsSummary');
+  if (essentialsSummary) {
+    const parts = [];
+    if (inf.rating) parts.push('⭐ ' + inf.rating);
+    if (inf.parkingRating) parts.push('🚗 ' + inf.parkingRating);
+    if (inf.cell) parts.push('📶 ' + inf.cell);
+    essentialsSummary.textContent = parts.join(' • ');
+  }
+
   // Render Logistics Badges
   const logEl = document.getElementById('modalLogistics');
   if (logEl) {
@@ -2871,7 +2888,10 @@ function openSpotModal(date, id) {
   pb.textContent = prev ? '← ' + getSpotInfo(prev).title : '← Previous';
   nb.textContent = next ? getSpotInfo(next).title + ' →' : 'Next →';
   renderModalPhotos(inf);
-  document.getElementById('spotModal').classList.remove('hidden');
+  const spotModal = document.getElementById('spotModal');
+  spotModal.classList.remove('hidden');
+  const modalBody = spotModal.querySelector('.modal-body');
+  if (modalBody) modalBody.scrollTop = 0;
   setTimeout(() => renderModalMiniMap(stop), 60);
 }
 function closeSpotModal() {
