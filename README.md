@@ -15,26 +15,28 @@ Then open the URL `serve` prints (usually http://localhost:3000).
 
 You can also open `index.html` directly, but a local server is more reliable for map tiles and search.
 
-## What to do first (the trip is ~25 days out)
+## What to do first
 
-1. Open **Plan**. The red banner is the Moraine / Lake Louise shuttle.
-2. **Set an alarm for Sep 25, 8:00 AM Mountain (10:00 AM Toronto).** Remaining Parks Canada seats drop 48 hours before departure. Book **Moraine Lake as first destination**. Screenshot the ticket — there is no cell at the Park & Ride.
-3. **All hotel nights are now resolved.** Sep 25 intentionally has no hotel; Sep 26 Cochrane, Sep 27–28 Hinton, and Sep 29 Calgary Airport are locked.
-4. Flights, YYC rental and YYZ parking are already locked.
-5. Parks Canada Family/Group Day Pass is **paid and locked: C$73.50 for 3 days**. Print and display the receipt on the left side of the dashboard with the date visible. Because daily passes expire at 4:00 PM the following day, verify the printed dates cover any Sep 29 park time after 4:00 PM.
+1. Open **Checklist**. It is now the single source of truth for bookings, documents, shuttle/rental prep, road access, offline readiness, gear, final 48-hour checks and every-place prerequisites.
+2. **Set an alarm for Sep 25, 8:00 AM Mountain (10:00 AM Toronto).** Remaining Parks Canada seats drop 48 hours before departure. Book **Moraine Lake as first destination** and save the ticket offline.
+3. **All hotel nights are resolved.** Sep 25 intentionally has no hotel; Sep 26 Cochrane, Sep 27–28 Hinton, and Sep 29 Calgary Airport are locked.
+4. Flights, YYC rental and YYZ parking are already locked and therefore appear automatically checked in the master checklist.
+5. Parks Canada Family/Group Day Pass is **paid and locked: C$73.50 for 3 days**. The receipt requires you to **PRINT and DISPLAY** it on the **left-hand side of the vehicle dashboard with the date visible**. Because daily passes expire at 4:00 PM the following day, verify the printed dates cover any Sep 29 park time after 4:00 PM.
+6. **Sep 26 Johnston Canyon:** personal vehicles must use **Castle Junction**. Parks Canada restricts the east Bow Valley Parkway to personal vehicles Sep 1–Oct 6, 2026.
 
 ## Tabs
 
 | Tab | Use it for |
 | --- | --- |
-| **Plan** | Countdown, shuttle alarm, booking decisions, daylight load, September climate |
+| **Plan** | Route, decisions, daylight load and exact place links |
+| **Checklist** | Master trip readiness by category + per-place prerequisite lists |
 | **Map** | Reorder stops, drag pins, add catalog/search places, live drive times |
 | **Days** | Photo cards, arrival/departure times, per-stop briefing |
 | **Book** | Status, actuals, confirmation numbers |
 | **Hotels** | Locked booked stays plus the intentional no-hotel Sep 25 transition |
 | **Do** | Paid vs free attractions; toggles feed budget and stay times |
-| **Pack** | Clothes / daypack / car checklists |
-| **Field** | Fuel (only one station on the Parkway), no-cell, 511, emergency numbers |
+| **Pack** | Packing reference; completion tracking lives in Checklist → Gear |
+| **Field** | Road/fuel/no-cell/emergency reference; actionable checks live in Checklist |
 | **Budget** | Live CAD total including food |
 | **Data** | Dates, lunch/buffer minutes, JSON import/export, reset |
 | **Print** | Plain-language plan, `.ics` calendar, copy, print |
@@ -68,11 +70,11 @@ Everything saves in `localStorage` in this browser (`bj-map-planner-v4`). Export
 
 ## Verified budget-first preset
 
-The app now ships with a **Verified budget-first** recovery preset based on the Aug. 31, 2026 planning review for this specific 3-adult trip.
+The app now ships with a **Verified budget-first** recovery preset updated through the **Sep. 1, 2026 official-source audit** for this specific 3-adult trip.
 
 Open **Data → Presets** at any time:
 
-- **Verified budget-first** — the agreed plan: Maligne Cruise protected; Banff Gondola and Icefield Adventure remain optional; MUST / NICE / CUT priorities restored.
+- **Verified budget-first** — the agreed plan: Maligne Cruise protected; Banff Gondola is a weather-gated MUST; Icefield Adventure remains optional; MUST / NICE / CUT priorities restored.
 - **Core scenery only** — strips paid attractions while retaining the major natural sights.
 - **Pursuit-aware** — only use if you later decide to buy the Pursuit bundle; it intentionally makes the schedule more attraction-heavy.
 
@@ -117,10 +119,10 @@ Phones use a simplified planning surface instead of a stacked desktop layout.
 - **Quick** is the phone summary: budget, next booking/decision and compact day cards.
 - Bottom navigation keeps **Quick / Days / Map / Plan / More** one tap away.
 - Day cards show the main MUST stops with stable stop codes such as **D2-4**, plus Quick look / Map / Google Maps.
-- **Plan** contains the booking checklist, decision timeline and full itinerary; there is no separate Lock page.
+- **Plan** contains route + decision flow. **Checklist** is the centralized completion tracker; there is no duplicated packing/booking checklist inside Plan.
 - The map opens first on mobile; the stop editor stays collapsed until **Edit stops** is tapped.
-- Place details prioritize arrival/departure, dwell, drive-from-previous, what-to-do, parking/access and Maps links.
-- Bookings, Hotels, Attractions, Budget, Pack, Road, Data/Presets and Export remain available under **More**.
+- Place details prioritize arrival/departure, dwell, drive-from-previous, official/booking verification, per-place prerequisites, what-to-do, parking/access and exact Maps links.
+- Checklist, Bookings, Hotels, Attractions, Budget, Pack, Road, Data/Presets and Export remain available under **More**.
 
 The last open page is restored after reload.
 
@@ -153,9 +155,9 @@ The main **Plan** page now replaces the old split Plan + Lock workflow.
 
 It is organized as a normal travel workflow:
 
-1. **Before you go** — grouped booking checklist with direct booking links.
+1. **Itinerary** — all six days with real route times and stable stop identifiers.
 2. **Decisions** — time-ordered choices with the current answer shown first and alternatives only when Change is opened.
-3. **Itinerary** — all six days with real route times and stable stop identifiers.
+3. **Master Checklist** — a dedicated tab handles completion tracking so Plan, Pack and Road do not each maintain competing checkbox state.
 
 Stop identifiers use **Day-Stop** notation everywhere practical:
 
