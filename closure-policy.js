@@ -1,5 +1,5 @@
 /* Jasper 2026 wildfire-recovery closure policy.
- * Verified against Parks Canada on Aug 31, 2026.
+ * Rechecked against Parks Canada on Sep 1, 2026.
  * These locations are hard exclusions: they never enter an active route/timeline,
  * even if an old import or manual edit attempts to restore them.
  */
@@ -92,7 +92,7 @@
       effort: 'Access prohibited',
       desc: 'Parks Canada confirms Maligne Canyon remains closed for the 2026 season during wildfire recovery.',
       todo: 'Bypass Maligne Canyon. Continue on the legal/open Maligne Road itinerary toward Medicine Lake and Maligne Lake.',
-      reviews: 'Verified Aug 31, 2026 against Parks Canada recovery information and the Aug 14 closure bulletin.',
+      reviews: 'Rechecked Sep 1, 2026 against Parks Canada recovery information and the active 2026 closure status.',
       cut: 'Hard exclusion — this location never enters the active route or ETA chain.',
       official: 'https://parks.canada.ca/pn-np/ab/jasper/activ/itineraires-itineraries/canyon-maligne',
       tag: 'CLOSED 2026 • Wildfire recovery'
@@ -112,7 +112,7 @@
       effort: 'Access prohibited',
       desc: 'Parks Canada confirms Cavell Road and the Mount Edith Cavell area remain closed for the 2026 season during wildfire recovery.',
       todo: 'Use other Jasper/Parkway sights. Path of the Glacier and Cavell Meadows are also closed.',
-      reviews: 'Verified Aug 31, 2026 against Parks Canada recovery information and the Aug 14 closure bulletin.',
+      reviews: 'Rechecked Sep 1, 2026 against Parks Canada recovery information and the active 2026 closure status.',
       cut: 'Hard exclusion — this location never enters the active route or ETA chain.',
       official: 'https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/cavell',
       tag: 'CLOSED 2026 • Wildfire recovery'
