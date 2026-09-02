@@ -306,6 +306,7 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
     
     <nav class="tabs" id="tabs">
       <button class="on" data-view="planview">Plan</button>
+      <button data-view="checklistview">Checklist</button>
       <button data-view="mapview">Map</button>
       <button data-view="overview">Days</button>
       <button data-view="bookings">Bookings</button>
@@ -354,6 +355,10 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
     </div>
   </div>
   <div id="planRoot"></div>
+</section>
+
+<section class="view" id="checklistview">
+  <div id="checklistRoot"></div>
 </section>
 
 <section class="view" id="mapview">
@@ -457,6 +462,8 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
         <div class="factgrid" id="modalFacts"></div>
       </div>
       <div class="photo-grid" id="modalPhotoGrid" style="margin-bottom:14px;"></div>
+      <div id="modalOfficialRoot"></div>
+      <div id="modalPrereqRoot"></div>
       <div class="detail-layout">
         <div>
           <div class="review-card" id="modalReviews"></div>
@@ -531,6 +538,7 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
 <script src="mobile-ui.js"></script>
 <script src="adaptive-map-timeline.js"></script>
 <script src="product-plan.js"></script>
+<script src="trip-checklist.js"></script>
 <script src="closure-policy.js"></script>
 <script src="scroll-policy.js"></script>
 </body>
