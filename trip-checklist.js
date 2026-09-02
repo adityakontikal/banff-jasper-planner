@@ -328,6 +328,7 @@
       facts: [
         'Jasper townsite is the practical fuel/food/service reset before Maligne Valley.',
         'Current Jasper visitor areas on this route are generally open except specifically closed areas such as Maligne Canyon and Cavell.',
+        'Parks Canada anticipates Highway 93A roadwork from mid-September into November 2026 with no through travel; check 511 before using 93A.',
         'Check current Jasper conditions before each long drive.'
       ],
       patch: { bestWindow: 'Fuel / food / washroom reset; keep the stop operational rather than sightseeing-heavy.' }
@@ -338,6 +339,7 @@
       facts: [
         'This southbound Jasper stop is an operational fuel/snack reset.',
         'Check 511 Alberta and Jasper conditions before entering the Icefields Parkway.',
+        'Parks Canada anticipates Highway 93A roadwork from mid-September into November 2026 with no through travel / south-side access only; do not use 93A as an assumed through-route.',
         'Do not leave Jasper assuming fuel/cell service will be continuously available southbound.'
       ],
       patch: { bestWindow: 'Fuel + snacks + road check before Hwy 93 south.' }
@@ -651,8 +653,8 @@
     hinton: [task('place:hinton:confirmation', 'Hinton Lodge two-night confirmation saved offline', '', function () { return bookingDone('h27') && bookingDone('h28'); }), task('place:hinton:fuel', 'Fill / reset before Jasper or southbound Parkway')],
     pyramid: [globalTask('pass'), task('place:pyramid:early', 'Aim early because Pyramid Island parking is very limited'), globalTask('bear_spray')],
     patricia: [globalTask('pass'), task('place:patricia:onlyif', 'Only add Patricia if Pyramid morning is ahead of schedule')],
-    jasper: [globalTask('pass'), globalTask('road_check'), task('place:jasper:fuel', 'Fuel + food + washroom reset before Maligne Valley')],
-    jasper29: [globalTask('pass'), globalTask('road_check'), globalTask('sep29_fuel')],
+    jasper: [globalTask('pass'), globalTask('road_check'), globalTask('jasper93a_check'), task('place:jasper:fuel', 'Fuel + food + washroom reset before Maligne Valley')],
+    jasper29: [globalTask('pass'), globalTask('road_check'), globalTask('jasper93a_check'), globalTask('sep29_fuel')],
     medicine: [globalTask('pass'), task('place:medicine:timing', 'Keep stop short enough to protect exact Maligne cruise check-in')],
     maligne: [
       globalTask('pass'),
