@@ -98,7 +98,7 @@ The tab also shows booking readiness, unresolved decisions, budget position, and
 ## Key schedule corrections in the verified preset
 
 - **Sep 25 arrival night has no hotel by choice.** WestJet lands 12:44 AM Sep 26 and the Ascent rental pickup is 1:30 AM.
-- **Sep 26** keeps the same Banff-first route but now starts from YYC at **05:45**, reaching the mountain corridor around sunrise and ending at the booked Cochrane hotel.
+- **Sep 26** keeps the Banff-first day but now explicitly routes **Gondola → Castle Junction → Johnston Canyon → Castle Junction → Cochrane** so turn-by-turn routing cannot use the east Bow Valley Parkway while the Sep 1–Oct 6 personal-vehicle restriction is active.
 - Johnston Canyon is **120 min** for Lower + Upper Falls rather than the old 90-minute assumption.
 - **Sep 27** starts at 06:00, not 04:30. The plan explicitly models Park & Ride check-in, shuttle/connector waiting and return to the car.
 - Sep 27 protects Moraine + Rockpile, Lake Louise lakeshore, Bow Lake, Peyto and the free Athabasca Glacier stop. Mistaya and Sunwapta are NICE.
