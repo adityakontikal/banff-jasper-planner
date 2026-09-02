@@ -1560,8 +1560,14 @@ function getLeg(s1, s2) {
           }
         }
       }
+    } else {
+      legCache[key] = { ...fallback, status: 'error' };
+      renderSummary();
     }
-  }).catch(() => {});
+  }).catch(() => {
+    legCache[key] = { ...fallback, status: 'error' };
+    renderSummary();
+  });
   return fallback;
 }
 function computeDayTimeline(d) {
@@ -2748,13 +2754,82 @@ REQUIRED ACCESS
 PLANNING NOTE
 ${S.settings.globalNote}`;
 }
-function renderSummary() { document.getElementById('finalSummary').textContent = planText(); }
+function routeTimingState() {
+  let pending = 0, error = 0, total = 0;
+  S.days.forEach(d => {
+    const active = d.stops.filter(isStopActive);
+    for (let i = 0; i < active.length - 1; i++) {
+      total++;
+      const s1 = active[i], s2 = active[i + 1];
+      const key = `${s1.lng.toFixed(5)},${s1.lat.toFixed(5)}_${s2.lng.toFixed(5)},${s2.lat.toFixed(5)}`;
+      const leg = legCache[key];
+      if (!leg || leg.status === 'pending') pending++;
+      else if (leg.status !== 'ready') error++;
+    }
+  });
+  return { pending, error, total, ready: pending === 0 && error === 0 };
+}
+
+function renderSummary() {
+  const summary = document.getElementById('finalSummary');
+  if (!summary) return;
+  // planText() intentionally runs first: computing it starts any missing OSRM requests.
+  const text = planText();
+  const state = routeTimingState();
+  const status = document.getElementById('finalTimingStatus');
+  const derivedActions = document.querySelectorAll('#finalize [data-route-timing-export]');
+
+  derivedActions.forEach(el => {
+    el.disabled = !state.ready;
+    el.setAttribute('aria-disabled', state.ready ? 'false' : 'true');
+  });
+
+  if (state.ready) {
+    summary.textContent = text;
+    if (status) {
+      status.className = 'note ok';
+      status.innerHTML = '<b>Road timings current.</b> Copy, print and calendar export use the same active-route calculation as Plan.';
+    }
+  } else if (state.error) {
+    summary.textContent = 'Road timing verification unavailable.\n\nThe planner is intentionally not showing provisional finish times here because one or more current road legs could not be verified.';
+    if (status) {
+      status.className = 'note warn';
+      status.innerHTML = '<b>Derived exports locked:</b> ' + state.error + ' road leg' + (state.error === 1 ? '' : 's') + ' could not be verified. Raw JSON export remains available.';
+    }
+  } else {
+    summary.textContent = 'Calculating current road timings…\n\n' + state.pending + ' of ' + state.total + ' road legs still resolving. Finish times will appear when the route is current.';
+    if (status) {
+      status.className = 'note';
+      status.innerHTML = '<b>Refreshing route:</b> ' + state.pending + ' road leg' + (state.pending === 1 ? '' : 's') + ' remaining. Copy/print/calendar unlock automatically.';
+    }
+  }
+}
+
+function derivedExportReady() {
+  // Kick any missing requests before deciding.
+  planText();
+  const state = routeTimingState();
+  if (state.ready) return true;
+  renderSummary();
+  toast(state.error
+    ? 'Route timing unavailable — derived export is locked to avoid stale times.'
+    : 'Current road timings are still loading. Try again when Export shows ready.');
+  return false;
+}
+
+function printPlanner() {
+  if (!derivedExportReady()) return;
+  window.print();
+}
 function exportState() {
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
   const u = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = u; a.download = 'banff-jasper-plan.json'; a.click(); URL.revokeObjectURL(u);
 }
-function copyFullPlan() { navigator.clipboard.writeText(planText()).then(() => toast('Plan copied')).catch(() => toast('Could not copy')); }
+function copyFullPlan() {
+  if (!derivedExportReady()) return;
+  navigator.clipboard.writeText(planText()).then(() => toast('Plan copied')).catch(() => toast('Could not copy'));
+}
 function copyDayText() {
   const d = getDay();
   const tl = computeDayTimeline(d);
@@ -2762,6 +2837,7 @@ function copyDayText() {
   navigator.clipboard.writeText(lines.filter(Boolean).join('\n')).then(() => toast('Day copied')).catch(() => toast('Could not copy'));
 }
 function exportICS() {
+  if (!derivedExportReady()) return;
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Rockies Trip//Planner//EN'];
   S.days.forEach(d => {
     const iso = (DATE_ISO[d.date] || S.settings.startDate).replace(/-/g, '');
@@ -2769,7 +2845,7 @@ function exportICS() {
     const tl = computeDayTimeline(d);
     const sH = String(Math.floor(start / 60)).padStart(2, '0') + String(start % 60).padStart(2, '0') + '00';
     const eH = String(Math.floor(tl.finishMin / 60) % 24).padStart(2, '0') + String(Math.round(tl.finishMin) % 60).padStart(2, '0') + '00';
-    const desc = d.stops.map(s => s.name).join(' → ').replace(/,/g, '\\,');
+    const desc = d.stops.filter(isStopActive).map(s => s.name).join(' → ').replace(/,/g, '\\,');
     lines.push('BEGIN:VEVENT', `DTSTART;TZID=America/Edmonton:${iso}T${sH}`, `DTEND;TZID=America/Edmonton:${iso}T${eH}`, `SUMMARY:${d.date} ${d.label}`, `DESCRIPTION:${desc}`, 'END:VEVENT');
   });
 lines.push('END:VCALENDAR');
