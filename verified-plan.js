@@ -25,7 +25,9 @@
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 15 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 10 },
         { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' },
+        { id: 'castlejunction26_in', name: 'Castle Junction — Johnston legal-access waypoint', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: '2026 ROUTE: use Castle Junction to reach Johnston Canyon by personal vehicle during the Sep 1–Oct 6 east Bow Valley Parkway restriction.' },
         { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120, note: '2026 ACCESS: personal vehicles must reach Johnston Canyon via Castle Junction. East Bow Valley Parkway vehicle access is restricted Sep 1–Oct 6. Recheck Parks Canada bulletin before Sep 26.' },
+        { id: 'castlejunction26_out', name: 'Castle Junction — return to Hwy 1', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: 'Return via Castle Junction; do not continue east on the restricted Bow Valley Parkway.' },
         { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
@@ -130,6 +132,41 @@
         d26.stops.splice(johnstonIndex >= 0 ? johnstonIndex : Math.max(0, d26.stops.length - 1), 0, gondolaStop);
       } else {
         Object.assign(gondolaStop, gondolaData);
+      }
+
+      const castleDataIn = {
+        id: 'castlejunction26_in',
+        name: 'Castle Junction — Johnston legal-access waypoint',
+        lat: 51.26876,
+        lng: -115.91833,
+        priority: 'must',
+        stayMin: 0,
+        note: '2026 ROUTE: use Castle Junction to reach Johnston Canyon by personal vehicle during the Sep 1–Oct 6 east Bow Valley Parkway restriction.'
+      };
+      const castleDataOut = {
+        id: 'castlejunction26_out',
+        name: 'Castle Junction — return to Hwy 1',
+        lat: 51.26876,
+        lng: -115.91833,
+        priority: 'must',
+        stayMin: 0,
+        note: 'Return via Castle Junction; do not continue east on the restricted Bow Valley Parkway.'
+      };
+      let castleIn = d26.stops.find(function (s) { return s.id === 'castlejunction26_in'; });
+      let castleOut = d26.stops.find(function (s) { return s.id === 'castlejunction26_out'; });
+      const johnstonIndexNow = d26.stops.findIndex(function (s) { return s.id === 'johnston'; });
+      if (!castleIn) {
+        castleIn = castleDataIn;
+        d26.stops.splice(johnstonIndexNow >= 0 ? johnstonIndexNow : Math.max(0, d26.stops.length - 1), 0, castleIn);
+      } else {
+        Object.assign(castleIn, castleDataIn);
+      }
+      const johnstonIndexAfterIn = d26.stops.findIndex(function (s) { return s.id === 'johnston'; });
+      if (!castleOut) {
+        castleOut = castleDataOut;
+        d26.stops.splice(johnstonIndexAfterIn >= 0 ? johnstonIndexAfterIn + 1 : Math.max(0, d26.stops.length - 1), 0, castleOut);
+      } else {
+        Object.assign(castleOut, castleDataOut);
       }
     }
 
