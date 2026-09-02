@@ -625,6 +625,7 @@ const SPOT_INFO = {
 const SPOT_ALIASES = {
   cochrane25: 'cochrane', cochrane26: 'cochrane', cochrane26_dep: 'yycstage', cochrane26_ret: 'cochrane',
   cochrane27: 'cochrane', cochrane29: 'calgaryhotel', cochrane30: 'calgaryhotel',
+  castlejunction26_in: 'castlejunction', castlejunction26_out: 'castlejunction',
   hinton27: 'hinton', hinton28a: 'hinton', hinton28b: 'hinton', hinton29: 'hinton',
   beehive: 'beehive', fairview: 'fairview', takakkaw: 'takakkaw', morant: 'morant'
 };
@@ -653,6 +654,18 @@ const GENERIC_INFO = {
     reviews: 'Booking-confirmed lodging stop.',
     cut: 'Locked overnight base.',
     official: 'https://www.ihg.com/', tag: 'Hotel Base • Calgary Airport'
+  },
+  castlejunction: {
+    title: 'Castle Junction — Johnston Canyon vehicle access', photoQuery: 'Castle Junction Banff Alberta', time: 'Routing waypoint', rating: 'Operational',
+    timingOptions: [{ label: 'Drive-through route waypoint', min: 0 }],
+    parking: 'No sightseeing stop is required. This waypoint exists to force the legal Sep 26 vehicle approach/exit for Johnston Canyon.',
+    parkingRating: 'Drive-through', bestWindow: 'Sep 26 route enforcement',
+    restrooms: 'Do not plan facilities here; use Banff/Johnston facilities as needed.', cell: 'Variable', effort: 'Drive-through',
+    desc: 'Parks Canada restricts personal vehicles on the east Bow Valley Parkway from Sep 1 to Oct 6, 2026. Johnston Canyon remains accessible by vehicle via Castle Junction, so the planner routes through this junction both before and after Johnston.',
+    todo: 'Stay on Highway 1 to Castle Junction, then use the permitted west section of Bow Valley Parkway to Johnston Canyon. Return the same way.',
+    reviews: 'Official 2026 access rule — this is a routing safeguard, not an attraction.',
+    cut: 'Do not remove while the Sep 1–Oct 6 personal-vehicle restriction is active.',
+    official: 'https://parks.canada.ca/pn-np/ab/banff/bulletins/b9725292-f2ba-41cc-91a5-7816df981ce3', tag: 'Road access • Mandatory waypoint'
   },
   cochrane: {
     title: 'Cochrane Hotel Base (Lodging)', photoQuery: 'Cochrane Alberta Rocky Mountains', time: 'Overnight Base', rating: '9.0/10',
@@ -785,7 +798,9 @@ const BASE = {
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 20 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 15 },
         { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' },
+        { id: 'castlejunction26_in', name: 'Castle Junction — Johnston legal-access waypoint', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: '2026 ROUTE: use Castle Junction to reach Johnston Canyon by personal vehicle during the Sep 1–Oct 6 east Bow Valley Parkway restriction.' },
         { id: 'johnston', name: 'Johnston Canyon', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 90 },
+        { id: 'castlejunction26_out', name: 'Castle Junction — return to Hwy 1', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: 'Return via Castle Junction; do not continue east on the restricted Bow Valley Parkway.' },
         { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
@@ -1318,6 +1333,8 @@ const GOOGLE_MAP_QUERIES = {
   bowfalls: 'Bow Falls, Banff, Alberta',
   surprise: 'Surprise Corner Viewpoint, Banff, Alberta',
   gondola: 'Banff Gondola, 100 Mountain Ave, Banff, AB',
+  castlejunction26_in: 'Castle Junction, Banff National Park, Alberta',
+  castlejunction26_out: 'Castle Junction, Banff National Park, Alberta',
   johnston: 'Johnston Canyon, Bow Valley Parkway, Banff National Park, Alberta',
   cochrane26_ret: 'Super 8 by Wyndham Cochrane, 11 West Side Dr, Cochrane, AB',
   cochrane27: 'Super 8 by Wyndham Cochrane, 11 West Side Dr, Cochrane, AB',
