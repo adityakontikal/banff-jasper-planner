@@ -14,7 +14,7 @@
       ]
     },
     {
-      date: 'Sep 26', label: 'YYC → Banff First-Timer Highlights → Cochrane', start: '05:45', drive: '~240 km', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      date: 'Sep 26', label: 'YYC → Banff First-Timer Highlights → Cochrane', start: '05:45', drive: 'Via Castle Junction • live road route', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
       note: 'No arrival-night hotel. Keep the Banff-first route. IMPORTANT 2026: reach Johnston Canyon by personal vehicle via Castle Junction because the east Bow Valley Parkway is restricted Sep 1–Oct 6. Protect Minnewanka + Two Jack + weather-clear Gondola + Johnston Upper Falls.',
       hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
