@@ -2205,8 +2205,8 @@ function renderDayEditor() {
             <span class="alltrip-stop-meta">${dwell ? escapeHtml(formatDuration(dwell)) : '—'}</span>
             <span class="alltrip-stop-state ${isHotel ? 'hotel' : s.priority}">${stateLabel}</span>
           </button>
-          <button class="alltrip-info" onclick="openSpotModal('${d.date}','${s.id}')" title="Place details">i</button>
-          <a class="alltrip-info" href="${googleMapsForStop(s)}" target="_blank" rel="noopener" title="Open exact place in Google Maps">↗</a>
+          <button class="alltrip-info" aria-label="${escapeAttr('Open details for ' + (inf.title || s.name))}" onclick="openSpotModal('${d.date}','${s.id}')" title="Place details">i</button>
+          <a class="alltrip-info" aria-label="${escapeAttr('Open ' + (inf.title || s.name) + ' in Google Maps')}" href="${googleMapsForStop(s)}" target="_blank" rel="noopener" title="Open exact place in Google Maps">↗</a>
         </div>`;
       });
 
@@ -2259,7 +2259,7 @@ function renderDayEditor() {
     html += `<div class="stoprow ${s.done ? 'done' : ''} ${isCut ? 'is-cut' : ''}" draggable="true" data-i="${i}">
       <div class="stoprow-top">
         <div class="grip" title="Drag to reorder">☰</div>
-        <div class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</div>
+        <button type="button" class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" aria-label="${escapeAttr('Focus ' + tripStopCode(d, s) + ' ' + s.name + ' on map')}" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</button>
         <input class="stopname" aria-label="${escapeAttr(tripStopCode(d, s) + ' stop name')}" value="${escapeAttr(s.name)}" onchange="renameStop(${i},this.value)">
         <select class="priority ${s.priority}" aria-label="${escapeAttr(tripStopCode(d, s) + ' priority')}" onchange="setPriority(${i},this.value)">
           <option value="must" ${s.priority === 'must' ? 'selected' : ''}>Must</option>
