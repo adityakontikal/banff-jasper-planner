@@ -822,6 +822,7 @@
     if (!state) return;
     state.checklists = state.checklists || {};
     state.officialAuditVersion = AUDIT_VERSION;
+    state.presetVersion = 'verified-2026-09-01-v3';
 
     const migrate = [
       ['rental-info', 'rental_file'],
@@ -866,6 +867,17 @@
     const view = document.getElementById('checklistview');
     if (view && view.classList.contains('on')) renderMasterChecklist();
   };
+
+  if (typeof window.applyVerifiedPlannerPreset === 'function') {
+    const oldApplyVerifiedPlannerPreset = window.applyVerifiedPlannerPreset;
+    window.applyVerifiedPlannerPreset = function (name, silent) {
+      const result = oldApplyVerifiedPlannerPreset(name, silent);
+      auditSavedState(S);
+      persist();
+      renderAll();
+      return result;
+    };
+  }
 
   window.setMasterChecklistItem = setMasterCheck;
   window.setPlaceChecklistItem = setPlaceCheck;
