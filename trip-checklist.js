@@ -816,15 +816,18 @@
     const audit = placeAudit(stop);
     const src = audit && audit.source ? source(audit.source) : null;
     const facts = (audit && audit.facts) || [];
+    const mobile = window.matchMedia('(max-width: 768px)').matches;
+    const alertHtml = audit && audit.alert ? '<div class="modal-live-alert modal-live-alert-persistent">' + escapeHtml(audit.alert) + '</div>' : '';
     root.innerHTML =
-      '<div class="modal-official-card">' +
-        '<div class="modal-official-head"><div><small>' + escapeHtml((audit && audit.kind) || 'Planner location') + ' • VERIFIED ' + AUDIT_DATE + '</small><b>Official / booking truth</b></div>' +
-          (src ? '<a href="' + src.url + '" target="_blank" rel="noopener">Official source ↗</a>' : '<span>Locked planner booking data</span>') +
+      alertHtml +
+      '<details class="modal-official-card modal-collapse-card" id="modalOfficialDetails" ' + (mobile ? '' : 'open') + '>' +
+        '<summary class="modal-official-head modal-section-summary"><div><small>' + escapeHtml((audit && audit.kind) || 'Planner location') + ' • VERIFIED ' + AUDIT_DATE + '</small><b>Official / booking truth</b></div><span class="modal-summary-cue">' + facts.length + ' facts</span></summary>' +
+        '<div class="modal-collapse-body">' +
+          (src ? '<a class="modal-official-source" href="' + src.url + '" target="_blank" rel="noopener">Official source ↗</a>' : '<span class="modal-official-source">Locked planner booking data</span>') +
+          '<ul>' + facts.map(function (f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('') + '</ul>' +
+          '<div class="modal-audit-foot">Time/route estimates remain planner estimates unless explicitly described above as official. Dynamic warnings must be rechecked before travel.</div>' +
         '</div>' +
-        (audit && audit.alert ? '<div class="modal-live-alert">' + escapeHtml(audit.alert) + '</div>' : '') +
-        '<ul>' + facts.map(function (f) { return '<li>' + escapeHtml(f) + '</li>'; }).join('') + '</ul>' +
-        '<div class="modal-audit-foot">Time/route estimates remain planner estimates unless explicitly described above as official. Dynamic warnings must be rechecked before travel.</div>' +
-      '</div>';
+      '</details>';
   }
 
   function renderPlacePrereqs(day, stop) {
@@ -832,21 +835,24 @@
     if (!root) return;
     const rows = tasksForStop(stop);
     const done = rows.filter(function (r) { return placeTaskDone(r, stop); }).length;
+    const mobile = window.matchMedia('(max-width: 768px)').matches;
     root.innerHTML =
-      '<section class="modal-prereq">' +
-        '<div class="modal-prereq-head"><div><small>PRE-REQ CHECKLIST • ' + escapeHtml(tripStopCode(day, stop)) + '</small><b>Before this stop</b></div><span>' + done + '/' + rows.length + '</span></div>' +
-        '<div class="modal-prereq-list">' +
-          rows.map(function (row) {
-            const isDone = placeTaskDone(row, stop);
-            const locked = !!row.auto || !!(GLOBAL_TASK_LOOKUP[row.id] && GLOBAL_TASK_LOOKUP[row.id].auto);
-            return '<label class="modal-prereq-row ' + (isDone ? 'done' : '') + '">' +
-              '<input type="checkbox" ' + (isDone ? 'checked' : '') + (locked ? ' disabled' : '') + ' onchange="setPlaceChecklistItem(\'' + escapeAttr(stop.id) + '\',\'' + escapeAttr(row.id) + '\',this.checked)">' +
-              '<span class="mc-box"></span><span><b>' + escapeHtml(row.title) + '</b>' + (row.detail ? '<small>' + escapeHtml(row.detail) + '</small>' : '') + '</span>' +
-            '</label>';
-          }).join('') +
+      '<details class="modal-prereq modal-collapse-card" id="modalPrereqDetails" ' + (mobile ? '' : 'open') + '>' +
+        '<summary class="modal-prereq-head modal-section-summary"><div><small>PRE-REQ CHECKLIST • ' + escapeHtml(tripStopCode(day, stop)) + '</small><b>Before this stop</b></div><span>' + done + '/' + rows.length + ' ready</span></summary>' +
+        '<div class="modal-collapse-body">' +
+          '<div class="modal-prereq-list">' +
+            rows.map(function (row) {
+              const isDone = placeTaskDone(row, stop);
+              const locked = !!row.auto || !!(GLOBAL_TASK_LOOKUP[row.id] && GLOBAL_TASK_LOOKUP[row.id].auto);
+              return '<label class="modal-prereq-row ' + (isDone ? 'done' : '') + '">' +
+                '<input type="checkbox" ' + (isDone ? 'checked' : '') + (locked ? ' disabled' : '') + ' onchange="setPlaceChecklistItem(\'' + escapeAttr(stop.id) + '\',\'' + escapeAttr(row.id) + '\',this.checked)">' +
+                '<span class="mc-box"></span><span><b>' + escapeHtml(row.title) + '</b>' + (row.detail ? '<small>' + escapeHtml(row.detail) + '</small>' : '') + '</span>' +
+              '</label>';
+            }).join('') +
+          '</div>' +
+          '<button class="btn small" onclick="closeSpotModal();setView(\'checklistview\');setChecklistCategory(\'places\')">Open master checklist ↗</button>' +
         '</div>' +
-        '<button class="btn small" onclick="closeSpotModal();setView(\'checklistview\');setChecklistCategory(\'places\')">Open master checklist ↗</button>' +
-      '</section>';
+      '</details>';
   }
 
   function auditSavedState(state) {
@@ -932,6 +938,7 @@
       '.mc-place-intro{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#0a1d2a;margin-bottom:10px}.mc-place-intro b,.mc-place-intro span{display:block}.mc-place-intro b{font-size:11px}.mc-place-intro span{font-size:9px;color:var(--muted);margin-top:3px}.mc-day{margin:12px 0}.mc-day-head{display:flex;gap:10px;align-items:baseline;padding:0 2px 6px}.mc-day-head b{font-size:11px}.mc-day-head span{font-size:9px;color:var(--muted)}.mc-place-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.mc-place-card{display:grid;grid-template-columns:44px 1fr auto;gap:8px;align-items:center;background:#0b202e;color:inherit;border:1px solid var(--line);border-radius:9px;padding:8px;text-align:left;cursor:pointer}.mc-place-card:hover{border-color:#466d84}.mc-place-code{font-size:8px;font-weight:900;color:#7dc2a9}.mc-place-card b,.mc-place-card small{display:block}.mc-place-card b{font-size:9px}.mc-place-card small{font-size:7px;color:var(--muted);margin-top:2px}.mc-place-card em{font-size:8px;color:#9fc5d6;font-style:normal}' +
       '.modal-official-card{border:1px solid #3c6b59;background:#0a241d;border-radius:10px;padding:10px 11px;margin:0 0 12px}.modal-official-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.modal-official-head small,.modal-official-head b{display:block}.modal-official-head small{font-size:8px;color:#76b99b;font-weight:800}.modal-official-head b{font-size:12px;margin-top:2px}.modal-official-head a,.modal-official-head>span{font-size:8px;color:#a9d6c0}.modal-official-card ul{margin:8px 0 0;padding-left:17px}.modal-official-card li{font-size:9.5px;color:#c9ddd3;margin:4px 0;line-height:1.4}.modal-live-alert{margin-top:8px;border-left:3px solid #d1a84f;background:#2a2211;color:#f0d79a;padding:7px 8px;border-radius:5px;font-size:9px;line-height:1.45}.modal-audit-foot{font-size:7.5px;color:#77958a;border-top:1px solid rgba(255,255,255,.08);padding-top:6px;margin-top:8px}' +
       '.modal-prereq{border:1px solid #355a70;background:#081b28;border-radius:10px;padding:10px 11px;margin:12px 0}.modal-prereq-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.modal-prereq-head small,.modal-prereq-head b{display:block}.modal-prereq-head small{font-size:8px;color:#74a9c4}.modal-prereq-head b{font-size:12px}.modal-prereq-head>span{font-size:9px;color:#9fc6d8}.modal-prereq-list{border-top:1px solid rgba(255,255,255,.08);margin-bottom:8px}.modal-prereq-row{display:flex;gap:8px;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.06);padding:7px 0;cursor:pointer}.modal-prereq-row b,.modal-prereq-row small{display:block}.modal-prereq-row b{font-size:9.5px}.modal-prereq-row small{font-size:8px;color:#829aa8;margin-top:2px;line-height:1.35}' +
+      '.modal-collapse-card>summary{list-style:none;cursor:pointer}.modal-collapse-card>summary::-webkit-details-marker{display:none}.modal-section-summary{position:relative;padding-right:22px}.modal-section-summary:after{content:"⌄";position:absolute;right:2px;top:50%;transform:translateY(-50%);color:#7f9aaa;font-size:13px}.modal-collapse-card[open]>.modal-section-summary:after{transform:translateY(-50%) rotate(180deg)}.modal-collapse-body{padding-top:7px}.modal-official-source{display:inline-block;margin:1px 0 4px;font-size:8px;color:#a9d6c0;text-decoration:none}.modal-live-alert-persistent{margin:0 0 8px}.modal-summary-cue{font-size:8px;color:#86a3b2;padding-right:5px;white-space:nowrap}' +
       '@media(max-width:900px){.mc-critical{grid-template-columns:1fr}.mc-place-grid{grid-template-columns:1fr 1fr}.mc-hero{display:block}.mc-score{text-align:left;margin-top:10px}.modal-official-head{display:block}.modal-official-head a{display:inline-block;margin-top:6px}}@media(max-width:560px){.mc-place-grid{grid-template-columns:1fr}.mc-tabs{margin-left:-2px;margin-right:-2px}}';
     document.head.appendChild(st);
   }
