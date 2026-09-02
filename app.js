@@ -744,7 +744,7 @@ const PACK_ITEMS = {
   Car: [
     { id: 'offline', t: 'Download offline maps: Banff–Jasper corridor', d: 'Icefields Parkway has essentially no cell service.' },
     { id: 'app511', t: '511 Alberta bookmark or app', d: 'Check before every Parkway drive.' },
-    { id: 'pass', t: 'Print + display Parks Canada Family/Group pass receipt', d: 'Paid C$73.50 for 3 Family/Group day passes. Print the receipt and display it on the left side of the dashboard with the date visible. Check the printed dates cover any Sep 29 park time after 4:00 PM.' },
+    { id: 'pass', t: 'Print + display Parks Canada Family/Group pass receipt', d: 'Paid C$73.50 for 3 Family/Group day passes. PRINT the receipt and DISPLAY it on the left-hand side of the vehicle dashboard with the date visible. Check the printed dates cover any Sep 29 park time after 4:00 PM.' },
     { id: 'screen', t: 'Shuttle ticket screenshots on every phone', d: 'Show at the Lake Louise Park & Ride kiosk.' },
     { id: 'fuelplan', t: 'Full tank before every Parkway run', d: 'Only mid-route gas is Saskatchewan Crossing.' }
   ]
@@ -756,7 +756,7 @@ const BOOK_TASKS = [
   { id: 'rental-drivers', title: 'Decide additional rental drivers', due: '2026-09-20T18:00:00-04:00', detail: 'Only the booked main driver is guaranteed. Additional drivers cost extra and all added drivers must be present with valid documents at pickup.', link: 'tel:+16044164600', bookId: 'rental' },
   { id: 'yyz-parking-pass', title: 'Save SpotHero pass + review parking instructions', due: '2026-09-24T20:00:00-04:00', detail: 'EZ Airport Parking — Uncovered Self Park is paid. Enter after Sep 25 at 8:00 PM and exit before Oct 1 at 8:00 PM. Review the facility/entry instructions before driving in and keep the pass available offline. Vehicle and plate details stay only in SpotHero.', link: 'https://spothero.com/', bookId: 'yyzParking' },
   { id: 'maligne', title: 'Decide Maligne Lake Cruise', due: '2026-09-14T18:00:00-04:00', detail: 'Default paid highlight (~$348, 2.5 h). If yes, book a morning/midday sailing and protect Maligne Road time.', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/' },
-  { id: 'parkpass', title: 'Parks Canada Family/Group pass purchased', due: '2026-09-26T10:00:00-06:00', detail: 'Receipt confirms 3 × Family/Group Day Pass = C$73.50 paid on Sep 1. Print and display the official receipt on the left side of the dashboard with the date visible. Daily passes are valid until 4:00 PM the following day, so verify the printed dates still cover any Sep 29 park time after 4:00 PM.', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes', bookId: 'park' }
+  { id: 'parkpass', title: 'Parks Canada Family/Group pass purchased', due: '2026-09-26T10:00:00-06:00', detail: 'Receipt confirms 3 × Family/Group Day Pass = C$73.50 paid on Sep 1. PRINT and DISPLAY the official receipt on the left-hand side of the vehicle dashboard with the date visible. Daily passes are valid until 4:00 PM the following day, so verify the printed dates still cover any Sep 29 park time after 4:00 PM.', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes', bookId: 'park' }
 ];
 
 const BASE = {
@@ -885,7 +885,7 @@ const BASE = {
     { id: 'h27', p: 7, item: 'Hinton Lodge • Sep 27 → Sep 29 • 2 nights • 2 Queen Beds', estimate: 429.07, status: 'Booked', actual: '', confirm: 'Stored in Hotels.com email', locked: true, bookingGroup: 'hotel-hinton-lodge', detail: '1 room • 3 adults • Standard Room • Non Smoking • C$429.07 due at property • free cancellation until Sep 26 6:00 PM local', link: 'https://hintonlodge.ca/' },
     { id: 'h28', p: 8, item: 'Hinton Lodge • Sep 28 night (included in Sep 27–29 booking)', estimate: 0, status: 'Booked', actual: '', confirm: 'Same reservation as Sep 27', locked: true, bookingGroup: 'hotel-hinton-lodge', detail: 'Night 2 of the same room • included in C$429.07 two-night total', link: 'https://hintonlodge.ca/' },
     { id: 'h29', p: 9, item: 'Holiday Inn Calgary-Airport by IHG • Sep 29 → Sep 30 • 2 Queen Beds', estimate: 171.42, status: 'Paid', actual: 171.42, confirm: 'Stored in Hotels.com email', locked: true, bookingGroup: 'hotel-holidayinn-yyc', detail: '1 room • 3 adults • Standard Room (Low Floor) • C$171.42 paid • free cancellation until Sep 22 6:00 PM local • check-out 11:00 AM', link: 'https://www.ihg.com/holidayinn/hotels/us/en/calgary/yycat/hoteldetail' },
-    { id: 'park', p: 9, item: 'Parks Canada • Family/Group Day Pass • 3 days', estimate: 73.50, status: 'Paid', actual: 73.50, confirm: 'Receipt stored in email', locked: true, bookingGroup: 'parks-canada-pass', detail: '3 × Family/Group Day Pass • C$73.50 paid Sep 1 • print/display receipt with date visible • verify printed dates cover any Sep 29 park time after 4:00 PM', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes' },
+    { id: 'park', p: 9, item: 'Parks Canada • Family/Group Day Pass • 3 days', estimate: 73.50, status: 'Paid', actual: 73.50, confirm: 'Receipt stored in email', locked: true, bookingGroup: 'parks-canada-pass', detail: '3 × Family/Group Day Pass • C$73.50 paid Sep 1 • PRINT + DISPLAY receipt on left-hand side of vehicle dashboard with date visible • verify printed dates cover any Sep 29 park time after 4:00 PM', link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes' },
     { id: 'shuttle', p: 10, item: 'Lake Louise + Moraine shuttle (book Sep 25 8:00 AM MDT)', estimate: 41.75, status: 'Waiting window', actual: '', confirm: '', link: 'https://reservation.pc.gc.ca/' }
   ]
 };
@@ -1286,7 +1286,7 @@ function applyLockedParkPass(state) {
     confirm: 'Receipt stored in email',
     locked: true,
     bookingGroup: 'parks-canada-pass',
-    detail: '3 × Family/Group Day Pass • C$73.50 paid Sep 1 • print/display receipt with date visible • verify printed dates cover any Sep 29 park time after 4:00 PM',
+    detail: '3 × Family/Group Day Pass • C$73.50 paid Sep 1 • PRINT + DISPLAY receipt on left-hand side of vehicle dashboard with date visible • verify printed dates cover any Sep 29 park time after 4:00 PM',
     link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes'
   });
   state.bookings.forEach((booking, index) => { booking.p = index + 1; });
