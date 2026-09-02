@@ -15,7 +15,7 @@
     },
     {
       date: 'Sep 26', label: 'YYC → Banff First-Timer Highlights → Cochrane', start: '05:45', drive: '~240 km', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
-      note: 'No arrival-night hotel. Keep the original Banff-first route: leave the YYC area around 5:45 AM and reach the Banff/Minnewanka area around sunrise. Core stops remain Minnewanka + Two Jack + Johnston Upper Falls.',
+      note: 'No arrival-night hotel. Keep the Banff-first route. IMPORTANT 2026: reach Johnston Canyon by personal vehicle via Castle Junction because the east Bow Valley Parkway is restricted Sep 1–Oct 6. Protect Minnewanka + Two Jack + weather-clear Gondola + Johnston Upper Falls.',
       hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
         { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45 for Banff', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
@@ -25,7 +25,7 @@
         { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 15 },
         { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 10 },
         { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' },
-        { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120 },
+        { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120, note: '2026 ACCESS: personal vehicles must reach Johnston Canyon via Castle Junction. East Bow Valley Parkway vehicle access is restricted Sep 1–Oct 6. Recheck Parks Canada bulletin before Sep 26.' },
         { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
@@ -194,7 +194,7 @@
       }
       if (gondolaAtt) gondolaAtt.selected = false;
     }
-    state.presetVersion = 'verified-2026-09-01-v2';
+    state.presetVersion = 'verified-2026-09-01-v3';
     return state;
   }
 
@@ -210,10 +210,10 @@
   }
 
   function patchBase() {
-    BASE.presetVersion = 'verified-2026-09-01-v2';
+    BASE.presetVersion = 'verified-2026-09-01-v3';
     BASE.activePreset = 'verified';
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
-    BASE.settings.globalNote = 'Verified Aug 31, 2026. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Three drivers; long/night driving is acceptable. Protect 6–7h sleep / ~8–9h in-room time. Must = first-timer core; Nice = consider/choose; Cut = keep in data but sacrifice first.';
+    BASE.settings.globalNote = 'Verified Sep 1, 2026. Official-source audit active. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Protect sleep and first-timer core; follow current Parks Canada access/closure rules. Must = core; Nice = consider/choose; Cut = sacrifice first.';
     BASE.settings.lunchMin = 30;
     BASE.settings.bufferMin = 8;
     BASE.costs.food = 360;
@@ -276,12 +276,12 @@
       time: '2 hr to Upper Falls (official)',
       timingOptions: [{ label: 'Lower Falls only — official ~1h', min: 60 }, { label: 'Lower + Upper Falls — official ~2h', min: 120 }],
       effort: '2.4 km one way • 215 m gain to Upper Falls',
-      parking: 'Use Johnston Canyon designated P1/P2 only. Parks Canada says parking fills quickly and roadside parking is prohibited.',
+      parking: 'Use Johnston Canyon designated P1/P2 only. Sep 1–Oct 6, 2026 personal vehicles must access Johnston Canyon via Castle Junction because the east Bow Valley Parkway is restricted.',
       parkingRating: 'Busy — have a fallback',
       desc: 'First-timer must. Narrow canyon catwalks lead to Lower Falls and the 30 m Upper Falls. Your preset protects the full Upper Falls hike.',
       todo: 'Do Lower Falls, continue to Upper Falls, then turn around. Ink Pots are intentionally excluded from this compressed trip.',
       cut: 'If the day is badly delayed, downgrade to Lower Falls (~1h) before removing the stop entirely.',
-      reviews: 'Verified 2026: Parks Canada lists Lower Falls at 1.1 km one way / ~1h round trip and Upper Falls at 2.4 km one way / ~2h round trip.',
+      reviews: 'Verified Sep 1, 2026: Lower Falls ~1.1 km one way / ~1h round trip; Upper Falls ~2.4 km one way / ~2h. Current access for personal vehicles is via Castle Junction; east Bow Valley Parkway vehicle restriction runs Sep 1–Oct 6.',
       official: 'https://parks.canada.ca/pn-np/ab/banff/activ/randonnee-hiking'
     },
     parkride: {
@@ -439,7 +439,7 @@
   }
 
   function isVerifiedState(state) {
-    return !!state && state.presetVersion === 'verified-2026-09-01-v2';
+    return !!state && state.presetVersion === 'verified-2026-09-01-v3';
   }
 
   function preserveProgress(next, old) {
@@ -467,7 +467,7 @@
   }
 
   function configurePreset(next, name) {
-    next.presetVersion = 'verified-2026-09-01-v2';
+    next.presetVersion = 'verified-2026-09-01-v3';
     next.activePreset = name;
     next.decisions = deepClone(VERIFIED_DECISIONS);
     const maligne = next.attractions.find(function (a) { return a.id === 'maligneCruise'; });
@@ -725,11 +725,11 @@
     }).join('');
 
     root.innerHTML =
-      '<div class="lock-hero glass"><div><div class="ey">VERIFIED PRESET • AUG 31, 2026</div><h1>Lock the trip in the order decisions actually happen.</h1><p>MCQs are intentionally time-ordered: booking first, then weather/availability choices, then the Sep 29 bonus fork. Resetting to the verified preset restores every MUST/NICE/CUT classification.</p></div>' +
+      '<div class="lock-hero glass"><div><div class="ey">VERIFIED PRESET • SEP 1, 2026</div><h1>Lock the trip in the order decisions actually happen.</h1><p>MCQs are intentionally time-ordered: booking first, then weather/availability choices, then the Sep 29 bonus fork. Resetting to the verified preset restores every MUST/NICE/CUT classification.</p></div>' +
       '<div class="lock-metrics"><div><small>Core bookings</small><b>' + booked + '/' + coreBookings.length + '</b></div><div><small>Decisions resolved</small><b>' + answered + '/' + DECISION_FLOW.length + '</b></div><div class="' + budgetClass + '"><small>Selected estimate</small><b>' + money(totalNow) + '</b><span>Comfort target C$3k–3.5k</span></div></div></div>' +
       '<div class="lock-grid"><div class="glass panel"><div class="ph"><div><div class="ey">Timeline decision tree</div><h2>Answer these as the trip gets locked</h2></div></div><div class="lock-timeline">' + cards + '</div></div>' +
       '<div><div class="glass panel"><div class="ph"><div><div class="ey">Final lock</div><h2>What must be true before departure</h2></div></div><div class="final-lock-list">' + hardHtml + '</div></div>' +
-      '<div class="glass panel"><div class="ph"><div><div class="ey">Budget rule</div><h2>Keep paid extras intentional</h2></div></div><div class="note"><b>Hotels:</b> all nights are resolved and locked. Do not revive alternate-hotel comparisons in presets or saved-state recovery.</div><div class="note" style="margin-top:8px"><b>Paid attractions:</b> Maligne is protected. Gondola and Icefield Adventure remain nice/conditional. Pursuit stays off by default.</div><div class="note warn" style="margin-top:8px"><b>Sep 29:</b> Valley Five Lakes, Icefield Adventure and Yoho are alternatives. Pick one big bonus; Athabasca Falls remains core.</div></div></div></div>';
+      '<div class="glass panel"><div class="ph"><div><div class="ey">Budget rule</div><h2>Keep paid extras intentional</h2></div></div><div class="note"><b>Hotels:</b> all nights are resolved and locked. Do not revive alternate-hotel comparisons in presets or saved-state recovery.</div><div class="note" style="margin-top:8px"><b>Paid attractions:</b> Maligne is protected. Gondola is a weather-gated MUST; Icefield Adventure remains NICE/conditional. Pursuit stays off by default.</div><div class="note warn" style="margin-top:8px"><b>Sep 29:</b> Valley Five Lakes, Icefield Adventure and Yoho are alternatives. Pick one big bonus; Athabasca Falls remains core.</div></div></div></div>';
   }
 
   function injectUi() {
@@ -747,7 +747,7 @@
     if (settings && !document.getElementById('presetPanel')) {
       settings.insertAdjacentHTML('afterbegin',
         '<div class="glass panel" id="presetPanel"><div class="ph"><div><div class="ey">Presets / recovery</div><h2>Reset the route without losing booking progress</h2><p>The verified preset is the plan agreed in chat. Core-only strips paid attractions. Pursuit-aware is only for a later bundle decision.</p></div></div>' +
-        '<div class="preset-cards"><button class="preset-card primary" onclick="applyVerifiedPlannerPreset(\'verified\')"><b>Verified budget-first</b><small>Maligne locked • Icefield/Gondola nice • budget rules active</small></button>' +
+        '<div class="preset-cards"><button class="preset-card primary" onclick="applyVerifiedPlannerPreset(\'verified\')"><b>Verified budget-first</b><small>Maligne protected • Gondola weather-gated MUST • Icefield NICE</small></button>' +
         '<button class="preset-card" onclick="applyVerifiedPlannerPreset(\'core\')"><b>Core scenery only</b><small>No paid attractions • cheapest recovery mode</small></button>' +
         '<button class="preset-card" onclick="applyVerifiedPlannerPreset(\'pursuit\')"><b>Pursuit-aware</b><small>Only use if you later buy the pass; expect harder day loads</small></button></div></div>');
     }
@@ -812,7 +812,7 @@
       const activePresetName = S.activePreset === 'core' ? 'Core scenery preset' : (S.activePreset === 'pursuit' ? 'Pursuit-aware preset' : 'Verified budget-first preset');
       root.insertAdjacentHTML('afterbegin',
         '<div class="verified-banner ' + (active ? '' : 'warn') + '"><div><b>' + (active ? '✓ ' + activePresetName + ' active' : 'Verified preset available') + '</b><p>' +
-        (active ? 'Based on the verified Aug 31 plan. Your MCQ choices and manual edits remain yours; Reset to verified restores the baseline.' : 'Your saved browser state predates the verified route. Apply the preset to update timings/priorities while preserving bookings and entered prices.') +
+        (active ? 'Based on the verified Sep 1 official-source audit. Your choices/manual edits remain yours; Reset to verified restores the audited baseline.' : 'Your saved browser state predates the verified route. Apply the preset to update timings/priorities while preserving bookings and entered prices.') +
         '</p></div><div class="actions"><button class="btn small ' + (active ? '' : 'primary') + '" onclick="applyVerifiedPlannerPreset(\'verified\')">' + (active ? 'Reset to verified' : 'Apply verified preset') + '</button><button class="btn small" onclick="setView(\'lockview\');renderVerifiedLock()">Open Lock flow</button></div></div>');
     };
 
@@ -839,7 +839,7 @@
       const base = oldPlanText();
       const answers = DECISION_FLOW.map(function (q) { return '• ' + q.when + ': ' + answerLabel(q, S.decisions && S.decisions[q.id]); }).join('\n');
       const preset = S.activePreset === 'core' ? 'Core scenery only' : (S.activePreset === 'pursuit' ? 'Pursuit-aware' : 'Verified budget-first');
-      return base + '\n\nLOCKED / PENDING DECISIONS\n' + answers + '\n\nPRESET\n' + preset + ' • verified baseline Aug 31, 2026. Reset from Data → Presets.';
+      return base + '\n\nLOCKED / PENDING DECISIONS\n' + answers + '\n\nPRESET\n' + preset + ' • verified baseline Sep 1, 2026. Reset from Data → Presets.';
     };
 
     const oldToggleAtt = toggleAtt;
