@@ -58,7 +58,7 @@
         { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 15 },
         { id: 'jasper', name: 'Jasper Town (Fuel + Fast Food / Grab-and-Go)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 35 },
         { id: 'medicine', name: 'Medicine Lake Viewpoint', lat: 52.8640, lng: -117.8000, priority: 'must', stayMin: 20 },
-        { id: 'maligne', name: 'Maligne Lake + Spirit Island Classic Cruise', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 150 },
+        { id: 'maligne', name: 'Maligne Lake + Spirit Island Cruise (Classic/Premium TBD)', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 150 },
         { id: 'annette', name: 'Lake Annette & Lake Edith', lat: 52.8840, lng: -118.0450, priority: 'cut', stayMin: 25 },
         { id: 'hinton28b', name: 'Hinton Lodge (Return & Sleep)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
@@ -242,7 +242,7 @@
       maligne.selected = true;
       maligne.time = 2.5;
       maligne.rec = 'LOCKED #1 PAID PICK';
-      maligne.desc = 'Classic cruise + Spirit Island. Only paid attraction currently protected in the verified preset.';
+      maligne.desc = 'Spirit Island cruise is protected; exact Classic vs Premium product and departure remain to be booked.';
     }
     const ice = BASE.attractions.find(function (a) { return a.id === 'icefieldAdventure'; });
     if (ice) {
@@ -380,11 +380,11 @@
     },
     maligne: {
       time: '150 min protected trip block',
-      timingOptions: [{ label: 'Shoreline only — if cruise cancelled', min: 60 }, { label: 'Classic Cruise + 30m early arrival + shoreline buffer', min: 150 }],
+      timingOptions: [{ label: 'Shoreline only — if cruise cancelled', min: 60 }, { label: 'Classic Cruise + arrival/check-in buffer', min: 150 }, { label: 'Premium Cruise + arrival/check-in buffer', min: 150 }],
       desc: 'Your #1 paid attraction and the only paid experience currently locked. Spirit Island is 14 km up-lake with no road or trail access, which makes the cruise meaningfully different from simply stopping at another viewpoint.',
-      todo: 'Aim for an efficient late-morning / early-afternoon Classic Cruise. Arrive at least 30 min early. Keep fuel/snacks handled in Jasper before Maligne Road.',
+      todo: 'Choose Classic vs Premium when booking the exact Sep 28 sailing. Arrive onsite at least 30 min early and be at the dock at least 15 min before departure. Keep fuel/snacks handled in Jasper before Maligne Road.',
       cut: 'If the cruise is booked, cut Patricia and Annette/Edith before risking the reservation.',
-      reviews: 'Verified 2026: Classic Cruise ~1.5h; arrive 30 min early. Sep 7–Oct 3 operating window is 9 AM–5:30 PM. Spirit Island has no road/trail access.',
+      reviews: 'Verified Sep 1, 2026: Classic ~1.5h with 15 min near Spirit Island; Premium 2h, adults 16+, adds Pincushion Bay and 30 min near Spirit Island. Sep 7–Oct 3 window is 9 AM–5:30 PM.',
       official: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/location-hours/'
     },
     valley5: {
@@ -642,9 +642,9 @@
     },
     {
       id: 'maligne', when: 'SEP 28 • PAID ANCHOR', title: 'Maligne Lake Cruise?',
-      detail: 'Spirit Island has no road/trail access. Classic Cruise ~1.5h + arrive 30 min early. This is your highest-value standalone paid attraction.',
+      detail: 'Spirit Island has no road/trail access. Choose Classic (1.5h) vs Premium (2h, adults 16+, Pincushion Bay) when the exact Sep 28 fare/time is booked. This remains the protected paid anchor.',
       options: [
-        ['book', 'Book Classic Cruise around C$350 total', 'Locked recommendation'],
+        ['book', 'Book the best Sep 28 Classic/Premium sailing', 'Protected paid anchor'],
         ['hold', 'Hold until exact price / time', 'Still viable'],
         ['skip', 'Shoreline only', 'Cheapest']
       ]
