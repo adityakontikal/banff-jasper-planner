@@ -172,7 +172,7 @@
           '<button data-mobile-view="overview" onclick="goMobilePlanner(\'overview\')"><span>☰</span><b>Days</b></button>' +
           '<button data-mobile-view="mapview" onclick="goMobilePlanner(\'mapview\')"><span>⌖</span><b>Map</b></button>' +
           '<button data-mobile-view="planview" onclick="goMobilePlanner(\'planview\')"><span>✓</span><b>Plan</b></button>' +
-          '<button aria-label="Open more planner sections" onclick="showMobilePlannerMore(true)"><span>•••</span><b>More</b></button>' +
+          '<button data-mobile-more="true" aria-label="Open more planner sections" onclick="showMobilePlannerMore(true)"><span>•••</span><b>More</b></button>' +
         '</nav>' +
         '<div class="mobile-more-sheet" id="mobileMoreSheet" onclick="if(event.target===this)showMobilePlannerMore(false)"><div class="mobile-more-panel"><div class="mobile-more-head"><b>More</b><button aria-label="Close more planner sections" onclick="showMobilePlannerMore(false)">×</button></div><div class="mobile-more-grid">' +
           '<button onclick="goMobilePlanner(\'planview\')">Plan</button>' +
@@ -777,12 +777,20 @@
   }
 
   function updateMobileNav(viewId) {
+    const direct = new Set(['mobilequick', 'overview', 'mapview', 'planview']);
     document.querySelectorAll('#mobileBottomNav [data-mobile-view]').forEach(b => {
       const active = b.dataset.mobileView === viewId;
       b.classList.toggle('on', active);
       if (active) b.setAttribute('aria-current', 'page');
       else b.removeAttribute('aria-current');
     });
+    const more = document.querySelector('#mobileBottomNav [data-mobile-more]');
+    if (more) {
+      const active = !direct.has(viewId);
+      more.classList.toggle('on', active);
+      if (active) more.setAttribute('aria-current', 'page');
+      else more.removeAttribute('aria-current');
+    }
   }
 
   function patchSetView() {
