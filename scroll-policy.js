@@ -400,6 +400,20 @@
         #rawJson {
           touch-action: pan-y !important;
         }
+
+        /* The place sheet is an internal scroller. A swipe that begins on a
+           body button/link/checklist row must still be allowed to pan it. */
+        #spotModal .modal-body button,
+        #spotModal .modal-body a,
+        #spotModal .modal-body label,
+        #spotModal .modal-body summary {
+          touch-action: pan-y pinch-zoom !important;
+        }
+
+        #spotModal .modal-header button,
+        #spotModal .modal-footer button {
+          touch-action: manipulation !important;
+        }
       }
     `;
     document.head.appendChild(st);
