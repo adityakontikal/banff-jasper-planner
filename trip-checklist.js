@@ -785,7 +785,8 @@
     const overall = Math.round((overallDone / Math.max(1, overallItems.length)) * 100);
     const catNav = MASTER_CATEGORIES.map(function (x) {
       const c = categoryCounts(x[0]);
-      return '<button class="' + (activeCategory === x[0] ? 'on' : '') + '" onclick="setChecklistCategory(\'' + x[0] + '\')"><b>' + escapeHtml(x[1]) + '</b><span>' + c.done + '/' + c.total + '</span></button>';
+      const selected = activeCategory === x[0];
+      return '<button class="' + (selected ? 'on' : '') + '" aria-pressed="' + (selected ? 'true' : 'false') + '" onclick="setChecklistCategory(\'' + x[0] + '\')"><b>' + escapeHtml(x[1]) + '</b><span>' + c.done + '/' + c.total + '</span></button>';
     }).join('');
 
     let content;
