@@ -2794,7 +2794,7 @@ function renderSummary() {
     summary.textContent = 'Road timing verification unavailable.\n\nThe planner is intentionally not showing provisional finish times here because one or more current road legs could not be verified.';
     if (status) {
       status.className = 'note warn';
-      status.innerHTML = '<b>Derived exports locked:</b> ' + state.error + ' road leg' + (state.error === 1 ? '' : 's') + ' could not be verified. Raw JSON export remains available.';
+      status.innerHTML = '<b>Derived exports locked:</b> ' + state.error + ' road leg' + (state.error === 1 ? '' : 's') + ' could not be verified. Raw JSON export remains available. <button class="btn small" style="margin-left:6px" onclick="retryRouteTimings()">Retry road timings</button>';
     }
   } else {
     summary.textContent = 'Calculating current road timings…\n\n' + state.pending + ' of ' + state.total + ' road legs still resolving. Finish times will appear when the route is current.';
@@ -2803,6 +2803,13 @@ function renderSummary() {
       status.innerHTML = '<b>Refreshing route:</b> ' + state.pending + ' road leg' + (state.pending === 1 ? '' : 's') + ' remaining. Copy/print/calendar unlock automatically.';
     }
   }
+}
+
+function retryRouteTimings() {
+  Object.keys(legCache).forEach(key => {
+    if (legCache[key] && legCache[key].status === 'error') delete legCache[key];
+  });
+  renderSummary();
 }
 
 function derivedExportReady() {
