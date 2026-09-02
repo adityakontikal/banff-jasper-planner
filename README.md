@@ -291,9 +291,9 @@ The SpotHero rental/confirmation ID and vehicle plate are intentionally **not co
 
 ## Paid-cruise budget rule
 
-The current plan reserves budget for **one paid cruise only: Maligne Lake Classic Cruise / Spirit Island**. Lake Minnewanka Cruise remains off by default.
+The current plan reserves budget for **one paid cruise only: Maligne Lake / Spirit Island**. The exact **Classic vs Premium** product is intentionally left open until the Sep 28 sailing is booked from live inventory. Lake Minnewanka Cruise remains off by default.
 
-The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book Classic Cruise** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
+The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book best Classic/Premium sailing** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
 
 Hotels and the Parks Canada pass are resolved; the remaining trip lock-ins are the shuttle and attraction decisions.
 
