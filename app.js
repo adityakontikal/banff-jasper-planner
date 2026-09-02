@@ -2824,6 +2824,10 @@ function openSpotModal(date, id) {
   const it = tl.items[index] || { arrTime: { display: '--' }, depTime: { display: '--' }, stayMin: getDefaultStayMin(stop), prevLeg: null };
   document.getElementById('modalDayLabel').textContent = `${day.date} • Stop ${index + 1} of ${day.stops.length} (${stop.priority.toUpperCase()})`;
   document.getElementById('modalTitle').textContent = inf.title;
+  const importantRoot = document.getElementById('modalImportantRoot');
+  if (importantRoot) importantRoot.innerHTML = '';
+  const prepareCount = document.getElementById('modalPrepareCount');
+  if (prepareCount) prepareCount.textContent = '';
 
   const mobileModal = window.matchMedia('(max-width: 768px)').matches;
   const headerMeta = document.getElementById('modalHeaderMeta');
