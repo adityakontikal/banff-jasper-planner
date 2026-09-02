@@ -2807,7 +2807,7 @@ function setSpotModalTab(tab) {
   const body = document.querySelector('#spotModal .modal-body');
   if (body) body.scrollTop = 0;
 
-  if (next === 'details' && window.matchMedia('(max-width: 768px)').matches && modalSpotId) {
+  if (next === 'details' && modalSpotId) {
     const found = findStop(overviewDay, modalSpotId);
     if (found && found.stop) setTimeout(function () { renderModalMiniMap(found.stop); }, 40);
   }
@@ -2931,7 +2931,7 @@ function openSpotModal(date, id) {
   spotModal.classList.remove('hidden');
   const modalBody = spotModal.querySelector('.modal-body');
   if (modalBody) modalBody.scrollTop = 0;
-  if (!mobileModal) setTimeout(() => renderModalMiniMap(stop), 60);
+  // The mini-map lives in the hidden Details panel. Render lazily when that tab opens.
 }
 function closeSpotModal() {
   document.getElementById('spotModal').classList.add('hidden');
