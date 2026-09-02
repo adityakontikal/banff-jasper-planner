@@ -623,13 +623,37 @@ const SPOT_INFO = {
 };
 
 const SPOT_ALIASES = {
-  cochrane25: 'cochrane', cochrane26: 'cochrane', cochrane26_dep: 'cochrane', cochrane26_ret: 'cochrane',
-  cochrane27: 'cochrane', cochrane29: 'cochrane', cochrane30: 'cochrane',
+  cochrane25: 'cochrane', cochrane26: 'cochrane', cochrane26_dep: 'yycstage', cochrane26_ret: 'cochrane',
+  cochrane27: 'cochrane', cochrane29: 'calgaryhotel', cochrane30: 'calgaryhotel',
   hinton27: 'hinton', hinton28a: 'hinton', hinton28b: 'hinton', hinton29: 'hinton',
   beehive: 'beehive', fairview: 'fairview', takakkaw: 'takakkaw', morant: 'morant'
 };
 
 const GENERIC_INFO = {
+  yycstage: {
+    title: 'YYC / Ascent Rental Staging', photoQuery: 'Calgary International Airport YYC', time: 'Departure staging', rating: 'Operational',
+    timingOptions: [{ label: 'Depart for Banff', min: 0 }],
+    parking: 'Follow the locked Ascent rental handoff instructions around YYC; this is the post-pickup departure point, not a Cochrane hotel.',
+    parkingRating: 'Rental handoff', bestWindow: 'Depart around 05:45 after the overnight arrival/pickup transition',
+    restrooms: 'Use YYC facilities before the mountain drive if needed', cell: 'Excellent', effort: 'Operational',
+    desc: 'The planner staging point after the locked overnight YYC arrival and Ascent rental pickup. It exists only to anchor the Sep 26 drive toward Banff.',
+    todo: 'Confirm fuel, offline maps, park-pass receipt, layers and driver readiness before leaving Calgary.',
+    reviews: 'Booking-confirmed operational stop; not a sightseeing location.',
+    cut: 'Mandatory route origin.',
+    official: 'https://www.yyc.com/', tag: 'Airport / Rental • Operational'
+  },
+  calgaryhotel: {
+    title: 'Holiday Inn Calgary-Airport by IHG', photoQuery: 'Holiday Inn Calgary Airport Calgary Alberta', time: 'Overnight Base', rating: 'Locked booking',
+    timingOptions: [{ label: 'Overnight rest / flight-day launch', min: 0 }],
+    parking: 'Use the hotel parking/access instructions tied to the locked booking at 1250 McKinnon Dr NE, Calgary.',
+    parkingRating: 'Hotel parking', bestWindow: 'Sep 29 check-in / Sep 30 departure',
+    restrooms: 'Hotel room', cell: 'Excellent', effort: 'Lodging base',
+    desc: 'Locked final-night airport-area hotel. This is not the Cochrane base and should not inherit Cochrane hotel information.',
+    todo: 'Check in, sleep, then review rental-return and flight timing before Sep 30.',
+    reviews: 'Booking-confirmed lodging stop.',
+    cut: 'Locked overnight base.',
+    official: 'https://www.ihg.com/', tag: 'Hotel Base • Calgary Airport'
+  },
   cochrane: {
     title: 'Cochrane Hotel Base (Lodging)', photoQuery: 'Cochrane Alberta Rocky Mountains', time: 'Overnight Base', rating: '9.0/10',
     timingOptions: [{ label: 'Overnight Rest & Breakfast', min: 0 }],
