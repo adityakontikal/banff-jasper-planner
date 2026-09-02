@@ -2960,16 +2960,16 @@ function renderPack() {
   const root = document.getElementById('packRoot');
   if (!root) return;
   const cols = Object.entries(PACK_ITEMS).map(([k, items]) => {
-    const n = items.filter(i => checked(i.id)).length;
-    return `<div class="glass panel"><div class="ph"><div><div class="ey">${n}/${items.length}</div><h2>${k}</h2></div></div>${checkListHtml(items)}</div>`;
+    return `<div class="glass panel"><div class="ph"><div><div class="ey">Reference only</div><h2>${escapeHtml(k)}</h2></div></div><div class="check-list">${items.map(it => `<div class="check-item"><span><b>${escapeHtml(it.t)}</b>${it.d ? `<small>${escapeHtml(it.d)}</small>` : ''}</span></div>`).join('')}</div></div>`;
   }).join('');
-  root.innerHTML = `<div class="pack-cols">${cols}</div>
+  root.innerHTML = `<div class="note" style="margin-bottom:10px"><b>Tracking moved to Master Checklist.</b> This tab stays as a packing reference so checkboxes are not duplicated around the app. <button class="btn small" style="margin-left:6px" onclick="setView('checklistview');setChecklistCategory('gear')">Open Gear checklist →</button></div>
+    <div class="pack-cols">${cols}</div>
     <div class="glass panel"><div class="ph"><div><div class="ey">September-specific</div><h2>What people underestimate</h2></div></div>
       <div class="g2">
-        <div class="note warn"><b>Icefield temperature shock.</b> Banff town at 12°C can be 0°C and windy at the glacier 90 minutes later. Keep the extra layer in the car, not the suitcase.</div>
-        <div class="note"><b>Peyto path ice.</b> The walk to the viewpoint is short and often slick in late September. Waterproof shoes beat running shoes.</div>
-        <div class="note"><b>No cell, still need tickets.</b> Screenshot shuttle, hotels, rental and park pass. Paper backup in the glovebox.</div>
-        <div class="note"><b>Food on Sep 27.</b> Grab a quick breakfast or car food before the 06:00 departure, then rely on packed snacks until Hinton. Do not count on Saskatchewan Crossing being fast.</div>
+        <div class="note warn"><b>Icefield temperature shock.</b> Banff town can feel mild while the glacier is near freezing and windy. Keep the extra layer in the car cabin.</div>
+        <div class="note"><b>Wet / muddy trails.</b> Parks Canada currently reports wet or muddy sections on multiple Banff trails. Waterproof footwear is useful.</div>
+        <div class="note"><b>No cell.</b> Moraine Lake has no cell/Wi-Fi and the Icefields Parkway has no dependable coverage. Test offline maps before leaving.</div>
+        <div class="note"><b>Park pass receipt.</b> PRINT and DISPLAY the official receipt on the left side of the vehicle dashboard with the date visible.</div>
       </div>
     </div>`;
 }
@@ -2979,19 +2979,20 @@ function renderField() {
   if (!root) return;
   const gas = GAS_STOPS.map(g => `<div class="gas-row"><div><b>${escapeHtml(g.name)}</b><div class="date">${escapeHtml(g.note)}</div></div><a class="btn small" href="${googleMapsForStop(g)}" target="_blank">Map</a></div>`).join('');
   root.innerHTML = `
+    <div class="note warn" style="margin-bottom:10px"><b>Sep 26 Johnston Canyon access:</b> Parks Canada restricts personal vehicles on the east Bow Valley Parkway from Sep 1–Oct 6, 2026. Drive to Johnston Canyon via <b>Castle Junction</b>. <button class="btn small" style="margin-left:6px" onclick="setView('checklistview');setChecklistCategory('road')">Road checklist →</button></div>
     <div class="field-grid">
       <div class="glass panel">
-        <div class="ph"><div><div class="ey">Fuel</div><h2>Where you can actually fill up</h2><p>Icefields Parkway (Hwy 93N) has <b>one</b> public station.</p></div><button class="btn small" onclick="showFuelOnMap()">Show on map</button></div>
+        <div class="ph"><div><div class="ey">Fuel</div><h2>Where you can actually fill up</h2><p>Parks Canada describes the Icefields Parkway as remote with sparse seasonal services.</p></div><button class="btn small" onclick="showFuelOnMap()">Show on map</button></div>
         ${gas}
       </div>
       <div class="glass panel">
-        <div class="ph"><div><div class="ey">No signal</div><h2>Assume you are offline</h2></div></div>
-        <div class="note warn">There is essentially no cell service on the Icefields Parkway, at Moraine Lake, or at the Park &amp; Ride kiosk. Download offline Google Maps for Banff + Jasper before Sep 27.</div>
-        <div class="note" style="margin-top:8px"><b>Night-before ritual:</b> 511 Alberta, Parks Canada trail/road alerts, shuttle screenshot, full tank, layers in the cabin.</div>
+        <div class="ph"><div><div class="ey">No signal</div><h2>Assume you are offline</h2></div><button class="btn small" onclick="setView('checklistview');setChecklistCategory('digital')">Offline checklist</button></div>
+        <div class="note warn">Parks Canada says there is no dependable cell coverage on the Icefields Parkway. Moraine Lake has no cell service or Wi-Fi. Download and test offline maps before the mountain days.</div>
+        <div class="note" style="margin-top:8px"><b>Before each Parkway drive:</b> 511 Alberta, Parks Canada trail/road alerts, full tank, warm layers, water/snacks and offline confirmations.</div>
         <div class="actions" style="margin-top:10px">
           <a class="btn primary small" target="_blank" href="https://511.alberta.ca">511 Alberta</a>
-          <a class="btn small" target="_blank" href="https://www.pc.gc.ca/en/pn-np/ab/banff/visit/etat-condition">Banff conditions</a>
-          <a class="btn small" target="_blank" href="https://parks.canada.ca/pn-np/ab/jasper/visit/etat-condition">Jasper conditions</a>
+          <a class="btn small" target="_blank" href="https://parks.canada.ca/pn-np/ab/banff/bulletins">Banff bulletins</a>
+          <a class="btn small" target="_blank" href="https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed">Jasper open / closed</a>
         </div>
       </div>
       <div class="glass panel">
@@ -3002,15 +3003,16 @@ function renderField() {
           <div class="fact"><small>Banff Mineral Springs Hospital</small><b>403-762-2222</b></div>
           <div class="fact"><small>Jasper healthcare</small><b>780-852-3343</b></div>
           <div class="fact"><small>Road report</small><b>511</b></div>
-          <div class="fact"><small>Parks shuttle phone</small><b>1-877-737-3783</b></div>
+          <div class="fact"><small>Parks shuttle</small><b>1-877-737-3783</b></div>
         </div>
-        <div class="note" style="margin-top:10px">Wildlife jams (elk, sheep, maybe bear) are common on Maligne Lake Road. Never stop in a live lane. If a jam eats 20 minutes, cut Patricia and Annette, not the cruise.</div>
+        <div class="note" style="margin-top:10px">Wildlife jams are common. Never stop in a live lane; use legal pullouts and give wildlife space.</div>
       </div>
       <div class="glass panel">
-        <div class="ph"><div><div class="ey">Park access</div><h2>Pass + shuttle facts for this trip</h2></div></div>
-        <div class="note"><b>Canada Strong Pass ended Sep 7, 2026.</b> You pay. Family/Group daily is $24.50 per vehicle, valid until 4 pm the next day — still budget four days ($98). A Family Discovery Pass ($167.50) is worse value here.</div>
-        <div class="note" style="margin-top:8px"><b>Parks Canada shuttle 2026:</b> Lake Louise May 15–Oct 12; Moraine Jun 1–Oct 12. Departures every 30 min from 6:30 AM, last return 7:30 PM. Adult $12.75 + $3.50 reservation fee. 3 adults ≈ $41.75. One reservation covers both lakes and the connector. You must start at the Park &amp; Ride.</div>
-        <div class="note warn" style="margin-top:8px"><b>Private cars are banned on Moraine Lake Road year-round.</b> If Parks Canada is sold out, use a licensed operator — do not attempt to drive it.</div>
+        <div class="ph"><div><div class="ey">Park access</div><h2>Paid pass + shuttle facts for this trip</h2></div><button class="btn small" onclick="setView('checklistview');setChecklistCategory('documents')">Pass checklist</button></div>
+        <div class="note"><b>Parks admission is already paid:</b> 3 × Family/Group Day Pass = C$73.50. The receipt says to <b>PRINT and DISPLAY</b> it on the left-hand side of the vehicle dashboard with the date visible.</div>
+        <div class="note warn" style="margin-top:8px"><b>Verify printed validity dates.</b> Parks Canada daily passes are valid until 4 PM the following day. Confirm whether Sep 29 park time after 4 PM needs another day.</div>
+        <div class="note" style="margin-top:8px"><b>2026 Moraine/Louise shuttle:</b> regular service starts at Lake Louise Park & Ride, 1 Whitehorn Rd. 60% of seats release at 8 AM Mountain two days before. Reservation includes initial lake, Lake Connector, return and Park & Ride parking.</div>
+        <div class="note warn" style="margin-top:8px"><b>Moraine Lake Road:</b> personal vehicles are not permitted. Use Parks Canada shuttle/transit or an authorized commercial operator.</div>
       </div>
     </div>`;
 }
