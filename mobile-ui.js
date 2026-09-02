@@ -285,14 +285,32 @@
         #overview.view.on{height:auto!important;overflow:visible!important}
         .overview-layout{display:block!important;height:auto!important}
         .overview-sidebar{height:auto!important;margin-bottom:8px}
-        .overview-daylist{display:flex!important;flex-direction:row!important;overflow-x:auto!important;padding:7px!important}
-        .overview-daycard{min-width:132px;padding:8px!important}
+        .overview-daylist{
+          display:flex!important;
+          flex-direction:row!important;
+          overflow-x:auto!important;
+          overflow-y:hidden!important;
+          padding:7px 30px 8px 7px!important;
+          scroll-snap-type:x proximity!important;
+          scrollbar-width:thin!important;
+          -webkit-overflow-scrolling:touch!important;
+          box-shadow:inset -20px 0 18px -18px rgba(111,196,224,.9)!important
+        }
+        .overview-daycard{min-width:132px;padding:8px!important;scroll-snap-align:center}
         .overview-daycard .overview-meta{display:none}
         .overview-main{height:auto!important;overflow:visible!important;padding:0!important}
         .overview-main>.glass.panel{padding:10px}
         #overviewNote{display:none}
-        #overviewChips{overflow-x:auto;flex-wrap:nowrap}
-        #overviewChips .chip{white-space:nowrap}
+        #overviewChips{
+          overflow-x:auto!important;
+          overflow-y:hidden!important;
+          flex-wrap:nowrap!important;
+          padding-right:28px!important;
+          scrollbar-width:thin!important;
+          -webkit-overflow-scrolling:touch!important;
+          box-shadow:inset -20px 0 18px -18px rgba(111,196,224,.9)!important
+        }
+        #overviewChips .chip{white-space:nowrap;scroll-snap-align:start}
         .spot-grid{grid-template-columns:1fr!important;gap:7px!important}
         .spot-card{display:grid;grid-template-columns:94px 1fr;min-height:94px}
         .spot-img{height:100%!important;min-height:94px}
