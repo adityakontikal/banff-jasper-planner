@@ -309,43 +309,92 @@
            Keep the sheet above the persistent mobile nav and provide an always-visible
            way back to the exact underlying planner view. */
         .modal-backdrop{padding:0!important;align-items:flex-end!important;z-index:7000!important}
-        .modal-dialog{max-height:94dvh!important;border-radius:18px 18px 0 0!important}
-        .modal-header{
-          padding:10px 12px!important;
+        #spotModal .modal-dialog{max-height:94dvh!important;border-radius:18px 18px 0 0!important}
+        #spotModal .modal-header{
+          padding:9px 10px!important;
           display:grid!important;
           grid-template-columns:auto minmax(0,1fr)!important;
           gap:8px!important;
-          align-items:start!important;
+          align-items:center!important;
         }
-        .modal-header>div{min-width:0!important}
-        #spotModal .modal-back-btn{display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap}
+        #spotModal .modal-header>div{min-width:0!important}
+        #spotModal .modal-back-btn{
+          display:inline-flex!important;align-items:center;justify-content:center;white-space:nowrap;
+          min-height:40px!important;padding:6px 9px!important;font-size:12px!important
+        }
         #spotModal .modal-close-btn{display:none!important}
-        #modalLogistics{min-width:0!important;max-width:100%!important}
-        #modalLogistics .badge-pill,#modalLogistics .rating-pill{
+        #spotModal #modalDayLabel{font-size:8px!important;line-height:1.2!important}
+        #spotModal #modalTitle{font-size:20px!important;line-height:1.12!important;margin-top:2px!important}
+        #spotModal .modal-header-meta{
+          display:block!important;
+          margin-top:4px!important;
+          color:#8eb8c8!important;
+          font-size:9px!important;
+          white-space:nowrap!important;
+          overflow:hidden!important;
+          text-overflow:ellipsis!important
+        }
+
+        #spotModal .modal-body{padding:8px 10px 10px!important}
+        #spotModal .modal-essentials{margin:0 0 8px!important;padding:8px 9px!important}
+        #spotModal .modal-essentials summary{min-height:28px!important}
+        #spotModal .modal-essentials summary>span{font-size:10px!important}
+        #spotModal .modal-essentials summary small{font-size:8px!important}
+        #spotModal #modalLogistics{min-width:0!important;max-width:100%!important;gap:4px!important}
+        #spotModal #modalLogistics .badge-pill,#spotModal #modalLogistics .rating-pill{
           max-width:100%!important;
           min-width:0!important;
           white-space:normal!important;
           overflow-wrap:anywhere!important;
+          font-size:9px!important;
+          padding:3px 6px!important;
         }
-        #modalLogistics .badge-pill b,#modalLogistics .rating-pill b{
+        #spotModal #modalLogistics .badge-pill b,#spotModal #modalLogistics .rating-pill b{
           min-width:0!important;
           white-space:normal!important;
         }
-        .modal-body{padding:10px 12px!important}
-        .modal-footer{padding:8px 12px calc(8px + env(safe-area-inset-bottom))!important}
-        .detail-layout{grid-template-columns:1fr!important}
-        .detail-copy p{font-size:12px!important}
-        #modalReviews{display:none!important}
-        #modalFacts{grid-template-columns:1fr 1fr!important}
-        #modalFacts .fact:nth-child(1),#modalFacts .fact:nth-child(2),#modalFacts .fact:nth-child(7),#modalFacts .fact:nth-child(8){display:none!important}
-        #modalDwellControls .dwell-btn:not(.active):not(:last-child){display:none!important}
-        .photo-grid{display:block!important;height:160px!important}
-        .photo-grid .photo{display:none!important}
-        .photo-grid .photo:first-child{display:block!important;height:160px!important}
-        .tips{grid-template-columns:1fr!important}
-        .mini-map{height:180px!important}
-        #modalTopActions{display:grid!important;grid-template-columns:1fr 1fr}
-        #modalTopActions .btn:nth-child(3){grid-column:1/-1}
+
+        #spotModal .detail-layout{grid-template-columns:1fr!important}
+        #spotModal .detail-copy p{font-size:11.5px!important;line-height:1.45!important;margin-top:2px!important}
+        #spotModal #modalDwellSection{margin:8px 0!important}
+        #spotModal #modalDwellControls{margin:5px 0!important}
+        #spotModal #modalDwellControls .dwell-btn:not(.active):not(:last-child){display:none!important}
+        #spotModal #modalTopActions{display:grid!important;grid-template-columns:1fr 1fr;gap:6px!important;margin-top:7px!important}
+        #spotModal #modalTopActions .btn{min-height:38px!important;padding:6px 8px!important}
+        #spotModal #modalTopActions .btn:nth-child(3){grid-column:1/-1}
+        #spotModal .source-line{font-size:8px!important;line-height:1.3!important}
+
+        #spotModal #modalFacts{grid-template-columns:1fr 1fr!important;gap:6px!important}
+        #spotModal #modalFacts .fact{padding:7px 8px!important}
+        #spotModal #modalFacts .fact:nth-child(1),#spotModal #modalFacts .fact:nth-child(2),#spotModal #modalFacts .fact:nth-child(7),#spotModal #modalFacts .fact:nth-child(8){display:none!important}
+
+        #spotModal .modal-official-card,#spotModal .modal-prereq{margin:8px 0!important;padding:9px 10px!important}
+        #spotModal .modal-live-alert-persistent{margin:8px 0!important}
+        #spotModal .modal-section-summary{margin:0!important;min-height:34px!important}
+        #spotModal .modal-collapse-body{padding-top:5px!important}
+
+        #spotModal #modalReviews{display:none!important}
+        #spotModal .photo-grid{display:block!important;height:140px!important;margin-bottom:10px!important}
+        #spotModal .photo-grid .photo{display:none!important}
+        #spotModal .photo-grid .photo:first-child{display:block!important;height:140px!important}
+        #spotModal .tips{grid-template-columns:1fr!important}
+        #spotModal .mini-map{height:155px!important}
+
+        #spotModal .modal-footer{
+          padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;
+          display:grid!important;
+          grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+          gap:6px!important
+        }
+        #spotModal .modal-footer .btn{
+          min-width:0!important;
+          min-height:38px!important;
+          padding:5px 7px!important;
+          font-size:9px!important;
+          white-space:nowrap!important;
+          overflow:hidden!important;
+          text-overflow:ellipsis!important
+        }
 
         /* Map day navigation is always available on phones. */
         .mobile-map-day-nav{
