@@ -176,6 +176,7 @@
         '</nav>' +
         '<div class="mobile-more-sheet" id="mobileMoreSheet" onclick="if(event.target===this)showMobilePlannerMore(false)"><div class="mobile-more-panel"><div class="mobile-more-head"><b>More</b><button onclick="showMobilePlannerMore(false)">×</button></div><div class="mobile-more-grid">' +
           '<button onclick="goMobilePlanner(\'planview\')">Plan</button>' +
+          '<button onclick="goMobilePlanner(\'checklistview\')">Master Checklist</button>' +
           '<button onclick="goMobilePlanner(\'bookings\')">Bookings</button>' +
           '<button onclick="goMobilePlanner(\'hotels\')">Hotels</button>' +
           '<button onclick="goMobilePlanner(\'attractions\')">Attractions</button>' +
@@ -225,7 +226,7 @@
         .app{padding:8px 8px 0!important;overflow:visible!important}
         .view.on{height:auto!important;min-height:calc(100vh - 118px)!important;overflow:visible!important}
         #mobilequick.view.on{display:block!important}
-        #planview.view.on,#bookings.view.on,#hotels.view.on,#attractions.view.on,#packview.view.on,#fieldview.view.on,#budget.view.on,#settings.view.on,#finalize.view.on,#lockview.view.on{padding-right:0!important;overflow:visible!important}
+        #planview.view.on,#checklistview.view.on,#bookings.view.on,#hotels.view.on,#attractions.view.on,#packview.view.on,#fieldview.view.on,#budget.view.on,#settings.view.on,#finalize.view.on,#lockview.view.on{padding-right:0!important;overflow:visible!important}
 
         .mobile-bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:0;right:0;bottom:0;z-index:5000;background:rgba(7,19,29,.98);border-top:1px solid rgba(255,255,255,.12);padding:6px max(7px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(7px,env(safe-area-inset-left));box-shadow:0 -8px 24px rgba(0,0,0,.4)}
         .mobile-bottom-nav button{border:0;background:transparent;color:#90a8b8;min-height:52px;border-radius:10px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;font-size:10px}
