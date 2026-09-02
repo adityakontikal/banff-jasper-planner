@@ -1323,6 +1323,10 @@ function toast(msg) {
 }
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])); }
 function escapeAttr(s) { return escapeHtml(s); }
+function stopCountText(n) {
+  const count = Number(n || 0);
+  return count + ' ' + (count === 1 ? 'stop' : 'stops');
+}
 
 const GOOGLE_MAP_QUERIES = {
   yyc25: 'Calgary International Airport YYC, 2000 Airport Rd NE, Calgary, AB',
@@ -1539,6 +1543,8 @@ function getLeg(s1, s2) {
     if (data && data.code === 'Ok' && data.routes && data.routes[0]) {
       const r = data.routes[0];
       legCache[key] = { distance: r.distance, duration: r.duration, coordinates: r.geometry.coordinates, status: 'ready' };
+      // Export/print must never retain the fallback timing snapshot after a road leg resolves.
+      renderSummary();
       if (map) {
         renderRouteLayer();
         const active = document.activeElement;
@@ -1748,14 +1754,25 @@ function setOptionalStopEnabled(date, id, enabled) {
 function markerOffsetMap(stops) {
   const groups = new Map();
   (stops || []).forEach(stop => {
-    const key = Number(stop.lat).toFixed(5) + ',' + Number(stop.lng).toFixed(5);
+    // 4 decimals groups markers within roughly one property / parking area.
+    const key = Number(stop.lat).toFixed(4) + ',' + Number(stop.lng).toFixed(4);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(stop);
   });
   const offsets = new Map();
   groups.forEach(group => {
-    const spacing = 46;
-    group.forEach((stop, i) => offsets.set(stop, (i - (group.length - 1) / 2) * spacing));
+    if (group.length === 1) {
+      offsets.set(group[0], { x: 0, y: 0 });
+      return;
+    }
+    const radius = group.length <= 2 ? 42 : 52;
+    group.forEach((stop, i) => {
+      const angle = (Math.PI * 2 * i) / group.length;
+      offsets.set(stop, {
+        x: Math.round(Math.cos(angle) * radius),
+        y: Math.round(Math.sin(angle) * radius * 0.72)
+      });
+    });
   });
   return offsets;
 }
@@ -1765,7 +1782,7 @@ function sameMapPoint(a, b) {
 function dayHasStopAt(day, point) {
   return !!day && !!point && (day.stops || []).some(stop => sameMapPoint(stop, point));
 }
-function divIcon(stop, label, isCut = false, xOffset = 0) {
+function divIcon(stop, label, isCut = false, offset = { x: 0, y: 0 }) {
   const isHotel = stop.isHotel || /hotel|transit \/ overnight|Airport/i.test(getSpotInfo(stop).tag || '');
   const disabledNice = stop.priority === 'nice' && !isStopEnabled(stop);
   const actualCut = stop.priority === 'cut';
@@ -1782,7 +1799,7 @@ function divIcon(stop, label, isCut = false, xOffset = 0) {
     className: '',
     html: `<div style="width:${width}px;height:26px;border-radius:${radius}px;background:${c};border:${border};color:${textColor};font-weight:900;display:grid;place-items:center;font-size:${fontSize};box-shadow:0 4px 12px #0007;${dim}">${txt}</div>`,
     iconSize: [width, 26],
-    iconAnchor: [width / 2 + xOffset, 13]
+    iconAnchor: [width / 2 - Number(offset.x || 0), 13 - Number(offset.y || 0)]
   });
 }
 
@@ -1931,7 +1948,7 @@ function renderMap() {
         const inf = getSpotInfo(s);
         const isCut = !isStopActive(s);
         const label = tripStopCode(day, s);
-        const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut, allMarkerOffsets.get(s) || 0), draggable: false }).addTo(markerLayer);
+        const m = L.marker([s.lat, s.lng], { icon: divIcon(s, label, isCut, allMarkerOffsets.get(s) || { x: 0, y: 0 }), draggable: false }).addTo(markerLayer);
 
         m.bindTooltip(`<b>${tripStopCode(day, s)} • ${day.date}: ${escapeHtml(s.name)}</b><br><span style="color:#ffd768;">⭐ ${inf.rating || '8.5/10'}</span> • <span class="badge ${s.priority}">${s.priority.toUpperCase()}</span>`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
 
@@ -1980,7 +1997,7 @@ function renderMap() {
       const isCut = it.isCut;
       if (S.filterMustOnly && s.priority !== 'must' && !s.isHotel && !/hotel|airport/i.test(getSpotInfo(s).tag || '')) return;
       const inf = getSpotInfo(s);
-      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, tripStopCode(d, s), isCut, singleMarkerOffsets.get(s) || 0), draggable: true }).addTo(markerLayer);
+      const m = L.marker([s.lat, s.lng], { icon: divIcon(s, tripStopCode(d, s), isCut, singleMarkerOffsets.get(s) || { x: 0, y: 0 }), draggable: true }).addTo(markerLayer);
       if (isCut) {
         m.bindTooltip(`<b>${tripStopCode(d, s)}: ${escapeHtml(s.name)}</b><br><span style="color:#f0c36a;">✂️ Bypassed from route (Cut)</span> • ⭐ ${inf.rating || '8.5/10'}`, { direction: 'top', offset: [0, -14], className: 'route-tooltip' });
         m.bindPopup(`<b>${escapeHtml(s.name)}</b><br><span class="badge cut">CUT (BYPASSED)</span> • ${tripStopCode(d, s)} • ${i + 1} of ${d.stops.length} • ⭐ <b>${inf.rating || '8.5/10'}</b><div style="margin:8px 0;padding:6px 8px;background:#081a27;border-radius:7px;font-size:11px;line-height:1.45;color:#f0c36a;">⚠️ <b>This stop is currently bypassed from the driving route and timeline calculations.</b> Change priority to <b>Must</b> or <b>Nice</b> in the left panel to route through it.</div><div style="margin-top:6px;"><a href="#" onclick="openSpotModal('${d.date}','${s.id}');return false">Photos + spot details ↗</a><br><a href="${googleMapsForStop(s)}" target="_blank">Open Google Maps ↗</a></div>`);
@@ -2004,13 +2021,23 @@ function renderMap() {
   if (mustBtn) {
     mustBtn.classList.toggle('primary', !!S.filterMustOnly);
     mustBtn.textContent = S.filterMustOnly ? '✓ Musts only' : '⭐ Musts only';
+    mustBtn.setAttribute('aria-pressed', S.filterMustOnly ? 'true' : 'false');
   }
   const poiBtn = document.getElementById('poiBtn');
-  if (poiBtn) poiBtn.textContent = S.showPOIs ? 'Hide extra spots' : 'Explore all spots';
+  if (poiBtn) {
+    poiBtn.textContent = S.showPOIs ? 'Hide extra spots' : 'Explore all spots';
+    poiBtn.setAttribute('aria-pressed', S.showPOIs ? 'true' : 'false');
+  }
   const allBtn = document.getElementById('allDaysBtn');
-  if (allBtn) allBtn.textContent = S.showAllDays ? 'Hide other days' : 'Show all days';
+  if (allBtn) {
+    allBtn.textContent = S.showAllDays ? 'Hide other days' : 'Show all days';
+    allBtn.setAttribute('aria-pressed', S.showAllDays ? 'true' : 'false');
+  }
   const fuelBtn = document.getElementById('fuelBtn');
-  if (fuelBtn) fuelBtn.textContent = S.showFuel ? 'Hide fuel' : 'Fuel stops';
+  if (fuelBtn) {
+    fuelBtn.textContent = S.showFuel ? 'Hide fuel' : 'Fuel stops';
+    fuelBtn.setAttribute('aria-pressed', S.showFuel ? 'true' : 'false');
+  }
 }
 
 function fitSelectedDay() {
@@ -2047,13 +2074,19 @@ function openGoogleRoute() {
 
 function setView(id) {
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.view === id));
+  document.querySelectorAll('.tabs button').forEach(b => {
+    const active = b.dataset.view === id;
+    b.classList.toggle('on', active);
+    if (active) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
   if (id === 'mapview' && map) setTimeout(() => { map.invalidateSize(); fitSelectedDay(); }, 80);
   if (id === 'overview') renderOverview();
   if (id === 'planview') renderPlan();
   if (id === 'packview') renderPack();
   if (id === 'fieldview') renderField();
   if (id === 'settings') refreshRawJson();
+  if (id === 'finalize') renderSummary();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
@@ -2096,8 +2129,8 @@ function renderDayEditor() {
   const isAllDays = S.selectedDay === 'all';
   const today = todayLabel();
 
-  let daySwitchHtml = `<button class="daybtn ${isAllDays ? 'on' : ''}" onclick="chooseDay('all')" title="Full 6-day trip route">🌍 All Days</button>`;
-  daySwitchHtml += S.days.map(x => `<button class="daybtn ${x.date === S.selectedDay ? 'on' : ''} ${x.date === today ? 'today' : ''}" onclick="chooseDay('${x.date}')" ondblclick="openDayGuide('${x.date}')" title="Click for map • Double-click for day guide">${x.date}</button>`).join('');
+  let daySwitchHtml = `<button class="daybtn ${isAllDays ? 'on' : ''}" aria-pressed="${isAllDays ? 'true' : 'false'}" onclick="chooseDay('all')" title="Full 6-day trip route">🌍 All Days</button>`;
+  daySwitchHtml += S.days.map(x => `<button class="daybtn ${x.date === S.selectedDay ? 'on' : ''} ${x.date === today ? 'today' : ''}" aria-pressed="${x.date === S.selectedDay ? 'true' : 'false'}" onclick="chooseDay('${x.date}')" ondblclick="openDayGuide('${x.date}')" title="Click for map • Double-click for day guide">${x.date}</button>`).join('');
   document.getElementById('daySwitch').innerHTML = daySwitchHtml;
 
   const sidebar = document.querySelector('#mapview .sidebar');
@@ -2227,16 +2260,18 @@ function renderDayEditor() {
       <div class="stoprow-top">
         <div class="grip" title="Drag to reorder">☰</div>
         <div class="stop-num-badge" style="background:${badgeColor};" onclick="focusStopOnMap(${s.lat}, ${s.lng})" title="Map pin ${tripStopCode(d, s)} (Click to focus on map)">${tripStopCode(d, s)}</div>
-        <input class="stopname" value="${escapeAttr(s.name)}" onchange="renameStop(${i},this.value)">
-        <select class="priority ${s.priority}" onchange="setPriority(${i},this.value)">
+        <input class="stopname" aria-label="${escapeAttr(tripStopCode(d, s) + ' stop name')}" value="${escapeAttr(s.name)}" onchange="renameStop(${i},this.value)">
+        <select class="priority ${s.priority}" aria-label="${escapeAttr(tripStopCode(d, s) + ' priority')}" onchange="setPriority(${i},this.value)">
           <option value="must" ${s.priority === 'must' ? 'selected' : ''}>Must</option>
           <option value="nice" ${s.priority === 'nice' ? 'selected' : ''}>Nice</option>
           <option value="cut" ${s.priority === 'cut' ? 'selected' : ''}>Cut</option>
         </select>
-        <button class="iconbtn infoBtn" onclick="openSpotModal('${d.date}','${s.id}')" title="Photos and details">i</button>
-        <a class="iconbtn" href="${googleMapsForStop(s)}" target="_blank" rel="noopener" title="Open exact place in Google Maps">↗</a>
-        <button class="iconbtn" onclick="toggleStopDone(${i})" title="Mark visited">${s.done ? '✓' : '○'}</button>
-        <button class="iconbtn" onclick="removeStop(${i})" title="Remove">×</button>
+        <div class="stoprow-actions">
+          <button class="iconbtn infoBtn" aria-label="${escapeAttr('Open details for ' + s.name)}" onclick="openSpotModal('${d.date}','${s.id}')" title="Photos and details">i</button>
+          <a class="iconbtn" aria-label="${escapeAttr('Open ' + s.name + ' in Google Maps')}" href="${googleMapsForStop(s)}" target="_blank" rel="noopener" title="Open exact place in Google Maps">↗</a>
+          <button class="iconbtn" aria-label="${escapeAttr((s.done ? 'Mark not visited: ' : 'Mark visited: ') + s.name)}" onclick="toggleStopDone(${i})" title="Mark visited">${s.done ? '✓' : '○'}</button>
+          <button class="iconbtn" aria-label="${escapeAttr('Remove ' + s.name)}" onclick="removeStop(${i})" title="Remove">×</button>
+        </div>
       </div>
       <div class="stoprow-sched">
         ${isCut 
@@ -2246,13 +2281,13 @@ function renderDayEditor() {
         <span class="rating-pill" title="Visitor recommendation rating">⭐ ${inf.rating || '8.5/10'}</span>
         <div class="stay-ctl">
           <span>Stay:</span>
-          <select class="stay-select" onchange="setStopStay(${i},this.value)" ${isCut ? 'disabled' : ''}>
+          <select class="stay-select" aria-label="${escapeAttr(tripStopCode(d, s) + ' stay duration')}" onchange="setStopStay(${i},this.value)" ${isCut ? 'disabled' : ''}>
             ${stayOptions.map(m => `<option value="${m}" ${it.plannedStayMin === m ? 'selected' : ''}>${m === 0 ? 'Pass' : m < 60 ? m + 'm' : (m / 60) + 'h'}</option>`).join('')}
             ${!stayOptions.includes(it.plannedStayMin) ? `<option value="${it.plannedStayMin}" selected>${it.plannedStayMin}m</option>` : ''}
           </select>
         </div>
       </div>
-      <input class="stop-note" placeholder="Note (parking, booking, photo idea…)" value="${escapeAttr(s.note || '')}" onchange="setStopNote(${i},this.value)">
+      <input class="stop-note" aria-label="${escapeAttr(tripStopCode(d, s) + ' note')}" placeholder="Note (parking, booking, photo idea…)" value="${escapeAttr(s.note || '')}" onchange="setStopNote(${i},this.value)">
     </div>`;
   });
   list.innerHTML = html;
@@ -2345,7 +2380,7 @@ function renderBookings() {
     if (lockedFlight || lockedParking || lockedPark || (lockedHotel && b.status === 'Paid')) statusCell = '<span class="badge must">PAID • LOCKED</span>';
     else if (lockedRental || lockedHotel) statusCell = '<span class="badge must">BOOKED • LOCKED</span>';
     else if (noHotel) statusCell = '<span class="badge">NO HOTEL • LOCKED</span>';
-    else statusCell = `<select class="select" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
+    else statusCell = `<select class="select" aria-label="${escapeAttr(b.item + ' booking status')}" onchange="updateBooking(${i},'status',this.value)">${statuses.map(x => `<option ${b.status === x ? 'selected' : ''}>${x}</option>`).join('')}</select>`;
 
     let estimateCell;
     if (lockedFlight) estimateCell = b.id === 'outbound' ? '<b>C$966.63 total</b>' : '<span class="date">included</span>';
@@ -2367,13 +2402,18 @@ function renderBookings() {
     else if (b.id === 'h28' && lockedHotel) actualCell = '<span class="date">same reservation</span>';
     else if (b.id === 'h29' && lockedHotel) actualCell = '<b>C$171.42</b>';
     else if (noHotel) actualCell = '<span class="date">—</span>';
-    else actualCell = `<input class="input" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
+    else actualCell = `<input class="input" aria-label="${escapeAttr(b.item + ' actual paid amount')}" type="number" value="${b.actual || ''}" placeholder="0" onchange="updateBooking(${i},'actual',this.value)">`;
 
     const confirmCell = lockedBooking
       ? `<span class="date">${lockedRental ? 'confirmation in voucher' : (lockedParking ? 'stored in SpotHero pass' : (lockedHotel ? 'stored in Hotels.com email' : (noHotel ? 'intentional' : 'Booked')))}</span>`
-      : `<input class="input" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)">`;
+      : `<input class="input" aria-label="${escapeAttr(b.item + ' confirmation number')}" value="${escapeAttr(b.confirm || '')}" placeholder="Confirmation #" onchange="updateBooking(${i},'confirm',this.value)">`;
 
-    const actionLabel = lockedRental ? 'Call supplier' : (lockedParking ? 'SpotHero' : (lockedHotel ? 'Hotel' : 'Airline'));
+    const actionLabel = lockedRental ? 'Rental supplier'
+      : (lockedParking ? 'SpotHero'
+      : (lockedHotel ? 'Hotel'
+      : (lockedPark ? 'Parks Canada pass'
+      : (b.id === 'shuttle' ? 'Reservation portal'
+      : (lockedFlight ? 'Airline' : 'Open')))));
     const action = b.link ? `<a class="btn small" href="${b.link}" target="_blank">${actionLabel}</a>` : '<span></span>';
     return `<div class="bookrow ${lockedBooking ? 'locked-booking' : ''}"><div>${b.p}</div><div><b>${escapeHtml(b.item)}</b>${b.detail ? `<small style="display:block;color:var(--muted);margin-top:2px">${escapeHtml(b.detail)}</small>` : ''}</div>${statusCell}<div>${estimateCell}</div>${actualCell}${confirmCell}${action}</div>`;
   }).join('');
@@ -2434,9 +2474,13 @@ function filterAtt(a) {
   if (filter === 'skip') return /SKIP/.test(a.rec);
   return true;
 }
-document.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => { filter = b.dataset.filter; renderAttractions(); });
+document.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => {
+  filter = b.dataset.filter;
+  document.querySelectorAll('[data-filter]').forEach(x => x.setAttribute('aria-pressed', x.dataset.filter === filter ? 'true' : 'false'));
+  renderAttractions();
+});
 function renderAttractions() {
-  document.getElementById('attGrid').innerHTML = S.attractions.filter(filterAtt).map(a => `<div class="card att ${a.type === 'free' ? 'free' : ''} ${a.type === 'paid' && a.selected ? 'selected' : ''}"><div class="row"><span class="badge">${a.day}</span><span class="badge">${a.rating}</span></div><h3>${escapeHtml(a.name)}</h3><div class="cost">${a.type === 'free' ? '$0' : money(a.cost)}</div><div class="date">~${a.time}h practical time</div><p>${escapeHtml(a.desc)}</p><p><b>If skipped:</b> ${escapeHtml(a.skip)}</p><div class="rec">${escapeHtml(a.rec)}</div><div class="row" style="margin-top:9px"><a class="btn small" href="${a.link}" target="_blank">Details</a>${a.type === 'paid' ? `<label class="switch"><input type="checkbox" ${a.selected ? 'checked' : ''} onchange="toggleAtt('${a.id}',this.checked)"><span class="slider"></span></label>` : '<span class="badge must">IN PLAN</span>'}</div></div>`).join('');
+  document.getElementById('attGrid').innerHTML = S.attractions.filter(filterAtt).map(a => `<div class="card att ${a.type === 'free' ? 'free' : ''} ${a.type === 'paid' && a.selected ? 'selected' : ''}"><div class="row"><span class="badge">${a.day}</span><span class="badge">${a.rating}</span></div><h3>${escapeHtml(a.name)}</h3><div class="cost">${a.type === 'free' ? '$0' : money(a.cost)}</div><div class="date">~${a.time}h practical time</div><p>${escapeHtml(a.desc)}</p><p><b>If skipped:</b> ${escapeHtml(a.skip)}</p><div class="rec">${escapeHtml(a.rec)}</div><div class="row" style="margin-top:9px"><a class="btn small" href="${a.link}" target="_blank">Details</a>${a.type === 'paid' ? `<label class="switch"><input type="checkbox" aria-label="${escapeAttr('Include ' + a.name + ' in paid attractions')}" ${a.selected ? 'checked' : ''} onchange="toggleAtt('${a.id}',this.checked)"><span class="slider"></span></label>` : '<span class="badge must">IN PLAN</span>'}</div></div>`).join('');
 }
 const PAID_CRUISE_IDS = ['maligneCruise', 'minnewankaCruise'];
 function setPaidAttractionSelection(id, selected) {
@@ -2496,6 +2540,12 @@ function renderBudget() {
   if (food) food.value = S.costs.food;
   const hint = document.getElementById('fuelHint');
   if (hint) hint.textContent = `Route currently ~${tripDriveKm().toFixed(0)} km. Rental is a standard gasoline sedan (Kia K4 or similar); fuel budget remains conservative until the exact vehicle is assigned.`;
+  const parkNote = document.getElementById('parkPassBudgetNote');
+  if (parkNote) {
+    parkNote.innerHTML = S.costs.parkLocked
+      ? '<b>Parks Canada admission already paid:</b> C$73.50 for the locked 3-day Family/Group purchase. Do not buy a separate four-day pass by default. Verify the printed receipt dates; only buy additional coverage if those dates end before any Sep 29 park travel after 4:00 PM. Daily passes are valid until 4:00 PM the following day.'
+      : '<b>Parks Canada admission:</b> verify the required valid daily/Discovery Pass before entering the parks. Daily passes are valid until 4:00 PM the following day.';
+  }
   const bh = document.getElementById('budgetHint');
   if (bh) bh.textContent = `Actuals entered in Book: ${money(paid())}. Remaining vs estimate: ${money(Math.max(0, total() - paid()))}.` + (S.costs.rentalLocked ? ' Rental confirmed total is C$403.74: C$32.44 already paid and C$371.30 due at pickup. The refundable C$1,000 deposit is not a trip cost; a possible 2.4% credit-card fee is not included.' : '') + (S.costs.yyzParkingLocked ? ' SpotHero YYZ parking is paid at C$51.74 and is already covered inside the Fuel + parking budget rather than added again.' : '');
 }
@@ -2641,11 +2691,62 @@ function applyRawJson() {
 function planText() {
   const chosen = S.attractions.filter(a => a.type === 'paid' && a.selected).map(a => a.name);
   const hotels = Object.entries(S.hotels).map(([d, h]) => `• ${d}: ${h.options[h.choice][0]} — ${money(h.price)}`).join('\n');
-  const days = S.days.map(d => {
+
+  const activeDays = [];
+  const optionalDays = [];
+  S.days.forEach(d => {
     const tl = computeDayTimeline(d);
-    return `• ${d.date} ${d.start} → ~${tl.finishTime.display}: ${d.label}\n  ${d.stops.map(s => s.name).join(' → ')}`;
-  }).join('\n');
-  return `${S.settings.title.toUpperCase()}\n${S.settings.startDate} → ${S.settings.endDate} • ${S.settings.travellers} adults\n\nBUDGET\nSelected estimate: ${money(total())}\nPer person: ${money(total() / Math.max(1, S.settings.travellers))}\nActual paid entered: ${money(paid())}\nBooking readiness: ${Math.round(ready() * 100)}%\n\nHOTELS\n${hotels}\n\nPAID ATTRACTIONS SELECTED\n${chosen.length ? chosen.map(x => '• ' + x).join('\n') : '• None'}\n\nITINERARY\n${days}\n\nREQUIRED ACCESS\n• Parks Canada Family/Group Day Pass: PAID C$73.50 for 3 days. Print/display receipt; verify printed dates cover any Sep 29 park time after 4:00 PM.\n• Lake Louise / Moraine Parks Canada shuttle (book Sep 25 8:00 AM MDT rolling window)\n\nPLANNING NOTE\n${S.settings.globalNote}`;
+    const active = tl.items.filter(it => !it.isCut);
+    const bypassed = tl.items.filter(it => it.isCut);
+
+    const activeLine = active.map(it => {
+      const s = it.stop;
+      const inf = getSpotInfo(s);
+      const isBase = s.isHotel || /hotel|transit \/ overnight|airport/i.test(inf.tag || '');
+      const state = isBase ? 'BASE' : s.priority.toUpperCase();
+      return '[' + state + '] ' + s.name;
+    }).join(' → ');
+
+    activeDays.push(`• ${d.date} ${d.start} → ~${tl.finishTime.display}: ${d.label}\n  ${activeLine || 'No active stops'}`);
+
+    if (bypassed.length) {
+      const altLine = bypassed.map(it => {
+        const s = it.stop;
+        const disabledNice = s.priority === 'nice' && !isStopEnabled(s);
+        return '[' + (disabledNice ? 'NICE OFF' : 'CUT') + '] ' + s.name;
+      }).join(' • ');
+      optionalDays.push(`• ${d.date}: ${altLine}`);
+    }
+  });
+
+  return `${S.settings.title.toUpperCase()}
+${S.settings.startDate} → ${S.settings.endDate} • ${S.settings.travellers} adults
+
+BUDGET
+Selected estimate: ${money(total())}
+Per person: ${money(total() / Math.max(1, S.settings.travellers))}
+Actual paid entered: ${money(paid())}
+Booking readiness: ${Math.round(ready() * 100)}%
+
+HOTELS
+${hotels}
+
+PAID ATTRACTIONS SELECTED
+${chosen.length ? chosen.map(x => '• ' + x).join('\n') : '• None'}
+
+ACTIVE ITINERARY
+Only routed stops are included in the sequence below. Status appears before every stop.
+${activeDays.join('\n')}
+
+ALTERNATIVES / BYPASSED — NOT IN ACTIVE ROUTE
+${optionalDays.length ? optionalDays.join('\n') : '• None'}
+
+REQUIRED ACCESS
+• Parks Canada Family/Group Day Pass: PAID C$73.50 for 3 days. PRINT/DISPLAY the receipt and verify its printed dates; buy extra coverage only if those dates end before later park travel.
+• Lake Louise / Moraine Parks Canada shuttle (book Sep 25 8:00 AM MDT rolling window)
+
+PLANNING NOTE
+${S.settings.globalNote}`;
 }
 function renderSummary() { document.getElementById('finalSummary').textContent = planText(); }
 function exportState() {
@@ -2704,11 +2805,11 @@ function renderOverview() {
       const xTl = computeDayTimeline(x);
       const startHotel = x.stops[0] ? x.stops[0].name.replace(/\s*\(Depart.*?\)/i, '') : 'Start';
       const endHotel = x.stops[x.stops.length - 1] ? x.stops[x.stops.length - 1].name.replace(/\s*\(Sleep.*?\)/i, '') : x.sleep;
-      return `<button class="overview-daycard ${x.date === overviewDay ? 'active' : ''}" onclick="chooseOverviewDay('${x.date}')">
-        <div class="daycard-header"><span class="badge ${x.date === overviewDay ? 'must' : 'nice'}">${x.date}</span><span class="date">${x.stops.length} stops</span></div>
+      return `<button class="overview-daycard ${x.date === overviewDay ? 'active' : ''}" aria-pressed="${x.date === overviewDay ? 'true' : 'false'}" onclick="chooseOverviewDay('${x.date}')">
+        <div class="daycard-header"><span class="badge ${x.date === overviewDay ? 'must' : 'nice'}">${x.date}</span><span class="date">${stopCountText(x.stops.length)}</span></div>
         <h4>${escapeHtml(x.label)}</h4>
         <div class="overview-meta">🚗 <b>${xTl.totalDistKm} km</b> • ~<b>${formatDuration(xTl.totalDriveMin)}</b> drive</div>
-        <div class="overview-meta" style="margin-top:2px;font-size:11px;color:#8ba4b6;">🏨 ${escapeHtml(startHotel)} → ${escapeHtml(endHotel)}</div>
+        <div class="overview-meta" style="margin-top:2px;font-size:11px;color:#8ba4b6;">🏨 ${escapeHtml(startHotel === endHotel ? startHotel : (startHotel + ' → ' + endHotel))}</div>
       </button>`;
     }).join('');
   }
@@ -2726,7 +2827,7 @@ function renderOverview() {
     tl.lunchMin ? `🥪 ${tl.lunchMin}m lunch @ ${tl.lunchAt || '12:30'}` : '',
     sun ? `☀️ Daylight: ${sun.rise}–${sun.set}` : '',
     '🏨 Sleep: ' + d.sleep,
-    d.stops.length + ' stops' + (tl.cutCount ? ` (${tl.cutCount} cut/bypassed)` : ''),
+    stopCountText(d.stops.length) + (tl.cutCount ? ` (${tl.cutCount} cut/bypassed)` : ''),
     tl.afterSunset ? '⚠️ Finishes after sunset' : '✅ Day ends before dark'
   ].filter(Boolean).map(x => `<span class="chip">${escapeHtml(x)}</span>`).join('');
   
@@ -2799,7 +2900,9 @@ function setSpotModalTab(tab) {
   const allowed = ['overview', 'prepare', 'details'];
   const next = allowed.includes(tab) ? tab : 'overview';
   document.querySelectorAll('#spotModal [data-modal-tab]').forEach(function (btn) {
-    btn.classList.toggle('on', btn.dataset.modalTab === next);
+    const active = btn.dataset.modalTab === next;
+    btn.classList.toggle('on', active);
+    btn.setAttribute('aria-selected', active ? 'true' : 'false');
   });
   document.querySelectorAll('#spotModal [data-modal-panel]').forEach(function (panel) {
     panel.classList.toggle('on', panel.dataset.modalPanel === next);
