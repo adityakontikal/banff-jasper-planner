@@ -3022,12 +3022,12 @@ function renderField() {
       <div class="glass panel">
         <div class="ph"><div><div class="ey">Emergency</div><h2>Who to call</h2></div></div>
         <div class="emerg">
-          <div class="fact"><small>Emergency</small><b>911</b></div>
-          <div class="fact"><small>Parks Canada emergency</small><b>1-888-927-3367</b></div>
-          <div class="fact"><small>Banff Mineral Springs Hospital</small><b>403-762-2222</b></div>
-          <div class="fact"><small>Jasper healthcare</small><b>780-852-3343</b></div>
+          <div class="fact"><small>Police / fire / ambulance / search & rescue</small><b>911</b></div>
+          <div class="fact"><small>Banff / Yoho backcountry emergency</small><b>403-762-4506</b></div>
+          <div class="fact"><small>Jasper backcountry emergency</small><b>1-877-852-3100</b></div>
+          <div class="fact"><small>Banff non-emergency wildlife</small><b>403-762-1470</b></div>
+          <div class="fact"><small>Jasper wildlife reporting</small><b>780-852-6155</b></div>
           <div class="fact"><small>Road report</small><b>511</b></div>
-          <div class="fact"><small>Parks shuttle</small><b>1-877-737-3783</b></div>
         </div>
         <div class="note" style="margin-top:10px">Wildlife jams are common. Never stop in a live lane; use legal pullouts and give wildlife space.</div>
       </div>
