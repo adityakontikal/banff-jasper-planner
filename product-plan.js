@@ -33,9 +33,9 @@
       id: 'maligne',
       when: 'Sep 28',
       title: 'Maligne Lake Cruise',
-      detail: 'This is the paid attraction you chose to protect.',
+      detail: 'Protected paid anchor. Choose the exact Sep 28 Classic vs Premium product and sailing from the live booking inventory.',
       options: [
-        ['book', 'Book Classic Cruise'],
+        ['book', 'Book best Classic/Premium sailing'],
         ['hold', 'Hold for price/time'],
         ['skip', 'Shoreline only']
       ]
