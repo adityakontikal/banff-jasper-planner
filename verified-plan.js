@@ -418,7 +418,7 @@
     maligne: {
       time: '150 min protected trip block',
       timingOptions: [{ label: 'Shoreline only — if cruise cancelled', min: 60 }, { label: 'Classic Cruise + arrival/check-in buffer', min: 150 }, { label: 'Premium Cruise + arrival/check-in buffer', min: 150 }],
-      desc: 'Your #1 paid attraction and the only paid experience currently locked. Spirit Island is 14 km up-lake with no road or trail access, which makes the cruise meaningfully different from simply stopping at another viewpoint.',
+      desc: 'Your protected paid cruise anchor. Spirit Island is 14 km up-lake with no road or trail access, which makes the cruise meaningfully different from simply stopping at another viewpoint. Banff Gondola is tracked separately as a weather-gated MUST.',
       todo: 'Choose Classic vs Premium when booking the exact Sep 28 sailing. Arrive onsite at least 30 min early and be at the dock at least 15 min before departure. Keep fuel/snacks handled in Jasper before Maligne Road.',
       cut: 'If the cruise is booked, cut Patricia and Annette/Edith before risking the reservation.',
       reviews: 'Verified Sep 1, 2026: Classic ~1.5h with 15 min near Spirit Island; Premium 2h, adults 16+, adds Pincushion Bay and 30 min near Spirit Island. Sep 7–Oct 3 window is 9 AM–5:30 PM.',
