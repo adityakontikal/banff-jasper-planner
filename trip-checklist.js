@@ -18,7 +18,7 @@
     shuttleFaq: { name: 'Parks Canada — shuttle FAQ', url: 'https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise/faq' },
     parkPass: { name: 'Parks Canada — park passes', url: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes' },
     parkFees: { name: 'Parks Canada — 2026 Banff fees', url: 'https://parks.canada.ca/pn-np/ab/banff/visit/tarifs-fees' },
-    icefields: { name: 'Parks Canada — Icefields Parkway', url: 'https://parks.canada.ca/pn-np/ab/jasper/visit/promenade-icefields-icefields-parkway' },
+    icefields: { name: 'Parks Canada — Icefields Parkway', url: 'https://parks.canada.ca/pn-np/ab/jasper/activ/itineraires-itineraries/promenadedesglaciers-icefieldsparkway' },
     icefieldsBanff: { name: 'Parks Canada — Icefields Parkway (Banff)', url: 'https://parks.canada.ca/pn-np/ab/banff/visit/les10-top10/glaciers-icefields' },
     jasperOpen: { name: 'Parks Canada — What is open in Jasper', url: 'https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed' },
     jasperTrails: { name: 'Parks Canada — Jasper trail conditions', url: 'https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/etat-sentiers-trail-conditions' },
