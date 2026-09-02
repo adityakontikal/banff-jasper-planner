@@ -787,7 +787,7 @@ const BASE = {
       ]
     },
     {
-      date: 'Sep 26', label: 'YYC → Banff Highlights → Cochrane', start: '05:45', drive: '~240 km', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      date: 'Sep 26', label: 'YYC → Banff Highlights → Cochrane', start: '05:45', drive: 'Via Castle Junction • live road route', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
       note: 'No arrival-night hotel. Leave the YYC area around 5:45 AM, keep the Banff-first route, and finish at the booked Super 8 Cochrane.',
       hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
