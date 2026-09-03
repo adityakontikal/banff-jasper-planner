@@ -288,4 +288,31 @@ test('getVisualizeWholeTripData merges all itinerary days without mutation', () 
   assert.strictEqual(whole[1].date, 'Sep 26');
 });
 
+test('getLandmarkCameraProfile provides signature vistas for major Rockies attractions', () => {
+  // Moraine Lake should point southwest (heading 216) toward Valley of the Ten Peaks
+  const moraineProf = V3D.getLandmarkCameraProfile({ id: 'moraine', name: 'Moraine Lake & Rockpile' });
+  assert.strictEqual(moraineProf.heading, 216);
+  assert(moraineProf.viewContext.includes('Ten Peaks'), 'Expected Ten Peaks in view context');
+
+  // Lake Louise should point southwest (heading 236) toward Mount Victoria & glacier
+  const louiseProf = V3D.getLandmarkCameraProfile({ id: 'louise', name: 'Lake Louise Lakeshore' });
+  assert.strictEqual(louiseProf.heading, 236);
+  assert(louiseProf.viewContext.includes('Victoria'), 'Expected Victoria Glacier in view context');
+
+  // Peyto Lake should look down north-northwest (heading 342) from Bow Summit
+  const peytoProf = V3D.getLandmarkCameraProfile({ id: 'peyto', name: 'Peyto Lake (Bow Summit Viewpoint)' });
+  assert.strictEqual(peytoProf.heading, 342);
+  assert(peytoProf.viewContext.includes('Bow Summit'), 'Expected Bow Summit in view context');
+
+  // Banff town should face north (heading 0) toward Cascade Mountain
+  const banffProf = V3D.getLandmarkCameraProfile({ id: 'banff', name: 'Banff Town' });
+  assert.strictEqual(banffProf.heading, 0);
+  assert(banffProf.viewContext.includes('Cascade Mountain'), 'Expected Cascade Mountain in view context');
+
+  // Sulphur Mountain Gondola should look northeast (heading 42) across Bow Valley & Rundle
+  const gondolaProf = V3D.getLandmarkCameraProfile({ id: 'gondola', name: 'Banff Gondola — Sulphur Mountain' });
+  assert.strictEqual(gondolaProf.heading, 42);
+  assert(gondolaProf.viewContext.includes('Bow Valley'), 'Expected Bow Valley in view context');
+});
+
 console.log(`\n🎉 All ${passedTests} tests passed successfully!\n`);

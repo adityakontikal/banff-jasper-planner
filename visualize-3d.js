@@ -8,7 +8,34 @@
   if (typeof module === 'object' && module.exports) {
     module.exports = factory();
   } else {
-    root.Visualize3D = factory();
+    const api = factory();
+    root.Visualize3D = api;
+    if (typeof document !== 'undefined') {
+      const checkAndInit = () => {
+        const visView = document.getElementById('visualizeview');
+        const hash = (root.location && root.location.hash || '').replace(/^#/, '');
+        if ((visView && visView.classList.contains('on')) || hash.startsWith('visualizeview')) {
+          api.onVisualizeTabActivated();
+          if (hash.includes('?')) {
+            const query = hash.split('?')[1];
+            const params = new URLSearchParams(query);
+            const day = params.get('day');
+            if (day) api.chooseVisualizeDay(day);
+            const mapOnly = params.get('mapOnly');
+            if (mapOnly === 'true') {
+              setTimeout(() => api.toggleMapOnly(true), 300);
+            }
+            const stop = params.get('stop');
+            if (stop) setTimeout(() => api.selectStopById(stop), 800);
+          }
+        }
+      };
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndInit);
+      } else {
+        setTimeout(checkAndInit, 60);
+      }
+    }
   }
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
@@ -47,6 +74,110 @@
       window.matchMedia &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     );
+  }
+
+  /* ============================================================
+   * CURATED GEOGRAPHIC LANDMARK CAMERA PROFILES
+   * Tailored viewpoints oriented to each landmark's signature vista
+   * ============================================================ */
+  const LANDMARK_CAMERA_PROFILES = {
+    // Sep 25 / Transit Hubs
+    yyc25: { range: 5800, tilt: 42, heading: 270, elevation: 1080, viewContext: "Calgary International Airport looking west toward the rising wall of the Canadian Rockies." },
+    yyc30: { range: 5800, tilt: 42, heading: 270, elevation: 1080, viewContext: "Calgary International Airport departure terminal looking west toward the mountain horizon." },
+    canmore: { range: 2400, tilt: 55, heading: 270, elevation: 1045, viewContext: "Prince's Island Park along the Bow River in downtown Calgary looking west toward the foothills." },
+
+    // Sep 26: Banff Highlights & Bow Valley
+    cochrane26_dep: { range: 3800, tilt: 45, heading: 260, elevation: 1180, viewContext: "Cochrane foothills departure looking west toward the Front Ranges and Bow Gap." },
+    minnewanka: { range: 3600, tilt: 60, heading: 68, elevation: 1450, viewContext: "Looking east-northeast along the 21 km glacial lake corridor flanked by Mount Aylmer (3,162 m)." },
+    twojack: { range: 1800, tilt: 56, heading: 185, elevation: 1460, viewContext: "Looking south across calm emerald waters toward Mount Rundle's signature sloping cliff face." },
+    banff: { range: 2200, tilt: 65, heading: 0, targetOffset: { lat: 0.003, lng: 0 }, elevation: 1383, viewContext: "Looking north down Banff Avenue toward the colossal vertical face of Cascade Mountain (2,998 m)." },
+    bowfalls: { range: 1300, tilt: 52, heading: 260, elevation: 1370, viewContext: "Low valley perspective looking west along the roaring Bow River rapids beneath the Fairmont hotel." },
+    surprise: { range: 1400, tilt: 50, heading: 245, elevation: 1410, viewContext: "Observation deck perspective looking west-southwest at the Fairmont 'Castle in the Rockies' framed by Sulphur Mountain." },
+    gondola: { range: 2800, tilt: 58, heading: 42, targetOffset: { lat: -0.005, lng: 0.002 }, elevation: 2281, viewContext: "Sulphur Mountain summit panorama (2,281 m) looking northeast across the Bow Valley toward Mount Rundle and Banff." },
+    castlejunction26_in: { range: 3400, tilt: 60, heading: 45, elevation: 1420, viewContext: "Bow Valley Parkway junction looking northeast up at the horizontal fortress battlements of Castle Mountain (2,766 m)." },
+    johnston: { range: 1700, tilt: 62, heading: 330, elevation: 1430, viewContext: "Looking northwest up the steep limestone slot canyon carved by churning glacial torrents." },
+    castlejunction26_out: { range: 3400, tilt: 60, heading: 45, elevation: 1420, viewContext: "Return waypoint beneath Castle Mountain toward the Trans-Canada Highway corridor." },
+    cochrane26_ret: { range: 3500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Super 8 Cochrane hotel arrival at the eastern gateway to the Bow Valley." },
+
+    // Sep 27: Cochrane → Moraine/Louise → Icefields → Hinton
+    cochrane27: { range: 3500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Super 8 Cochrane morning departure looking west toward the Rocky Mountain wall." },
+    parkride: { range: 4000, tilt: 52, heading: 225, elevation: 1650, viewContext: "Bow Valley shuttle hub beneath Whitehorn Mountain, looking across toward the Lake Louise peaks." },
+    moraine: { range: 3100, tilt: 63, heading: 216, targetOffset: { lat: -0.004, lng: -0.003 }, elevation: 1884, viewContext: "The iconic 'Twenty Dollar' vista from the Rockpile, looking southwest into the glaciated Valley of the Ten Peaks." },
+    louise: { range: 3200, tilt: 60, heading: 236, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1731, viewContext: "Looking southwest across the emerald lake toward Mount Victoria (3,464 m) and the hanging Victoria Glacier." },
+    bowlake: { range: 3500, tilt: 58, heading: 250, elevation: 1920, viewContext: "Icefields Parkway shoreline looking west across Bow Lake toward Crowfoot Mountain and Bow Glacier." },
+    bowlake29: { range: 3500, tilt: 58, heading: 250, elevation: 1920, viewContext: "Southbound Parkway vista across Bow Lake framed beneath Crowfoot Mountain." },
+    crowfoot: { range: 3000, tilt: 55, heading: 255, elevation: 1940, viewContext: "Roadside viewpoint looking west at the hanging ice claws of Crowfoot Glacier." },
+    peyto: { range: 2500, tilt: 60, heading: 342, targetOffset: { lat: 0.005, lng: 0 }, elevation: 2068, viewContext: "Bow Summit cliff (~2,068 m) looking down into the Mistaya Valley at the brilliant turquoise wolf-head lake." },
+    mistaya: { range: 1500, tilt: 56, heading: 310, elevation: 1450, viewContext: "Looking northwest into the swirling limestone slot canyon carved by the Mistaya River." },
+    saskcrossing: { range: 5600, tilt: 50, heading: 315, elevation: 1400, viewContext: "River confluence crossroads where the North Saskatchewan, Howse, and Mistaya valleys meet beneath Mount Murchison." },
+    icefield: { range: 4200, tilt: 62, heading: 232, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1970, viewContext: "Icefields Parkway gateway looking southwest directly up the colossal tongue of Athabasca Glacier toward Snow Dome." },
+    icefield29: { range: 4200, tilt: 62, heading: 232, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1970, viewContext: "Second-chance glacier exploration looking up the Athabasca ice flow toward Mount Kitchener." },
+    sunwapta: { range: 1400, tilt: 55, heading: 325, elevation: 1530, viewContext: "Looking northwest at Sunwapta River plunging around an island into a deep limestone chasm." },
+    stutfield: { range: 3500, tilt: 58, heading: 260, elevation: 1980, viewContext: "Looking west across the Sunwapta canyon at the hanging ice tongues of Stutfield Glacier." },
+    waterfowl: { range: 3200, tilt: 56, heading: 245, elevation: 1675, viewContext: "Looking southwest across Lower Waterfowl Lake toward the steep pyramid face of Mount Chephren." },
+    athfalls: { range: 1600, tilt: 56, heading: 345, elevation: 1180, viewContext: "Powerful waterfall rushing through quartzite canyons with Mount Kerkeslin rising behind." },
+    hinton27: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton gateway town looking southwest along Yellowhead Highway into the front ranges." },
+
+    // Sep 28: Jasper & Maligne Valley
+    hinton28a: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton morning departure toward Jasper National Park." },
+    pyramid: { range: 2400, tilt: 62, heading: 355, targetOffset: { lat: 0.004, lng: 0 }, elevation: 1180, viewContext: "Looking north across the lake and wooden footbridge straight at the 2,766 m Pyramid Mountain face." },
+    patricia: { range: 2200, tilt: 56, heading: 345, elevation: 1175, viewContext: "Tranquil mirror lake reflecting Pyramid Mountain's reddish quartzite ridges." },
+    jasper: { range: 3600, tilt: 56, heading: 355, targetOffset: { lat: 0.005, lng: 0 }, elevation: 1062, viewContext: "Looking north across the broad Athabasca River valley toward the red quartzite crest of Pyramid Mountain." },
+    jasper29: { range: 3600, tilt: 56, heading: 355, elevation: 1062, viewContext: "Jasper townsite southbound staging point beneath Pyramid Mountain and Whistler Peak." },
+    medicine: { range: 4000, tilt: 55, heading: 135, elevation: 1435, viewContext: "Looking southeast down the Maligne Valley along the porous subterranean limestone basin of Medicine Lake." },
+    maligne: { range: 4500, tilt: 63, heading: 152, targetOffset: { lat: -0.006, lng: 0.004 }, elevation: 1670, viewContext: "Looking southeast down the 22 km glacial basin toward Spirit Island and glaciated Queen Elizabeth peaks." },
+    annette: { range: 2200, tilt: 52, heading: 340, elevation: 1040, viewContext: "Kettle lakes in the Athabasca valley looking north toward the Colin Range." },
+    hinton28b: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton Lodge evening return after the Maligne Lake cruise." },
+
+    // Sep 29: Southbound Parkway & Calgary
+    hinton29: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton departure for the southbound Icefields Parkway drive." },
+    valley5: { range: 2200, tilt: 52, heading: 350, elevation: 1080, viewContext: "Athabasca Valley pine forest looking north across the chain of jewel-colored lakes." },
+    naturalbridge: { range: 1200, tilt: 52, heading: 310, elevation: 1220, viewContext: "Kicking Horse River carving through ancient rock formations beneath Mount Stephen." },
+    emerald: { range: 2800, tilt: 60, heading: 322, elevation: 1300, viewContext: "Yoho National Park masterpiece looking northwest across emerald waters to the President Range." },
+    cochrane29: { range: 4000, tilt: 45, heading: 270, elevation: 1070, viewContext: "Holiday Inn Calgary Airport looking west toward the Bow Valley corridor." },
+    cochrane30: { range: 4000, tilt: 45, heading: 270, elevation: 1070, viewContext: "Calgary Airport hotel departure." }
+  };
+
+  /**
+   * Retrieves the tailored camera profile and vantage point for a stop.
+   */
+  function getLandmarkCameraProfile(stop) {
+    if (!stop) return { range: 2800, tilt: 58, heading: 330, viewContext: "Mountain valley perspective." };
+
+    if (LANDMARK_CAMERA_PROFILES[stop.id]) {
+      return LANDMARK_CAMERA_PROFILES[stop.id];
+    }
+
+    const lower = (stop.name || '').toLowerCase();
+    for (const [key, prof] of Object.entries(LANDMARK_CAMERA_PROFILES)) {
+      if (lower.includes(key.toLowerCase())) {
+        return prof;
+      }
+    }
+    if (lower.includes('moraine')) return LANDMARK_CAMERA_PROFILES.moraine;
+    if (lower.includes('louise')) return LANDMARK_CAMERA_PROFILES.louise;
+    if (lower.includes('peyto') || lower.includes('bow summit')) return LANDMARK_CAMERA_PROFILES.peyto;
+    if (lower.includes('icefield') || lower.includes('glacier')) return LANDMARK_CAMERA_PROFILES.icefield;
+    if (lower.includes('maligne')) return LANDMARK_CAMERA_PROFILES.maligne;
+    if (lower.includes('sulphur') || lower.includes('gondola')) return LANDMARK_CAMERA_PROFILES.gondola;
+    if (lower.includes('cascade') || lower.includes('banff')) return LANDMARK_CAMERA_PROFILES.banff;
+    if (lower.includes('pyramid')) return LANDMARK_CAMERA_PROFILES.pyramid;
+    if (lower.includes('sunwapta')) return LANDMARK_CAMERA_PROFILES.sunwapta;
+    if (lower.includes('athabasca falls')) return LANDMARK_CAMERA_PROFILES.athfalls;
+    if (lower.includes('minnewanka')) return LANDMARK_CAMERA_PROFILES.minnewanka;
+    if (lower.includes('two jack')) return LANDMARK_CAMERA_PROFILES.twojack;
+    if (lower.includes('johnston')) return LANDMARK_CAMERA_PROFILES.johnston;
+    if (lower.includes('emerald')) return LANDMARK_CAMERA_PROFILES.emerald;
+    if (lower.includes('hinton')) return LANDMARK_CAMERA_PROFILES.hinton27;
+    if (lower.includes('cochrane')) return LANDMARK_CAMERA_PROFILES.cochrane26_dep;
+    if (lower.includes('calgary') || lower.includes('airport')) return LANDMARK_CAMERA_PROFILES.yyc25;
+
+    return {
+      range: 2600,
+      tilt: 58,
+      heading: 335,
+      viewContext: `Geographic perspective framing ${stop.name}.`
+    };
   }
 
   /* ============================================================
@@ -354,6 +485,9 @@
               </div>
             </div>
 
+            <!-- Selected Stop Inspector Card -->
+            <div class="vis-selected-stop-card hidden" id="visSelectedStopCard"></div>
+
             <!-- Ordered Stops List -->
             <div class="ey" style="margin: 12px 0 6px;">Ordered Stops</div>
             <div class="vis-stoplist" id="visStopList"></div>
@@ -362,6 +496,8 @@
 
         <!-- Main 3D Viewport -->
         <main class="visualize-main" id="visualizeMain">
+          <!-- Floating Stop Inspector for Map-Only Mode / Mobile -->
+          <div class="vis-map-stop-card hidden" id="visMapStopCard"></div>
           <!-- Map style / quick camera presets. Kept left so Google's native exploration controls remain unobstructed on the right. -->
           <div class="vis-map-toolbar">
             <div class="vis-pill-group" role="group" aria-label="Map style">
@@ -510,12 +646,16 @@
   function toggleMapOnly(forceState) {
     const workspace = document.getElementById('visualizeWorkspace');
     const btn = document.getElementById('visMapOnlyBtn');
+    const mapCard = document.getElementById('visMapStopCard');
     if (!workspace) return;
     const next = forceState === undefined ? !workspace.classList.contains('map-only') : !!forceState;
     workspace.classList.toggle('map-only', next);
     if (btn) {
       btn.textContent = next ? 'Show panel' : 'Map only';
       btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+    }
+    if (mapCard) {
+      mapCard.classList.toggle('hidden', !(next && selectedStopId));
     }
     setTimeout(refreshCameraReadout, 80);
   }
@@ -998,25 +1138,221 @@
   }
 
   /**
-   * Flies camera to focus on a specific stop while preserving surrounding peaks.
+   * Smoothly orbits camera 360 degrees around the selected stop's mountain basin.
    */
-  function selectStop(stop, indexNumber) {
+  function orbitCurrentStop() {
+    if (!map3D) return;
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    const dayData = getVisualizeDayData(currentDay);
+    const stops = dayData ? dayData.activeStops : [];
+    const stop = stops.find(s => s.id === selectedStopId) || (stops.length ? stops[0] : null);
+    if (!stop) return;
+
+    if (isFlying) cancelRouteFlyThrough(false);
+
+    const profile = getLandmarkCameraProfile(stop);
+    const center = {
+      lat: stop.lat + (profile.targetOffset?.lat || 0),
+      lng: stop.lng + (profile.targetOffset?.lng || 0),
+      altitude: 0
+    };
+
+    if (typeof map3D.flyCameraAround === 'function') {
+      map3D.flyCameraAround({
+        camera: {
+          center,
+          range: Math.round(profile.range * 1.15),
+          tilt: Math.min(68, profile.tilt + 4),
+          heading: profile.heading
+        },
+        durationMillis: prefersReducedMotion() ? 0 : 16000,
+        repeatCount: 1
+      });
+    } else {
+      adjustCamera({ headingDelta: 60 });
+    }
+  }
+
+  /**
+   * Resets camera to the stop's signature vantage view.
+   */
+  function refocusCurrentStop() {
+    if (!map3D || !selectedStopId) return;
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    const dayData = getVisualizeDayData(currentDay);
+    const stops = dayData ? dayData.activeStops : [];
+    const idx = stops.findIndex(s => s.id === selectedStopId);
+    if (idx !== -1) {
+      selectStop(stops[idx], idx + 1, { durationMillis: 800 });
+    }
+  }
+
+  /**
+   * Advances or steps back to adjacent stop along the day's route.
+   */
+  function stepAdjacentStop(direction) {
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    const dayData = getVisualizeDayData(currentDay);
+    const stops = dayData ? dayData.activeStops : [];
+    if (!stops.length) return;
+
+    let currentIndex = stops.findIndex(s => s.id === selectedStopId);
+    if (currentIndex === -1) currentIndex = 0;
+
+    let nextIndex = currentIndex + direction;
+    if (nextIndex < 0) nextIndex = stops.length - 1;
+    if (nextIndex >= stops.length) nextIndex = 0;
+
+    selectStop(stops[nextIndex], nextIndex + 1);
+  }
+
+  /**
+   * Hides the stop inspector card.
+   */
+  function closeStopCard() {
+    selectedStopId = null;
+    const sideCard = document.getElementById('visSelectedStopCard');
+    const mapCard = document.getElementById('visMapStopCard');
+    if (sideCard) sideCard.classList.add('hidden');
+    if (mapCard) mapCard.classList.add('hidden');
+    document.querySelectorAll('.vis-stop-item').forEach(el => el.classList.remove('selected'));
+  }
+
+  /**
+   * Renders the Stop Inspector Card into both the sidebar and map overlay.
+   */
+  function renderStopInspectorCard(stop, indexNumber, profile, totalStops) {
+    const sideCard = document.getElementById('visSelectedStopCard');
+    const mapCard = document.getElementById('visMapStopCard');
+    if (!sideCard && !mapCard) return;
+
+    const isHotel = stop.isHotel || /hotel|sleep/i.test(stop.name || '');
+    const badgeClass = isHotel ? 'hotel' : (stop.priority === 'must' ? 'must' : 'nice');
+    const badgeText = isHotel ? 'HOTEL' : (stop.priority === 'must' ? 'MUST DO' : 'NICE TO HAVE');
+    const elevText = profile.elevation ? `⛰ ~${profile.elevation} m` : '';
+    const stayText = stop.stayMin ? `⏱ ${stop.stayMin} min stay` : '';
+
+    const contentHtml = `
+      <div class="vis-stop-card-head">
+        <div class="vis-stop-card-title-wrap">
+          <div class="vis-stop-card-step">Stop ${indexNumber} of ${totalStops}</div>
+          <div class="vis-stop-card-title">${escapeHtml(stop.name)}</div>
+        </div>
+        <button class="vis-stop-card-close" title="Close inspector" aria-label="Close inspector">✕</button>
+      </div>
+
+      <div class="vis-stop-card-tags">
+        <span class="vis-badge ${badgeClass}">${badgeText}</span>
+        ${stayText ? `<span class="vis-pill">${stayText}</span>` : ''}
+        ${elevText ? `<span class="vis-pill">${elevText}</span>` : ''}
+        <span class="vis-pill">🔭 ${profile.heading}° bearing</span>
+      </div>
+
+      <div class="vis-stop-card-context">
+        <span class="vis-context-icon">🏔️</span>
+        <span class="vis-context-text"><b>Vantage:</b> ${escapeHtml(profile.viewContext)}</span>
+      </div>
+
+      <div class="vis-stop-card-actions">
+        <button class="btn primary small vis-orbit-btn" title="360° orbital flight around mountain basin">🔄 360° Orbit</button>
+        <button class="btn small vis-refocus-btn" title="Reset to signature mountain vantage point">👁️ Signature</button>
+        <div class="vis-stop-card-nav">
+          <button class="btn small icon vis-prev-btn" title="Previous stop" aria-label="Previous stop">◀</button>
+          <button class="btn small icon vis-next-btn" title="Next stop" aria-label="Next stop">▶</button>
+        </div>
+        <a href="https://www.google.com/maps/search/?api=1&query=${stop.lat},${stop.lng}" target="_blank" rel="noopener" class="btn small" title="Open location in Google Maps">Google Maps ↗</a>
+      </div>
+    `;
+
+    const bindCardEvents = (cardEl) => {
+      if (!cardEl) return;
+      cardEl.innerHTML = contentHtml;
+      const closeBtn = cardEl.querySelector('.vis-stop-card-close');
+      if (closeBtn) closeBtn.onclick = closeStopCard;
+
+      const orbitBtn = cardEl.querySelector('.vis-orbit-btn');
+      if (orbitBtn) orbitBtn.onclick = orbitCurrentStop;
+
+      const refocusBtn = cardEl.querySelector('.vis-refocus-btn');
+      if (refocusBtn) refocusBtn.onclick = refocusCurrentStop;
+
+      const prevBtn = cardEl.querySelector('.vis-prev-btn');
+      if (prevBtn) prevBtn.onclick = () => stepAdjacentStop(-1);
+
+      const nextBtn = cardEl.querySelector('.vis-next-btn');
+      if (nextBtn) nextBtn.onclick = () => stepAdjacentStop(1);
+    };
+
+    if (sideCard) {
+      bindCardEvents(sideCard);
+      sideCard.classList.remove('hidden');
+    }
+
+    if (mapCard) {
+      bindCardEvents(mapCard);
+      const workspace = document.getElementById('visualizeWorkspace');
+      const isMapOnly = workspace && workspace.classList.contains('map-only');
+      mapCard.classList.toggle('hidden', !isMapOnly);
+    }
+  }
+
+  /**
+   * Flies camera to focus on a specific stop using curated landmark vantage points.
+   */
+  function selectStop(stop, indexNumber, options = {}) {
     if (!stop || !map3D) return;
     selectedStopId = stop.id;
 
-    // Highlight item in sidebar
+    if (isFlying) cancelRouteFlyThrough(false);
+
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    const dayData = getVisualizeDayData(currentDay);
+    const stops = dayData ? dayData.activeStops : [];
+    const totalStops = stops.length || 1;
+    const idx = indexNumber || (stops.findIndex(s => s.id === stop.id) + 1) || 1;
+
+    // 1. Highlight item in sidebar
     document.querySelectorAll('.vis-stop-item').forEach(el => {
-      el.classList.toggle('selected', el.dataset.stopId === stop.id);
+      const isMatch = el.dataset.stopId === stop.id;
+      el.classList.toggle('selected', isMatch);
+      if (isMatch && options.scrollIntoView !== false) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     });
 
-    // "Mountain context": keep range at 2,200m - 3,500m so surrounding valley and peaks remain visible
+    // 2. Fetch curated camera profile for this stop
+    const profile = getLandmarkCameraProfile(stop);
+
+    // 3. Render Inspector Card
+    renderStopInspectorCard(stop, idx, profile, totalStops);
+
+    // 4. Compute target coordinates
+    const targetLat = stop.lat + (profile.targetOffset ? profile.targetOffset.lat : 0);
+    const targetLng = stop.lng + (profile.targetOffset ? profile.targetOffset.lng : 0);
+
+    // 5. Fly camera smoothly to signature vantage point
     flyCameraTo({
-      center: { lat: stop.lat, lng: stop.lng, altitude: 0 },
-      range: 2800,
-      tilt: 62,
-      heading: 320,
-      durationMillis: prefersReducedMotion() ? 0 : 1800
+      center: { lat: targetLat, lng: targetLng, altitude: 0 },
+      range: profile.range,
+      tilt: profile.tilt,
+      heading: profile.heading,
+      durationMillis: prefersReducedMotion() ? 0 : (options.durationMillis || 1800)
     });
+
+    setTimeout(refreshCameraReadout, prefersReducedMotion() ? 0 : 400);
+  }
+
+  /**
+   * Selects a stop by its ID across the active day.
+   */
+  function selectStopById(stopId, options = {}) {
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    const dayData = getVisualizeDayData(currentDay);
+    if (!dayData || !dayData.activeStops) return;
+    const idx = dayData.activeStops.findIndex(s => s.id === stopId);
+    if (idx !== -1) {
+      selectStop(dayData.activeStops[idx], idx + 1, options);
+    }
   }
 
   function clamp(value, min, max) {
@@ -1251,35 +1587,38 @@
     // Check if we are near an active stop
     let approachingStop = null;
     let stopIdx = -1;
+    let stopProfile = null;
     for (let s = 0; s < flightStops.length; s++) {
       const st = flightStops[s];
       const gapMeters = Math.hypot((st.lat - curr.lat) * 111000, (st.lng - curr.lng) * 111000);
-      if (gapMeters < 250) {
+      if (gapMeters < 320) {
         approachingStop = st;
         stopIdx = s + 1;
+        stopProfile = getLandmarkCameraProfile(st);
         break;
       }
     }
 
-    // Update HUD
+    // Update HUD with signature sightline information
     const titleEl = document.getElementById('visFlightTitle');
     const subEl = document.getElementById('visFlightSub');
-    if (approachingStop) {
+    if (approachingStop && stopProfile) {
       if (titleEl) titleEl.textContent = `Stop ${stopIdx} of ${flightStops.length}: ${approachingStop.name}`;
-      if (subEl) subEl.textContent = `Dwell: ${approachingStop.stayMin || 0} min • Surrounding mountain basin`;
+      if (subEl) subEl.textContent = `🏔️ ${stopProfile.viewContext || 'Surrounding mountain basin'}`;
+      heading = stopProfile.heading;
     } else {
       const pct = Math.round((flightCurrentIndex / (flightPathPoints.length - 1)) * 100);
-      if (titleEl) titleEl.textContent = `Following road route (${pct}%)`;
+      if (titleEl) titleEl.textContent = `Following route (${pct}%)`;
       if (subEl) subEl.textContent = 'Glacial valleys & mountain passes';
     }
 
-    // Move camera
-    const stepDuration = approachingStop ? 3000 : 1200;
+    // Move camera with tailored range & tilt when viewing stops
+    const stepDuration = approachingStop ? 3200 : 1200;
 
     flyCameraTo({
       center: { lat: curr.lat, lng: curr.lng, altitude: 0 },
-      range: approachingStop ? 2400 : 2000,
-      tilt: approachingStop ? 60 : 68,
+      range: approachingStop ? (stopProfile ? stopProfile.range : 2600) : 2000,
+      tilt: approachingStop ? (stopProfile ? stopProfile.tilt : 60) : 68,
       heading,
       durationMillis: stepDuration
     });
@@ -1545,15 +1884,49 @@
     })[m]);
   }
 
+  // Interactive keyboard shortcuts when in 3D Visualize view
+  if (typeof window !== 'undefined') {
+    window.addEventListener('keydown', (e) => {
+      const visView = document.getElementById('visualizeview');
+      if (!visView || !visView.classList.contains('on')) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target && e.target.tagName)) return;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stepAdjacentStop(1);
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stepAdjacentStop(-1);
+      } else if (e.key.toLowerCase() === 'o') {
+        e.preventDefault();
+        orbitCurrentStop();
+      } else if (e.key === ' ' && isFlying) {
+        e.preventDefault();
+        togglePauseFlyThrough();
+      } else if (e.key === 'Escape') {
+        if (isFlying) cancelRouteFlyThrough(false);
+        else closeStopCard();
+      }
+    });
+  }
+
   // Public module API
   return {
     onVisualizeTabActivated,
     chooseVisualizeDay,
     fitActiveRoute,
     selectStop,
+    selectStopById,
+    orbitCurrentStop,
+    refocusCurrentStop,
+    stepAdjacentStop,
+    closeStopCard,
+    getLandmarkCameraProfile,
     resetCamera,
     setCameraPreset,
     setMapMode,
+    toggleMapOnly,
+    toggleElevationDrawer,
     startRouteFlyThrough,
     cancelRouteFlyThrough,
     togglePauseFlyThrough,

@@ -3491,3 +3491,25 @@ if (tripPhase() === 'during' && todayLabel()) {
 } else if (!isBooked('shuttle')) {
   toast('Set an alarm: shuttle seats Sep 25, 8:00 AM Mountain.');
 }
+
+function applyInitialHashView() {
+  const hash = (window.location.hash || '').replace(/^#/, '');
+  if (!hash) return;
+  const [viewId, query] = hash.split('?');
+  if (document.getElementById(viewId)) {
+    setView(viewId);
+    if (query && viewId === 'visualizeview') {
+      const params = new URLSearchParams(query);
+      const day = params.get('day');
+      if (day && window.Visualize3D && typeof window.Visualize3D.chooseVisualizeDay === 'function') {
+        window.Visualize3D.chooseVisualizeDay(day);
+      }
+      const stop = params.get('stop');
+      if (stop && window.Visualize3D && typeof window.Visualize3D.selectStopById === 'function') {
+        setTimeout(() => window.Visualize3D.selectStopById(stop), 700);
+      }
+    }
+  }
+}
+window.addEventListener('hashchange', applyInitialHashView);
+applyInitialHashView();

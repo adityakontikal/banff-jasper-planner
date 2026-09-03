@@ -249,6 +249,137 @@
   margin-top: 2px;
 }
 
+/* ---------------- Selected Stop Inspector Card ---------------- */
+.vis-selected-stop-card {
+  background: linear-gradient(135deg, #0e293c, #0d202d);
+  border: 1px solid #376e93;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  transition: all .2s ease;
+}
+
+.vis-selected-stop-card.hidden {
+  display: none !important;
+}
+
+.vis-stop-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.vis-stop-card-step {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #56c6a5;
+  font-weight: 800;
+}
+
+.vis-stop-card-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.vis-stop-card-close {
+  background: transparent;
+  border: none;
+  color: #7fa0b6;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.vis-stop-card-close:hover {
+  color: #fff;
+  background: rgba(255,255,255,.1);
+}
+
+.vis-stop-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.vis-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #a4c4d7;
+  background: rgba(255,255,255,.07);
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.vis-stop-card-context {
+  display: flex;
+  gap: 8px;
+  background: rgba(86, 198, 165, 0.09);
+  border-left: 3px solid #56c6a5;
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  margin: 8px 0 10px;
+  font-size: 11.5px;
+  color: #cde6f5;
+  line-height: 1.45;
+}
+
+.vis-context-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.vis-context-text {
+  flex: 1;
+}
+
+.vis-stop-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.vis-stop-card-nav {
+  display: flex;
+  gap: 4px;
+}
+
+/* Floating Stop Card over the 3D Map (for Map-Only mode & Mobile) */
+.vis-map-stop-card {
+  position: absolute;
+  bottom: 60px;
+  left: 20px;
+  max-width: 440px;
+  width: calc(100% - 40px);
+  z-index: 40;
+  background: rgba(11, 30, 44, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #376e93;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
+  animation: visSlideUp .25s ease-out;
+}
+
+.vis-map-stop-card.hidden {
+  display: none !important;
+}
+
+@keyframes visSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .vis-badge {
   font-size: 8.5px;
   font-weight: 800;
