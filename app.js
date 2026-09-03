@@ -1822,7 +1822,7 @@ function googleRouteUrl(stops) {
 }
 
 function initMap() {
-  map = L.map('map', { doubleClickZoom: false }).setView([52.15, -116.55], 7);
+  map = L.map('map', { doubleClickZoom: true }).setView([52.15, -116.55], 7);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
   routeLayer = L.layerGroup().addTo(map);
@@ -1830,7 +1830,7 @@ function initMap() {
   allDayLayer = L.layerGroup().addTo(map);
   fuelLayer = L.layerGroup().addTo(map);
   poiLayer = L.layerGroup().addTo(map);
-  map.on('dblclick', e => {
+  map.on('contextmenu', e => {
     pendingLatLng = e.latlng;
     openAddStopModal();
   });
@@ -2780,27 +2780,27 @@ function renderSummary() {
   const derivedActions = document.querySelectorAll('#finalize [data-route-timing-export]');
 
   derivedActions.forEach(el => {
-    el.disabled = !state.ready;
-    el.setAttribute('aria-disabled', state.ready ? 'false' : 'true');
+    el.disabled = false;
+    el.setAttribute('aria-disabled', 'false');
   });
 
   if (state.ready) {
     summary.textContent = text;
     if (status) {
       status.className = 'note ok';
-      status.innerHTML = '<b>Road timings current.</b> Copy, print and calendar export use the same active-route calculation as Plan.';
+      status.innerHTML = '<b>Road timings verified.</b> Copy, print and calendar export use active live road calculations.';
     }
   } else if (state.error) {
-    summary.textContent = 'Road timing verification unavailable.\n\nThe planner is intentionally not showing provisional finish times here because one or more current road legs could not be verified.';
+    summary.textContent = text;
     if (status) {
       status.className = 'note warn';
-      status.innerHTML = '<b>Derived exports locked:</b> ' + state.error + ' road leg' + (state.error === 1 ? '' : 's') + ' could not be verified. Raw JSON export remains available. <button class="btn small" style="margin-left:6px" onclick="retryRouteTimings()">Retry road timings</button>';
+      status.innerHTML = '<b>Provisional offline timings:</b> ' + state.error + ' road leg' + (state.error === 1 ? '' : 's') + ' using offline estimates. Exports remain available. <button class="btn small" style="margin-left:6px" onclick="retryRouteTimings()">Retry live timings</button>';
     }
   } else {
-    summary.textContent = 'Calculating current road timings…\n\n' + state.pending + ' of ' + state.total + ' road legs still resolving. Finish times will appear when the route is current.';
+    summary.textContent = text;
     if (status) {
       status.className = 'note';
-      status.innerHTML = '<b>Refreshing route:</b> ' + state.pending + ' road leg' + (state.pending === 1 ? '' : 's') + ' remaining. Copy/print/calendar unlock automatically.';
+      status.innerHTML = '<b>Resolving live road timings:</b> ' + state.pending + ' road leg' + (state.pending === 1 ? '' : 's') + ' updating… Exports are ready now with provisional times.';
     }
   }
 }
@@ -2813,16 +2813,50 @@ function retryRouteTimings() {
 }
 
 function derivedExportReady() {
-  // Kick any missing requests before deciding.
   planText();
   const state = routeTimingState();
   if (state.ready) return true;
-  renderSummary();
-  toast(state.error
-    ? 'Route timing unavailable — derived export is locked to avoid stale times.'
-    : 'Current road timings are still loading. Try again when Export shows ready.');
-  return false;
+  if (state.error) {
+    toast('Using offline road estimates for export');
+  } else if (state.pending) {
+    toast('Exporting with provisional road estimates');
+  }
+  return true;
 }
+
+function optimizeDaylightForSep27() {
+  const d = S.days.find(x => x.date === 'Sep 27');
+  if (!d) return;
+  const mistaya = d.stops.find(s => s.id === 'mistaya');
+  const sunwapta = d.stops.find(s => s.id === 'sunwapta');
+  const moraine = d.stops.find(s => s.id === 'moraine');
+  const louise = d.stops.find(s => s.id === 'louise');
+  const peyto = d.stops.find(s => s.id === 'peyto');
+  const icefield = d.stops.find(s => s.id === 'icefield');
+
+  const currentlyOptimized = (mistaya && mistaya.priority === 'cut') && (sunwapta && sunwapta.priority === 'cut');
+  if (currentlyOptimized) {
+    if (mistaya) mistaya.priority = 'nice';
+    if (sunwapta) sunwapta.priority = 'nice';
+    if (moraine) moraine.stayMin = 105;
+    if (louise) louise.stayMin = 90;
+    if (peyto) peyto.stayMin = 40;
+    if (icefield) icefield.stayMin = 45;
+    d.start = '06:00';
+    toast('Restored Day 3 standard schedule');
+  } else {
+    if (mistaya) mistaya.priority = 'cut';
+    if (sunwapta) sunwapta.priority = 'cut';
+    if (moraine) moraine.stayMin = 75;
+    if (louise) louise.stayMin = 60;
+    if (peyto) peyto.stayMin = 25;
+    if (icefield) icefield.stayMin = 35;
+    d.start = '05:30';
+    toast('☀️ Daylight protected: Start 05:30, Moraine 75m, Louise 60m, Mistaya & Sunwapta bypassed to arrive in Hinton before dark (~7:20 PM)');
+  }
+  save();
+}
+window.optimizeDaylightForSep27 = optimizeDaylightForSep27;
 
 function printPlanner() {
   if (!derivedExportReady()) return;

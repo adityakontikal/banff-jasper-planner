@@ -44,7 +44,7 @@ You can also open `index.html` directly, but a local server is more reliable for
 ## Map tips
 
 - **+ Add stop** opens the Rockies catalog (fuel, Vermilion Lakes, Maligne Canyon, Yoho extras…) plus place search.
-- Double-click the map to drop a pin, then name it.
+- Right-click the map (long-press on touch) to drop a pin, then name it. Double-click zooms.
 - Drag rows to reorder. Drag markers to nudge a location.
 - **Fuel stops** toggles gas markers. Saskatchewan Crossing is the only public fuel on the Icefields Parkway.
 - Mark a stop **✓** as you visit it. Add a per-stop note (parking, confirmation, “icy path”).

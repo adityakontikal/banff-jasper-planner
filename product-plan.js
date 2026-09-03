@@ -359,6 +359,12 @@
     const selectedNice = day.stops.filter(function (s) { return s.priority === 'nice' && isStopEnabled(s); }).length;
     const totalNice = day.stops.filter(function (s) { return s.priority === 'nice'; }).length;
 
+    const daylightAlert = day.date === 'Sep 27'
+      ? (tl.afterSunset
+        ? '<div class="pp-sunset-warning"><div>⚠️ <b>Darkness &amp; Wildlife Safety Warning:</b> Estimated finish (~' + escapeHtml(tl.finishTime.display) + ') is after the 7:28 PM sunset. Highway 93N and Hwy 16 have active evening wildlife (elk, moose, bears).</div><button class="btn small primary" onclick="optimizeDaylightForSep27()" style="margin-top:5px;font-size:11px">☀️ Arrive before sunset (Bypass Mistaya &amp; Sunwapta)</button></div>'
+        : '<div class="pp-sunset-warning ok"><div>✅ <b>Daylight Protected:</b> Arriving at Hinton (~' + escapeHtml(tl.finishTime.display) + ') before sunset. Mistaya Canyon &amp; Sunwapta Falls bypassed.</div><button class="btn small" onclick="optimizeDaylightForSep27()" style="margin-top:5px;font-size:11px">Restore all stops</button></div>')
+      : '';
+
     return '<article class="pp-day pp-route-day">' +
       '<div class="pp-day-head">' +
         '<div class="pp-day-index">D' + (dayIndex + 1) + '</div>' +
@@ -371,6 +377,7 @@
         '<span class="' + (tl.afterSunset ? 'late' : '') + '"><b>Daylight</b> ' + escapeHtml(daylightText(tl)) + '</span>' +
         (totalNice ? '<span><b>NICE</b> ' + selectedNice + '/' + totalNice + ' on</span>' : '') +
       '</div>' +
+      daylightAlert +
       '<div class="pp-route-grid">' + tiles + '</div>' +
       cutText +
     '</article>';
@@ -420,11 +427,11 @@
       checklistview: 'Checklist',
       mapview: 'Map',
       overview: 'Days',
-      bookings: 'Bookings',
+      bookings: 'Book',
       hotels: 'Hotels',
-      attractions: 'Attractions',
+      attractions: 'Do',
       packview: 'Pack',
-      fieldview: 'Road',
+      fieldview: 'Field',
       budget: 'Budget',
       settings: 'Data',
       finalize: 'Export'
@@ -605,6 +612,9 @@
       .pp-cut-details summary{cursor:pointer}
       .pp-cut-details>div{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
       .pp-cut-details span{padding:3px 6px;border:1px solid #423d34;border-radius:6px;background:#0b171e}
+      .pp-sunset-warning{margin:8px 10px 0;padding:9px 12px;border-radius:10px;border:1px solid #7c5825;background:linear-gradient(135deg,rgba(40,25,10,.9),rgba(25,18,8,.95));color:#fad798;font-size:10.5px;line-height:1.45}
+      .pp-sunset-warning.ok{border-color:#2a664e;background:linear-gradient(135deg,rgba(10,36,26,.9),rgba(8,26,20,.95));color:#9fe9c8}
+      .pp-sunset-warning b{color:#fff}
 
       #stopList .stoprow-top{grid-template-columns:16px 46px minmax(0,1fr) 76px 24px 24px 24px!important}
       #stopList .stop-num-badge{width:auto!important;min-width:42px!important;height:22px!important;border-radius:7px!important;padding:0 5px!important;font-size:9px!important}

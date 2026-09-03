@@ -72,9 +72,13 @@
       const show = musts.slice(0, 4);
       const rest = musts.length - show.length;
       const route = googleRouteUrl(d.stops);
+      const sunsetAlert = d.date === 'Sep 27' && tl.afterSunset
+        ? '<div class="mobile-sunset-alert">⚠️ Finishes after sunset (~' + escapeHtml(tl.finishTime.display) + ' > 7:28 PM). Darkness & wildlife road risk.</div>'
+        : '';
       return '<article class="mobile-day-card">' +
         '<div class="mobile-day-head"><div><small>' + escapeHtml(d.date) + '</small><b>' + escapeHtml(d.label) + '</b></div><span>' + escapeHtml(d.start) + '</span></div>' +
         '<div class="mobile-day-meta">~' + escapeHtml(tl.totalDistKm) + ' km • ~' + escapeHtml(formatDuration(tl.totalDriveMin)) + ' drive • sleep: ' + escapeHtml(d.sleep) + '</div>' +
+        sunsetAlert +
         '<div class="mobile-must-list">' + show.map(s => '<span><b style="color:#93b7ca;margin-right:5px">' + escapeHtml(tripStopCode(d, s)) + '</b>' + escapeHtml(getSpotInfo(s).title || s.name) + '</span>').join('') + (rest > 0 ? '<span class="muted">+' + rest + ' more must</span>' : '') + '</div>' +
         '<div class="mobile-card-actions"><button class="btn primary" onclick="openDayGuide(\'' + d.date + '\')">Quick look</button><button class="btn" onclick="chooseDay(\'' + d.date + '\')">Map</button>' + (route ? '<a class="btn" href="' + route + '" target="_blank">Google Maps</a>' : '') + '</div>' +
       '</article>';
@@ -267,6 +271,7 @@
         .mobile-day-head b{display:block;font-size:13px;line-height:1.25;margin-top:2px}
         .mobile-day-head>span{font-size:11px;font-weight:800;background:#102e43;border-radius:999px;padding:5px 8px;white-space:nowrap}
         .mobile-day-meta{font-size:10px;color:var(--muted);margin:7px 0}
+        .mobile-sunset-alert{margin:6px 0;padding:5px 8px;border-radius:6px;background:rgba(45,26,10,.85);border:1px solid #7a5528;color:#ffdca0;font-size:10px}
         .mobile-must-list{display:flex;flex-direction:column;gap:3px;padding:8px;background:#071925;border-radius:9px}
         .mobile-must-list span{font-size:11px}
         .mobile-must-list .muted{color:var(--muted)}
