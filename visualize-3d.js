@@ -82,60 +82,60 @@
    * ============================================================ */
   const LANDMARK_CAMERA_PROFILES = {
     // Sep 25 / Transit Hubs
-    yyc25: { range: 5800, tilt: 42, heading: 270, elevation: 1080, viewContext: "Calgary International Airport looking west toward the rising wall of the Canadian Rockies." },
-    yyc30: { range: 5800, tilt: 42, heading: 270, elevation: 1080, viewContext: "Calgary International Airport departure terminal looking west toward the mountain horizon." },
-    canmore: { range: 2400, tilt: 55, heading: 270, elevation: 1045, viewContext: "Prince's Island Park along the Bow River in downtown Calgary looking west toward the foothills." },
+    yyc25: { range: 8500, tilt: 42, heading: 270, elevation: 1080, viewContext: "Calgary International Airport looking west toward the rising wall of the Canadian Rockies." },
+    yyc30: { range: 8500, tilt: 42, heading: 270, elevation: 1080, viewContext: "Calgary International Airport departure terminal looking west toward the mountain horizon." },
+    canmore: { range: 5200, tilt: 52, heading: 270, elevation: 1310, viewContext: "Canmore mountain corridor looking west toward the Three Sisters peaks." },
 
     // Sep 26: Banff Highlights & Bow Valley
-    cochrane26_dep: { range: 3800, tilt: 45, heading: 260, elevation: 1180, viewContext: "Cochrane foothills departure looking west toward the Front Ranges and Bow Gap." },
-    minnewanka: { range: 3600, tilt: 60, heading: 68, elevation: 1450, viewContext: "Looking east-northeast along the 21 km glacial lake corridor flanked by Mount Aylmer (3,162 m)." },
-    twojack: { range: 1800, tilt: 56, heading: 185, elevation: 1460, viewContext: "Looking south across calm emerald waters toward Mount Rundle's signature sloping cliff face." },
-    banff: { range: 2200, tilt: 65, heading: 0, targetOffset: { lat: 0.003, lng: 0 }, elevation: 1383, viewContext: "Looking north down Banff Avenue toward the colossal vertical face of Cascade Mountain (2,998 m)." },
-    bowfalls: { range: 1300, tilt: 52, heading: 260, elevation: 1370, viewContext: "Low valley perspective looking west along the roaring Bow River rapids beneath the Fairmont hotel." },
-    surprise: { range: 1400, tilt: 50, heading: 245, elevation: 1410, viewContext: "Observation deck perspective looking west-southwest at the Fairmont 'Castle in the Rockies' framed by Sulphur Mountain." },
-    gondola: { range: 2800, tilt: 58, heading: 42, targetOffset: { lat: -0.005, lng: 0.002 }, elevation: 2281, viewContext: "Sulphur Mountain summit panorama (2,281 m) looking northeast across the Bow Valley toward Mount Rundle and Banff." },
-    castlejunction26_in: { range: 3400, tilt: 60, heading: 45, elevation: 1420, viewContext: "Bow Valley Parkway junction looking northeast up at the horizontal fortress battlements of Castle Mountain (2,766 m)." },
-    johnston: { range: 1700, tilt: 62, heading: 330, elevation: 1430, viewContext: "Looking northwest up the steep limestone slot canyon carved by churning glacial torrents." },
-    castlejunction26_out: { range: 3400, tilt: 60, heading: 45, elevation: 1420, viewContext: "Return waypoint beneath Castle Mountain toward the Trans-Canada Highway corridor." },
-    cochrane26_ret: { range: 3500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Super 8 Cochrane hotel arrival at the eastern gateway to the Bow Valley." },
+    cochrane26_dep: { range: 6500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Cochrane foothills departure looking west toward the Front Ranges and Bow Gap." },
+    minnewanka: { range: 6500, tilt: 54, heading: 68, elevation: 1475, viewContext: "Looking east-northeast along the 21 km glacial lake corridor flanked by Mount Aylmer (3,162 m)." },
+    twojack: { range: 4800, tilt: 52, heading: 185, elevation: 1460, viewContext: "Looking south across calm emerald waters toward Mount Rundle's signature sloping cliff face." },
+    banff: { range: 4500, tilt: 55, heading: 0, targetOffset: { lat: 0.003, lng: 0 }, elevation: 1383, viewContext: "Looking north down Banff Avenue toward the colossal vertical face of Cascade Mountain (2,998 m)." },
+    bowfalls: { range: 3500, tilt: 48, heading: 260, elevation: 1370, viewContext: "Low valley perspective looking west along the roaring Bow River rapids beneath the Fairmont hotel." },
+    surprise: { range: 3600, tilt: 48, heading: 245, elevation: 1410, viewContext: "Observation deck perspective looking west-southwest at the Fairmont 'Castle in the Rockies' framed by Sulphur Mountain." },
+    gondola: { range: 5500, tilt: 52, heading: 42, targetOffset: { lat: -0.005, lng: 0.002 }, elevation: 2281, viewContext: "Sulphur Mountain summit panorama (2,281 m) looking northeast across the Bow Valley toward Mount Rundle and Banff." },
+    castlejunction26_in: { range: 5800, tilt: 54, heading: 45, elevation: 1420, viewContext: "Bow Valley Parkway junction looking northeast up at the horizontal fortress battlements of Castle Mountain (2,766 m)." },
+    johnston: { range: 4200, tilt: 54, heading: 330, elevation: 1430, viewContext: "Looking northwest up the steep limestone slot canyon carved by churning glacial torrents." },
+    castlejunction26_out: { range: 5800, tilt: 54, heading: 45, elevation: 1420, viewContext: "Return waypoint beneath Castle Mountain toward the Trans-Canada Highway corridor." },
+    cochrane26_ret: { range: 6500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Super 8 Cochrane hotel arrival at the eastern gateway to the Bow Valley." },
 
     // Sep 27: Cochrane → Moraine/Louise → Icefields → Hinton
-    cochrane27: { range: 3500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Super 8 Cochrane morning departure looking west toward the Rocky Mountain wall." },
-    parkride: { range: 4000, tilt: 52, heading: 225, elevation: 1650, viewContext: "Bow Valley shuttle hub beneath Whitehorn Mountain, looking across toward the Lake Louise peaks." },
-    moraine: { range: 3100, tilt: 63, heading: 216, targetOffset: { lat: -0.004, lng: -0.003 }, elevation: 1884, viewContext: "The iconic 'Twenty Dollar' vista from the Rockpile, looking southwest into the glaciated Valley of the Ten Peaks." },
-    louise: { range: 3200, tilt: 60, heading: 236, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1731, viewContext: "Looking southwest across the emerald lake toward Mount Victoria (3,464 m) and the hanging Victoria Glacier." },
-    bowlake: { range: 3500, tilt: 58, heading: 250, elevation: 1920, viewContext: "Icefields Parkway shoreline looking west across Bow Lake toward Crowfoot Mountain and Bow Glacier." },
-    bowlake29: { range: 3500, tilt: 58, heading: 250, elevation: 1920, viewContext: "Southbound Parkway vista across Bow Lake framed beneath Crowfoot Mountain." },
-    crowfoot: { range: 3000, tilt: 55, heading: 255, elevation: 1940, viewContext: "Roadside viewpoint looking west at the hanging ice claws of Crowfoot Glacier." },
-    peyto: { range: 2500, tilt: 60, heading: 342, targetOffset: { lat: 0.005, lng: 0 }, elevation: 2068, viewContext: "Bow Summit cliff (~2,068 m) looking down into the Mistaya Valley at the brilliant turquoise wolf-head lake." },
-    mistaya: { range: 1500, tilt: 56, heading: 310, elevation: 1450, viewContext: "Looking northwest into the swirling limestone slot canyon carved by the Mistaya River." },
-    saskcrossing: { range: 5600, tilt: 50, heading: 315, elevation: 1400, viewContext: "River confluence crossroads where the North Saskatchewan, Howse, and Mistaya valleys meet beneath Mount Murchison." },
-    icefield: { range: 4200, tilt: 62, heading: 232, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1970, viewContext: "Icefields Parkway gateway looking southwest directly up the colossal tongue of Athabasca Glacier toward Snow Dome." },
-    icefield29: { range: 4200, tilt: 62, heading: 232, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1970, viewContext: "Second-chance glacier exploration looking up the Athabasca ice flow toward Mount Kitchener." },
-    sunwapta: { range: 1400, tilt: 55, heading: 325, elevation: 1530, viewContext: "Looking northwest at Sunwapta River plunging around an island into a deep limestone chasm." },
-    stutfield: { range: 3500, tilt: 58, heading: 260, elevation: 1980, viewContext: "Looking west across the Sunwapta canyon at the hanging ice tongues of Stutfield Glacier." },
-    waterfowl: { range: 3200, tilt: 56, heading: 245, elevation: 1675, viewContext: "Looking southwest across Lower Waterfowl Lake toward the steep pyramid face of Mount Chephren." },
-    athfalls: { range: 1600, tilt: 56, heading: 345, elevation: 1180, viewContext: "Powerful waterfall rushing through quartzite canyons with Mount Kerkeslin rising behind." },
-    hinton27: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton gateway town looking southwest along Yellowhead Highway into the front ranges." },
+    cochrane27: { range: 6500, tilt: 45, heading: 260, elevation: 1180, viewContext: "Super 8 Cochrane morning departure looking west toward the Rocky Mountain wall." },
+    parkride: { range: 6200, tilt: 50, heading: 225, elevation: 1650, viewContext: "Bow Valley shuttle hub beneath Whitehorn Mountain, looking across toward the Lake Louise peaks." },
+    moraine: { range: 5800, tilt: 56, heading: 216, targetOffset: { lat: -0.004, lng: -0.003 }, elevation: 1884, viewContext: "The iconic 'Twenty Dollar' vista from the Rockpile, looking southwest into the glaciated Valley of the Ten Peaks." },
+    louise: { range: 5600, tilt: 55, heading: 236, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1731, viewContext: "Looking southwest across the emerald lake toward Mount Victoria (3,464 m) and the hanging Victoria Glacier." },
+    bowlake: { range: 5800, tilt: 54, heading: 250, elevation: 1920, viewContext: "Icefields Parkway shoreline looking west across Bow Lake toward Crowfoot Mountain and Bow Glacier." },
+    bowlake29: { range: 5800, tilt: 54, heading: 250, elevation: 1920, viewContext: "Southbound Parkway vista across Bow Lake framed beneath Crowfoot Mountain." },
+    crowfoot: { range: 5200, tilt: 52, heading: 255, elevation: 1940, viewContext: "Roadside viewpoint looking west at the hanging ice claws of Crowfoot Glacier." },
+    peyto: { range: 4800, tilt: 55, heading: 342, targetOffset: { lat: 0.005, lng: 0 }, elevation: 2068, viewContext: "Bow Summit cliff (~2,068 m) looking down into the Mistaya Valley at the brilliant turquoise wolf-head lake." },
+    mistaya: { range: 3800, tilt: 52, heading: 310, elevation: 1450, viewContext: "Looking northwest into the swirling limestone slot canyon carved by the Mistaya River." },
+    saskcrossing: { range: 7500, tilt: 48, heading: 315, elevation: 1400, viewContext: "River confluence crossroads where the North Saskatchewan, Howse, and Mistaya valleys meet beneath Mount Murchison." },
+    icefield: { range: 6800, tilt: 55, heading: 232, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1970, viewContext: "Icefields Parkway gateway looking southwest directly up the colossal tongue of Athabasca Glacier toward Snow Dome." },
+    icefield29: { range: 6800, tilt: 55, heading: 232, targetOffset: { lat: -0.004, lng: -0.005 }, elevation: 1970, viewContext: "Second-chance glacier exploration looking up the Athabasca ice flow toward Mount Kitchener." },
+    sunwapta: { range: 3800, tilt: 52, heading: 325, elevation: 1530, viewContext: "Looking northwest at Sunwapta River plunging around an island into a deep limestone chasm." },
+    stutfield: { range: 5500, tilt: 54, heading: 260, elevation: 1980, viewContext: "Looking west across the Sunwapta canyon at the hanging ice tongues of Stutfield Glacier." },
+    waterfowl: { range: 5400, tilt: 52, heading: 245, elevation: 1675, viewContext: "Looking southwest across Lower Waterfowl Lake toward the steep pyramid face of Mount Chephren." },
+    athfalls: { range: 4200, tilt: 52, heading: 345, elevation: 1180, viewContext: "Powerful waterfall rushing through quartzite canyons with Mount Kerkeslin rising behind." },
+    hinton27: { range: 6500, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton gateway town looking southwest along Yellowhead Highway into the front ranges." },
 
     // Sep 28: Jasper & Maligne Valley
-    hinton28a: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton morning departure toward Jasper National Park." },
-    pyramid: { range: 2400, tilt: 62, heading: 355, targetOffset: { lat: 0.004, lng: 0 }, elevation: 1180, viewContext: "Looking north across the lake and wooden footbridge straight at the 2,766 m Pyramid Mountain face." },
-    patricia: { range: 2200, tilt: 56, heading: 345, elevation: 1175, viewContext: "Tranquil mirror lake reflecting Pyramid Mountain's reddish quartzite ridges." },
-    jasper: { range: 3600, tilt: 56, heading: 355, targetOffset: { lat: 0.005, lng: 0 }, elevation: 1062, viewContext: "Looking north across the broad Athabasca River valley toward the red quartzite crest of Pyramid Mountain." },
-    jasper29: { range: 3600, tilt: 56, heading: 355, elevation: 1062, viewContext: "Jasper townsite southbound staging point beneath Pyramid Mountain and Whistler Peak." },
-    medicine: { range: 4000, tilt: 55, heading: 135, elevation: 1435, viewContext: "Looking southeast down the Maligne Valley along the porous subterranean limestone basin of Medicine Lake." },
-    maligne: { range: 4500, tilt: 63, heading: 152, targetOffset: { lat: -0.006, lng: 0.004 }, elevation: 1670, viewContext: "Looking southeast down the 22 km glacial basin toward Spirit Island and glaciated Queen Elizabeth peaks." },
-    annette: { range: 2200, tilt: 52, heading: 340, elevation: 1040, viewContext: "Kettle lakes in the Athabasca valley looking north toward the Colin Range." },
-    hinton28b: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton Lodge evening return after the Maligne Lake cruise." },
+    hinton28a: { range: 6500, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton morning departure toward Jasper National Park." },
+    pyramid: { range: 4800, tilt: 55, heading: 355, targetOffset: { lat: 0.004, lng: 0 }, elevation: 1180, viewContext: "Looking north across the lake and wooden footbridge straight at the 2,766 m Pyramid Mountain face." },
+    patricia: { range: 4500, tilt: 52, heading: 345, elevation: 1175, viewContext: "Tranquil mirror lake reflecting Pyramid Mountain's reddish quartzite ridges." },
+    jasper: { range: 5800, tilt: 52, heading: 355, targetOffset: { lat: 0.005, lng: 0 }, elevation: 1062, viewContext: "Looking north across the broad Athabasca River valley toward the red quartzite crest of Pyramid Mountain." },
+    jasper29: { range: 5800, tilt: 52, heading: 355, elevation: 1062, viewContext: "Jasper townsite southbound staging point beneath Pyramid Mountain and Whistler Peak." },
+    medicine: { range: 6200, tilt: 52, heading: 135, elevation: 1435, viewContext: "Looking southeast down the Maligne Valley along the porous subterranean limestone basin of Medicine Lake." },
+    maligne: { range: 6800, tilt: 56, heading: 152, targetOffset: { lat: -0.006, lng: 0.004 }, elevation: 1670, viewContext: "Looking southeast down the 22 km glacial basin toward Spirit Island and glaciated Queen Elizabeth peaks." },
+    annette: { range: 4200, tilt: 50, heading: 340, elevation: 1040, viewContext: "Kettle lakes in the Athabasca valley looking north toward the Colin Range." },
+    hinton28b: { range: 6500, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton Lodge evening return after the Maligne Lake cruise." },
 
     // Sep 29: Southbound Parkway & Calgary
-    hinton29: { range: 4200, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton departure for the southbound Icefields Parkway drive." },
-    valley5: { range: 2200, tilt: 52, heading: 350, elevation: 1080, viewContext: "Athabasca Valley pine forest looking north across the chain of jewel-colored lakes." },
-    naturalbridge: { range: 1200, tilt: 52, heading: 310, elevation: 1220, viewContext: "Kicking Horse River carving through ancient rock formations beneath Mount Stephen." },
-    emerald: { range: 2800, tilt: 60, heading: 322, elevation: 1300, viewContext: "Yoho National Park masterpiece looking northwest across emerald waters to the President Range." },
-    cochrane29: { range: 4000, tilt: 45, heading: 270, elevation: 1070, viewContext: "Holiday Inn Calgary Airport looking west toward the Bow Valley corridor." },
-    cochrane30: { range: 4000, tilt: 45, heading: 270, elevation: 1070, viewContext: "Calgary Airport hotel departure." }
+    hinton29: { range: 6500, tilt: 45, heading: 240, elevation: 1010, viewContext: "Hinton departure for the southbound Icefields Parkway drive." },
+    valley5: { range: 4500, tilt: 50, heading: 350, elevation: 1080, viewContext: "Athabasca Valley pine forest looking north across the chain of jewel-colored lakes." },
+    naturalbridge: { range: 3600, tilt: 48, heading: 310, elevation: 1220, viewContext: "Kicking Horse River carving through ancient rock formations beneath Mount Stephen." },
+    emerald: { range: 5200, tilt: 54, heading: 322, elevation: 1300, viewContext: "Yoho National Park masterpiece looking northwest across emerald waters to the President Range." },
+    cochrane29: { range: 6500, tilt: 45, heading: 270, elevation: 1070, viewContext: "Holiday Inn Calgary Airport looking west toward the Bow Valley corridor." },
+    cochrane30: { range: 6500, tilt: 45, heading: 270, elevation: 1070, viewContext: "Calgary Airport hotel departure." }
   };
 
   /**
@@ -1115,9 +1115,9 @@
 
     // Choose heading roughly aligned with Rockies valley direction (NW: ~330°)
     flyCameraTo({
-      center: { lat: centerLat, lng: centerLng, altitude: 0 },
-      range: targetRange,
-      tilt: 58,
+      center: { lat: centerLat, lng: centerLng, altitude: 1500 },
+      range: Math.max(28000, targetRange),
+      tilt: 56,
       heading: 330,
       durationMillis: prefersReducedMotion() ? 0 : 2200
     });
@@ -1129,7 +1129,7 @@
   function flyToWholeTripOverview() {
     if (!map3D) return;
     flyCameraTo({
-      center: { lat: 51.95, lng: -116.35, altitude: 0 },
+      center: { lat: 51.95, lng: -116.35, altitude: 1500 },
       range: 240000,
       tilt: 56,
       heading: 325,
@@ -1151,18 +1151,19 @@
     if (isFlying) cancelRouteFlyThrough(false);
 
     const profile = getLandmarkCameraProfile(stop);
+    const targetAltitude = profile.elevation || 1500;
     const center = {
       lat: stop.lat + (profile.targetOffset?.lat || 0),
       lng: stop.lng + (profile.targetOffset?.lng || 0),
-      altitude: 0
+      altitude: targetAltitude
     };
 
     if (typeof map3D.flyCameraAround === 'function') {
       map3D.flyCameraAround({
         camera: {
           center,
-          range: Math.round(profile.range * 1.15),
-          tilt: Math.min(68, profile.tilt + 4),
+          range: Math.max(4500, Math.round(profile.range * 1.15)),
+          tilt: Math.min(58, profile.tilt),
           heading: profile.heading
         },
         durationMillis: prefersReducedMotion() ? 0 : 16000,
@@ -1286,6 +1287,7 @@
     if (sideCard) {
       bindCardEvents(sideCard);
       sideCard.classList.remove('hidden');
+      sideCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
     if (mapCard) {
@@ -1315,10 +1317,12 @@
     document.querySelectorAll('.vis-stop-item').forEach(el => {
       const isMatch = el.dataset.stopId === stop.id;
       el.classList.toggle('selected', isMatch);
-      if (isMatch && options.scrollIntoView !== false) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
     });
+
+    if (options.scrollIntoView === true) {
+      const activeEl = document.querySelector(`.vis-stop-item[data-stop-id="${stop.id}"]`);
+      if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     // 2. Fetch curated camera profile for this stop
     const profile = getLandmarkCameraProfile(stop);
@@ -1326,13 +1330,14 @@
     // 3. Render Inspector Card
     renderStopInspectorCard(stop, idx, profile, totalStops);
 
-    // 4. Compute target coordinates
+    // 4. Compute target coordinates with authentic mountain elevation
     const targetLat = stop.lat + (profile.targetOffset ? profile.targetOffset.lat : 0);
     const targetLng = stop.lng + (profile.targetOffset ? profile.targetOffset.lng : 0);
+    const targetAltitude = profile.elevation || 1500;
 
     // 5. Fly camera smoothly to signature vantage point
     flyCameraTo({
-      center: { lat: targetLat, lng: targetLng, altitude: 0 },
+      center: { lat: targetLat, lng: targetLng, altitude: targetAltitude },
       range: profile.range,
       tilt: profile.tilt,
       heading: profile.heading,
@@ -1457,27 +1462,42 @@
   }
 
   /**
-   * Wraps map3D.flyCameraTo with safety checks and duration fallback.
+   * Wraps map3D.flyCameraTo with safety checks, mountain elevation validation, and clearance fallback.
    */
   function flyCameraTo(options) {
     if (!map3D) return;
     try {
+      const targetAltitude = (options.center && options.center.altitude != null && options.center.altitude > 0)
+        ? options.center.altitude
+        : 1480;
+
+      const safeCenter = {
+        lat: options.center ? options.center.lat : 51.5,
+        lng: options.center ? options.center.lng : -116.1,
+        altitude: targetAltitude
+      };
+
+      const safeRange = Math.max(3200, Number(options.range) || 6000);
+      const safeTilt = clamp(Number(options.tilt) || 55, 15, 75);
+      const safeHeading = normalizeHeading(options.heading);
+      const durationMillis = prefersReducedMotion() ? 0 : (options.durationMillis == null ? 1800 : options.durationMillis);
+
       if (typeof map3D.flyCameraTo === 'function') {
         map3D.flyCameraTo({
           endCamera: {
-            center: options.center,
-            range: options.range,
-            tilt: options.tilt,
-            heading: options.heading
+            center: safeCenter,
+            range: safeRange,
+            tilt: safeTilt,
+            heading: safeHeading
           },
-          durationMillis: options.durationMillis == null ? 2000 : options.durationMillis
+          durationMillis
         });
       } else {
         // Direct property fallback
-        map3D.center = options.center;
-        map3D.range = options.range;
-        map3D.tilt = options.tilt;
-        map3D.heading = options.heading;
+        map3D.center = safeCenter;
+        map3D.range = safeRange;
+        map3D.tilt = safeTilt;
+        map3D.heading = safeHeading;
       }
     } catch (err) {
       try {
@@ -1616,9 +1636,9 @@
     const stepDuration = approachingStop ? 3200 : 1200;
 
     flyCameraTo({
-      center: { lat: curr.lat, lng: curr.lng, altitude: 0 },
-      range: approachingStop ? (stopProfile ? stopProfile.range : 2600) : 2000,
-      tilt: approachingStop ? (stopProfile ? stopProfile.tilt : 60) : 68,
+      center: { lat: curr.lat, lng: curr.lng, altitude: (stopProfile ? stopProfile.elevation : 1500) },
+      range: approachingStop ? (stopProfile ? stopProfile.range : 5200) : 4200,
+      tilt: approachingStop ? (stopProfile ? stopProfile.tilt : 54) : 60,
       heading,
       durationMillis: stepDuration
     });
