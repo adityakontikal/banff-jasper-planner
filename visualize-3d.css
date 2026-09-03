@@ -1023,3 +1023,153 @@
     padding: 18px;
   }
 }
+
+
+/* ---------------- Cinematic World renderer ---------------- */
+.visualize-world-container {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #02070b;
+  overflow: hidden;
+}
+
+.visualize-world-container .cesium-viewer,
+.visualize-world-container .cesium-viewer-cesiumWidgetContainer,
+.visualize-world-container .cesium-widget,
+.visualize-world-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.visualize-world-container .cesium-viewer-bottom {
+  z-index: 70;
+}
+
+.visualize-main.world-mode .vis-map-style-switch,
+.visualize-main.world-mode #visPresetDollhouseBtn,
+.visualize-main.world-mode #visPresetValleyBtn,
+.visualize-main.world-mode #visPresetHighBtn,
+.visualize-main.world-mode #visControlsHelpBtn,
+.visualize-main.world-mode .vis-camera-dock,
+.visualize-main.world-mode .vis-control-help {
+  display: none !important;
+}
+
+.visualize-main.world-mode .vis-map-toolbar {
+  background: rgba(4, 13, 20, .78);
+}
+
+.vis-world-status {
+  position: absolute;
+  z-index: 44;
+  top: 58px;
+  right: 14px;
+  min-width: 260px;
+  max-width: 390px;
+  padding: 9px 11px;
+  border: 1px solid rgba(86,198,165,.42);
+  border-radius: 11px;
+  background: rgba(4, 13, 20, .84);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.52);
+  color: #eaf6fb;
+  pointer-events: auto;
+}
+
+.vis-world-status-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.vis-world-badge {
+  border: 1px solid rgba(86,198,165,.55);
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: rgba(86,198,165,.16);
+  color: #8ff0d0;
+  font-size: 8.5px;
+  letter-spacing: .07em;
+}
+
+.vis-world-status-sub {
+  margin-top: 5px;
+  color: #9db8c8;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.vis-world-camera-modes {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.vis-world-mode {
+  flex: 1;
+  min-height: 28px;
+  border: 1px solid #31546b;
+  border-radius: 7px;
+  background: rgba(12, 35, 50, .92);
+  color: #a8c1d0;
+  cursor: pointer;
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.vis-world-mode:hover {
+  border-color: #5a89a7;
+  color: #fff;
+}
+
+.vis-world-mode.active {
+  border-color: #56c6a5;
+  background: rgba(86,198,165,.18);
+  color: #d8fff2;
+}
+
+.visualize-main.world-mode .visualize-elevation-drawer {
+  opacity: .84;
+}
+
+.visualize-main.world-mode .vis-map-flight-hud {
+  background: rgba(4, 13, 20, .86);
+  border-color: rgba(86,198,165,.46);
+}
+
+@media (max-width: 768px) {
+  .vis-world-status {
+    top: 50px;
+    right: 8px;
+    left: auto;
+    min-width: 0;
+    width: min(250px, calc(100% - 176px));
+    padding: 7px 8px;
+  }
+
+  .vis-world-status-top {
+    gap: 4px;
+    font-size: 8.5px;
+  }
+
+  .vis-world-status-sub {
+    font-size: 8.5px;
+  }
+
+  .vis-world-mode {
+    min-height: 30px;
+    font-size: 9px;
+  }
+
+  .visualize-main.world-mode .vis-map-flight-hud {
+    top: 142px;
+    left: 8px;
+    width: calc(100% - 16px);
+    max-width: none;
+  }
+}
