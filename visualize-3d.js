@@ -567,11 +567,13 @@
    * Handles user day selection from Visualize tab.
    */
   function chooseVisualizeDay(date) {
-    if (isFlying) cancelRouteFlyThrough();
+    const previousDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : null;
+    const selectionChanged = previousDay !== date;
+    if (isFlying && selectionChanged) cancelRouteFlyThrough(false);
 
     if (typeof S !== 'undefined') {
       S.selectedDay = date;
-      if (typeof persist === 'function') persist();
+      if (selectionChanged && typeof persist === 'function') persist();
     }
 
     updateControlPanelDayButtons();
