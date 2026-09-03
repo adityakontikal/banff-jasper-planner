@@ -377,6 +377,16 @@ test('Cinematic World trip clock encodes Alberta MDT for September', () => {
   );
 });
 
+test('Cinematic World timeline interpolation includes itinerary stop time', () => {
+  const anchors = [
+    { fraction: 0, elapsedSeconds: 0 },
+    { fraction: 0.5, elapsedSeconds: 7200 },
+    { fraction: 1, elapsedSeconds: 18000 }
+  ];
+  assert.strictEqual(VW.timeOffsetSecondsAtFraction(anchors, 0.25, 1000), 3600);
+  assert.strictEqual(VW.timeOffsetSecondsAtFraction(anchors, 0.75, 1000), 12600);
+});
+
 test('Cinematic World solar position is finite for Banff trip time', () => {
   const p = VW.solarPosition(new Date('2026-09-27T14:00:00Z'), 51.1784, -115.5708);
   assert(Number.isFinite(p.azimuth));
