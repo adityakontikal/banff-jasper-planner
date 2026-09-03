@@ -831,6 +831,31 @@
     }
   }
 
+  function buildWorldTimeAnchors(dayData, stopsWithDistances) {
+    if (!dayData || !dayData.day || typeof computeDayTimeline !== 'function') return [];
+    try {
+      const timeline = computeDayTimeline(dayData.day);
+      if (!timeline || !Array.isArray(timeline.items)) return [];
+      const byId = new Map();
+      timeline.items.forEach(item => {
+        if (item && !item.isCut && item.stop && item.stop.id != null && Number.isFinite(Number(item.arrMin))) {
+          byId.set(String(item.stop.id), item);
+        }
+      });
+      return (stopsWithDistances || []).map(entry => {
+        const stop = entry.stop || entry;
+        const item = byId.get(String(stop.id));
+        if (!item) return null;
+        return {
+          fraction: Number(entry.fraction || 0),
+          elapsedSeconds: Math.max(0, (Number(item.arrMin) - Number(timeline.startMin || 0)) * 60)
+        };
+      }).filter(Boolean);
+    } catch (_) {
+      return [];
+    }
+  }
+
   async function prepareCinematicWorld(dayData) {
     if (!dayData || dayData.date === 'all') throw new Error('Select an individual day for Cinematic World.');
     if (worldLoading) return false;
@@ -848,6 +873,7 @@
 
       const profile = await VE.fetchElevationProfile(dayData.routeCoordinates, { stops: dayData.activeStops });
       worldStopsWithDistances = VE.mapStopsToDistances(dayData.activeStops, dayData.routeCoordinates);
+      const timeAnchors = buildWorldTimeAnchors(dayData, worldStopsWithDistances);
 
       VW.loadDay({
         routeCoordinates: dayData.routeCoordinates,
@@ -856,6 +882,7 @@
         dateISO: resolveDayIso(dayData.date),
         startTime: dayData.start || '08:00',
         driveDurationSeconds: Math.max(60, Number(dayData.driveDurationMin || 0) * 60),
+        timeAnchors,
         handlers: {
           onProgress: updateWorldHud,
           onStop: (stop, index) => {
