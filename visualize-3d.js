@@ -1713,14 +1713,15 @@
       return;
     }
 
-    VE.fetchElevationProfile(coords)
+    VE.fetchElevationProfile(coords, { stops: dayData.activeStops })
       .then(profile => {
         currentElevationProfile = profile;
 
         if (profile.stats) {
           const s = profile.stats;
+          const prefix = profile.isEstimated ? 'DEM estimate • ' : '';
           if (pill) {
-            pill.textContent = `Low: ${s.minElevation} m • High: ${s.maxElevation} m • Range: ${s.elevationRange} m`;
+            pill.textContent = `${prefix}Low: ${s.minElevation} m • High: ${s.maxElevation} m • Range: ${s.elevationRange} m`;
           }
         } else {
           if (pill) pill.textContent = 'Terrain elevation (demo)';

@@ -130,9 +130,10 @@ test('computeElevationStats derives realistic Rockies elevation range and gain',
 test('fetchElevationProfile handles offline/no-service state gracefully without throwing', async () => {
   const path = [[-115.57, 51.17], [-115.84, 51.24]];
   const res = await VE.fetchElevationProfile(path);
-  assert.strictEqual(res.status, 'no_elevation_service');
-  assert.strictEqual(res.samples.length, 0);
-  assert.strictEqual(res.stats, null);
+  assert.strictEqual(res.status, 'ready');
+  assert.strictEqual(res.isEstimated, true);
+  assert(res.samples.length > 0, 'Expected synthetic samples');
+  assert(res.stats && res.stats.minElevation > 0, 'Expected calculated stats');
 });
 
 // ------------------------------------------------------------
