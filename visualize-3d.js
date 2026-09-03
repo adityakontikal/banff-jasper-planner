@@ -2396,7 +2396,7 @@
           <div class="vis-setup-instructions">
             <div class="ey">How to configure:</div>
             <ol>
-              <li>Create or obtain a Google Cloud API Key with the <b>Maps JavaScript API</b> enabled.</li>
+              <li>Create or obtain a Google Cloud browser API key with <b>Maps JavaScript API</b> and <b>Elevation API</b> enabled. The new Cinematic World also requires <b>Map Tiles API</b> plus billing.</li>
               <li>Launch the planner server with the environment variable:<br>
                 <code>GOOGLE_MAPS_API_KEY="AIzaSy..." npm start</code>
               </li>
@@ -2458,11 +2458,22 @@
           Verify that WebGL is enabled and that your Google Maps API key has the Maps JavaScript API and 3D Maps enabled.
         </p>
         <div class="actions" style="margin-top:14px;">
-          <button class="btn primary" onclick="setView('mapview')">Switch to 2D Map</button>
+          <button class="btn primary" onclick="Visualize3D.continueExplorer()">Continue in 3D Explorer</button>
+          <button class="btn" onclick="setView('mapview')">2D Map</button>
           <button class="btn" onclick="Visualize3D.clearLocalKeyAndReload()">Change API Key</button>
         </div>
       </div>
     `;
+  }
+
+  function continueExplorer() {
+    hideOverlay();
+    if (map3D) {
+      setRenderer('explorer');
+      syncSelectedDayView();
+    } else if (typeof setView === 'function') {
+      setView('mapview');
+    }
   }
 
   /**
@@ -2561,6 +2572,7 @@
     skipFlightLeg,
     generateDollhouseFlightTrajectory,
     clearLocalKeyAndReload,
+    continueExplorer,
     getVisualizeActiveStops,
     getVisualizeRouteGeometry,
     getVisualizeDayData,
