@@ -34,6 +34,7 @@
     dateISO: '',
     startTime: '08:00',
     driveDurationSeconds: 0,
+    timeAnchors: [],
     startJulian: null,
     active: false,
     paused: false,
@@ -150,6 +151,25 @@
     if (!Number.isFinite(previous)) return target;
     let delta = ((target - previous + 540) % 360) - 180;
     return normalizeHeading(previous + delta * clamp(alpha, 0, 1));
+  }
+
+  function timeOffsetSecondsAtFraction(anchors, fraction, fallbackSeconds) {
+    const list = (anchors || []).filter(function (a) {
+      return Number.isFinite(Number(a.fraction)) && Number.isFinite(Number(a.elapsedSeconds));
+    }).slice().sort(function (a, b) { return Number(a.fraction) - Number(b.fraction); });
+    const f = clamp(fraction, 0, 1);
+    if (!list.length) return Math.max(0, Number(fallbackSeconds || 0) * f);
+    if (f <= Number(list[0].fraction)) return Math.max(0, Number(list[0].elapsedSeconds));
+    for (let i = 1; i < list.length; i++) {
+      const a = list[i - 1];
+      const b = list[i];
+      if (f <= Number(b.fraction)) {
+        const span = Math.max(1e-9, Number(b.fraction) - Number(a.fraction));
+        const t = clamp((f - Number(a.fraction)) / span, 0, 1);
+        return Number(a.elapsedSeconds) + (Number(b.elapsedSeconds) - Number(a.elapsedSeconds)) * t;
+      }
+    }
+    return Math.max(0, Number(list[list.length - 1].elapsedSeconds));
   }
 
   function buildTripIsoDate(dateISO, startTime) {
@@ -380,6 +400,7 @@
     state.dateISO = options.dateISO || '';
     state.startTime = options.startTime || '08:00';
     state.driveDurationSeconds = Math.max(1, Number(options.driveDurationSeconds || 1));
+    state.timeAnchors = Array.isArray(options.timeAnchors) ? options.timeAnchors.slice() : [];
     state.handlers = options.handlers || {};
     state.progress = 0;
     state.lastStopIndex = -1;
@@ -502,9 +523,14 @@
 
   function updateClock(point) {
     if (!state.startJulian) return null;
+    const elapsedSeconds = timeOffsetSecondsAtFraction(
+      state.timeAnchors,
+      state.progress,
+      state.driveDurationSeconds
+    );
     const current = C.JulianDate.addSeconds(
       state.startJulian,
-      state.driveDurationSeconds * state.progress,
+      elapsedSeconds,
       new C.JulianDate()
     );
     viewer.clock.currentTime = current;
@@ -730,6 +756,7 @@
     sampleRouteAtDistance: sampleRouteAtDistance,
     elevationAtFraction: elevationAtFraction,
     smoothHeading: smoothHeading,
+    timeOffsetSecondsAtFraction: timeOffsetSecondsAtFraction,
     computeBearing: computeBearing
   };
 });
