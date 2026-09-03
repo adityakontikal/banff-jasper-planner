@@ -24,6 +24,7 @@
   let currentCameraMode = 'day'; // 'whole', 'day', 'stop', 'flight'
   let currentMapMode = 'HYBRID'; // 'HYBRID' or 'SATELLITE'
   let selectedStopId = null;
+  let lastRenderedSelection = null;
 
   // Fly-through animation state
   let isFlying = false;
@@ -36,7 +37,8 @@
 
   // Elevation state
   let currentElevationProfile = null;
-  let isElevationCollapsed = false;
+  // Keep the map usable first; elevation is available on demand.
+  let isElevationCollapsed = true;
 
   // Reduced motion preference
   function prefersReducedMotion() {
@@ -360,14 +362,37 @@
 
         <!-- Main 3D Viewport -->
         <main class="visualize-main" id="visualizeMain">
-          <!-- Top Floating Mode Bar -->
+          <!-- Map style / quick camera presets. Kept left so Google's native exploration controls remain unobstructed on the right. -->
           <div class="vis-map-toolbar">
             <div class="vis-pill-group" role="group" aria-label="Map style">
               <button class="vis-tool-btn on" id="visModeHybridBtn" data-mode="HYBRID">Hybrid</button>
               <button class="vis-tool-btn" id="visModeSatBtn" data-mode="SATELLITE">Satellite</button>
             </div>
-            <button class="vis-tool-btn" id="visPresetValleyBtn" title="Oblique valley perspective">Valley view</button>
-            <button class="vis-tool-btn" id="visPresetHighBtn" title="High aerial perspective">High aerial</button>
+            <button class="vis-tool-btn" id="visPresetValleyBtn" title="Oblique valley perspective">Valley</button>
+            <button class="vis-tool-btn" id="visPresetHighBtn" title="High aerial perspective">Aerial</button>
+            <button class="vis-tool-btn" id="visControlsHelpBtn" aria-pressed="false" title="Show 3D control help">Controls</button>
+          </div>
+
+          <!-- Always-visible camera pad. Google native move/zoom/rotate/tilt/compass controls remain enabled too. -->
+          <div class="vis-camera-dock glass" id="visCameraDock" aria-label="3D camera controls">
+            <div class="vis-camera-row">
+              <button class="vis-camera-btn" id="visZoomOutBtn" aria-label="Zoom out" title="Zoom out">−</button>
+              <div class="vis-camera-readout" id="visCameraReadout" aria-live="polite">3D camera</div>
+              <button class="vis-camera-btn" id="visZoomInBtn" aria-label="Zoom in" title="Zoom in">+</button>
+            </div>
+            <div class="vis-camera-grid">
+              <button class="vis-camera-btn" id="visRotateLeftBtn" aria-label="Rotate left" title="Rotate left">↶</button>
+              <button class="vis-camera-btn vis-camera-north" id="visNorthBtn" aria-label="Face north" title="Face north">N</button>
+              <button class="vis-camera-btn" id="visRotateRightBtn" aria-label="Rotate right" title="Rotate right">↷</button>
+              <button class="vis-camera-btn vis-camera-wide" id="visLookDownBtn" aria-label="Look more downward" title="Look more downward">Look down</button>
+              <button class="vis-camera-btn vis-camera-wide" id="visLookAheadBtn" aria-label="Tilt toward horizon" title="Tilt toward horizon">Look ahead</button>
+            </div>
+            <button class="vis-camera-fit" id="visCameraFitBtn">Fit route</button>
+          </div>
+
+          <div class="vis-control-help hidden" id="visControlHelp" role="status">
+            <b>Explore freely</b>
+            <span>Drag to move • scroll/pinch to zoom • use the camera pad or Google's controls to rotate and tilt.</span>
           </div>
 
           <!-- The actual 3D Map Container -->
@@ -395,6 +420,7 @@
 
     bindShellEvents();
     updateControlPanelDayButtons();
+    toggleElevationDrawer(isElevationCollapsed);
   }
 
   /**
@@ -430,6 +456,31 @@
 
     const highBtn = document.getElementById('visPresetHighBtn');
     if (highBtn) highBtn.onclick = () => setCameraPreset('high');
+
+    const controlsHelpBtn = document.getElementById('visControlsHelpBtn');
+    const controlsHelp = document.getElementById('visControlHelp');
+    if (controlsHelpBtn && controlsHelp) {
+      controlsHelpBtn.onclick = () => {
+        const willShow = controlsHelp.classList.contains('hidden');
+        controlsHelp.classList.toggle('hidden', !willShow);
+        controlsHelpBtn.setAttribute('aria-pressed', willShow ? 'true' : 'false');
+      };
+    }
+
+    const cameraBindings = [
+      ['visZoomInBtn', () => adjustCamera({ rangeFactor: 0.72 })],
+      ['visZoomOutBtn', () => adjustCamera({ rangeFactor: 1.38 })],
+      ['visRotateLeftBtn', () => adjustCamera({ headingDelta: -20 })],
+      ['visRotateRightBtn', () => adjustCamera({ headingDelta: 20 })],
+      ['visNorthBtn', () => adjustCamera({ heading: 0 })],
+      ['visLookDownBtn', () => adjustCamera({ tiltDelta: -10 })],
+      ['visLookAheadBtn', () => adjustCamera({ tiltDelta: 10 })],
+      ['visCameraFitBtn', () => fitActiveRoute()]
+    ];
+    cameraBindings.forEach(([id, fn]) => {
+      const el = document.getElementById(id);
+      if (el) el.onclick = fn;
+    });
 
     const elevToggleBtn = document.getElementById('visElevToggleBtn');
     const elevHeader = document.getElementById('visElevHeader');
@@ -529,7 +580,10 @@
         center: { lat: 51.5, lng: -116.1, altitude: 0 },
         range: 120000,
         tilt: 55,
-        heading: 330
+        heading: 330,
+        // Google's native 3D exploration UI provides zoom, move, rotate, tilt and compass.
+        defaultUIHidden: false,
+        description: 'Interactive 3D Canadian Rockies trip map'
       });
 
       map3D.style.width = '100%';
@@ -538,9 +592,11 @@
 
       // Detect user interaction during fly-through to cancel gracefully
       map3D.addEventListener('pointerdown', () => {
-        if (isFlying && !isFlightPaused) {
-          cancelRouteFlyThrough();
-        }
+        // A direct gesture means the user is taking control. Never snap back to a preset.
+        if (isFlying) cancelRouteFlyThrough(false);
+      });
+      ['gmp-headingchange', 'gmp-tiltchange', 'gmp-rangechange'].forEach(eventName => {
+        map3D.addEventListener(eventName, refreshCameraReadout);
       });
 
       container.innerHTML = '';
@@ -563,6 +619,8 @@
 
     const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
     const isAll = currentDay === 'all';
+    const selectionChanged = currentDay !== lastRenderedSelection;
+    lastRenderedSelection = currentDay;
 
     // Update sidebar title & metrics
     const titleEl = document.getElementById('visSideTitle');
@@ -571,12 +629,12 @@
     if (isAll) {
       if (titleEl) titleEl.textContent = 'Whole Trip (Sep 25–30)';
       renderWholeTripMetrics(metricEl);
-      renderWholeTripScene();
+      renderWholeTripScene(selectionChanged);
     } else {
       const dayData = getVisualizeDayData(currentDay);
       if (titleEl) titleEl.textContent = `${currentDay}: ${dayData ? dayData.label : ''}`;
       renderDayMetrics(metricEl, dayData);
-      renderDayScene(dayData);
+      renderDayScene(dayData, selectionChanged);
     }
   }
 
@@ -604,7 +662,7 @@
   /**
    * Renders the single-day view on the 3D map.
    */
-  function renderDayScene(dayData) {
+  function renderDayScene(dayData, autoFit = false) {
     clearActive3DFeatures();
     if (!dayData || !map3D) return;
 
@@ -669,8 +727,10 @@
     // 3. Populate sidebar stop list
     renderSidebarStopList(dayData.activeStops);
 
-    // 4. Fit camera to the day's route bounds
-    fitActiveRoute();
+    // 4. Fit only when the user actually changed day/view. Background OSRM refreshes
+    // must never steal the camera after the user has started exploring.
+    if (autoFit) fitActiveRoute();
+    refreshCameraReadout();
 
     // 5. Update elevation profile
     updateElevationProfileForDay(dayData);
@@ -679,7 +739,7 @@
   /**
    * Renders the whole trip view with all days superimposed.
    */
-  function renderWholeTripScene() {
+  function renderWholeTripScene(autoFit = false) {
     clearActive3DFeatures();
     if (!map3D) return;
 
@@ -742,8 +802,9 @@
       });
     }
 
-    // Set Whole Trip Camera Overview
-    flyToWholeTripOverview();
+    // Set Whole Trip Camera Overview only when entering this selection.
+    if (autoFit) flyToWholeTripOverview();
+    refreshCameraReadout();
 
     // Clear elevation drawer for whole trip
     const chartRoot = document.getElementById('visElevChartRoot');
@@ -935,39 +996,103 @@
     });
   }
 
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, Number(value)));
+  }
+
+  function normalizeHeading(value) {
+    const n = Number(value) || 0;
+    return ((n % 360) + 360) % 360;
+  }
+
+  function getCurrentCameraCenter() {
+    const center = map3D && map3D.center;
+    if (center && Number.isFinite(Number(center.lat)) && Number.isFinite(Number(center.lng))) {
+      return {
+        lat: Number(center.lat),
+        lng: Number(center.lng),
+        altitude: Number(center.altitude || 0)
+      };
+    }
+    return { lat: 51.5, lng: -116.1, altitude: 0 };
+  }
+
+  function refreshCameraReadout() {
+    const readout = document.getElementById('visCameraReadout');
+    if (!readout || !map3D) return;
+    const tilt = Math.round(Number(map3D.tilt) || 0);
+    const range = Math.max(1, Number(map3D.range) || 0);
+    const rangeLabel = range >= 1000 ? `${(range / 1000).toFixed(range >= 10000 ? 0 : 1)} km` : `${Math.round(range)} m`;
+    readout.textContent = `${tilt}° • ${rangeLabel}`;
+  }
+
   /**
-   * Resets camera to standard orientation.
+   * Manual camera pad adjustment. These controls are intentionally simple and
+   * complement Google's native move/zoom/rotate/tilt/compass controls.
+   */
+  function adjustCamera(change = {}) {
+    if (!map3D) return;
+    if (isFlying) cancelRouteFlyThrough(false);
+
+    const currentRange = Math.max(250, Number(map3D.range) || 12000);
+    const currentTilt = clamp(Number(map3D.tilt) || 55, 0, 80);
+    const currentHeading = normalizeHeading(map3D.heading);
+
+    const range = clamp(
+      change.rangeFactor ? currentRange * change.rangeFactor : currentRange,
+      250,
+      400000
+    );
+    const tilt = clamp(
+      currentTilt + (Number(change.tiltDelta) || 0),
+      0,
+      80
+    );
+    const heading = change.heading !== undefined
+      ? normalizeHeading(change.heading)
+      : normalizeHeading(currentHeading + (Number(change.headingDelta) || 0));
+
+    flyCameraTo({
+      center: getCurrentCameraCenter(),
+      range,
+      tilt,
+      heading,
+      durationMillis: prefersReducedMotion() ? 0 : 180
+    });
+    setTimeout(refreshCameraReadout, prefersReducedMotion() ? 0 : 220);
+  }
+
+  /**
+   * Resets camera to the active route framing.
    */
   function resetCamera() {
     fitActiveRoute();
   }
 
   /**
-   * Switches camera presets (valley or high aerial).
+   * Switches camera presets while preserving the user's current map target.
+   * Presets no longer jump back to the first itinerary stop.
    */
   function setCameraPreset(preset) {
     if (!map3D) return;
-    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
-    const dayData = getVisualizeDayData(currentDay);
-    const center = dayData && dayData.activeStops.length
-      ? { lat: dayData.activeStops[0].lat, lng: dayData.activeStops[0].lng, altitude: 0 }
-      : { lat: 51.5, lng: -116.1, altitude: 0 };
+    if (isFlying) cancelRouteFlyThrough(false);
+    const center = getCurrentCameraCenter();
 
     if (preset === 'valley') {
       flyCameraTo({
         center,
-        range: 4500,
+        range: Math.min(Math.max(Number(map3D.range) || 4500, 2500), 12000),
         tilt: 72,
-        heading: 335,
-        durationMillis: prefersReducedMotion() ? 0 : 1500
+        heading: normalizeHeading(map3D.heading || 335),
+        durationMillis: prefersReducedMotion() ? 0 : 650
       });
     } else if (preset === 'high') {
       flyCameraTo({
         center,
-        range: 85000,
+        range: Math.max(35000, Math.min(Number(map3D.range) * 4 || 85000, 120000)),
         tilt: 35,
-        heading: 0,
-        durationMillis: prefersReducedMotion() ? 0 : 1800
+        heading: normalizeHeading(map3D.heading),
+        durationMillis: prefersReducedMotion() ? 0 : 800
       });
     }
   }
@@ -986,7 +1111,7 @@
             tilt: options.tilt,
             heading: options.heading
           },
-          durationMillis: options.durationMillis || 2000
+          durationMillis: options.durationMillis == null ? 2000 : options.durationMillis
         });
       } else {
         // Direct property fallback
@@ -1160,7 +1285,7 @@
   /**
    * Cancels and resets route fly-through.
    */
-  function cancelRouteFlyThrough() {
+  function cancelRouteFlyThrough(restoreFit = false) {
     isFlying = false;
     isFlightPaused = false;
     if (flightTimeoutId) clearTimeout(flightTimeoutId);
@@ -1170,7 +1295,9 @@
     if (hud) hud.classList.add('hidden');
     if (playBtn) playBtn.textContent = '▶ Play route';
 
-    fitActiveRoute();
+    // Manual takeover should leave the camera exactly where the user took control.
+    if (restoreFit) fitActiveRoute();
+    else refreshCameraReadout();
   }
 
   /**
@@ -1186,7 +1313,7 @@
     if (hud) hud.classList.add('hidden');
     if (playBtn) playBtn.textContent = '▶ Play route';
 
-    fitActiveRoute();
+    refreshCameraReadout();
   }
 
   /* ============================================================
