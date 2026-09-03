@@ -371,6 +371,7 @@
             <button class="vis-tool-btn" id="visPresetValleyBtn" title="Oblique valley perspective">Valley</button>
             <button class="vis-tool-btn" id="visPresetHighBtn" title="High aerial perspective">Aerial</button>
             <button class="vis-tool-btn" id="visControlsHelpBtn" aria-pressed="false" title="Show 3D control help">Controls</button>
+            <button class="vis-tool-btn" id="visMapOnlyBtn" aria-pressed="false" title="Hide the itinerary panel and maximize the 3D map">Map only</button>
           </div>
 
           <!-- Always-visible camera pad. Google native move/zoom/rotate/tilt/compass controls remain enabled too. -->
@@ -457,6 +458,9 @@
     const highBtn = document.getElementById('visPresetHighBtn');
     if (highBtn) highBtn.onclick = () => setCameraPreset('high');
 
+    const mapOnlyBtn = document.getElementById('visMapOnlyBtn');
+    if (mapOnlyBtn) mapOnlyBtn.onclick = () => toggleMapOnly();
+
     const controlsHelpBtn = document.getElementById('visControlsHelpBtn');
     const controlsHelp = document.getElementById('visControlHelp');
     if (controlsHelpBtn && controlsHelp) {
@@ -497,6 +501,23 @@
         toggleElevationDrawer();
       };
     }
+  }
+
+  /**
+   * Hides/shows the itinerary side panel so the terrain can use the full workspace.
+   * This is an in-app fullscreen mode and works where the browser Fullscreen API does not.
+   */
+  function toggleMapOnly(forceState) {
+    const workspace = document.getElementById('visualizeWorkspace');
+    const btn = document.getElementById('visMapOnlyBtn');
+    if (!workspace) return;
+    const next = forceState === undefined ? !workspace.classList.contains('map-only') : !!forceState;
+    workspace.classList.toggle('map-only', next);
+    if (btn) {
+      btn.textContent = next ? 'Show panel' : 'Map only';
+      btn.setAttribute('aria-pressed', next ? 'true' : 'false');
+    }
+    setTimeout(refreshCameraReadout, 80);
   }
 
   /**
