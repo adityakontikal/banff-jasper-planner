@@ -901,7 +901,7 @@
       }
     } catch (err) {
       setRenderer('explorer');
-      renderErrorState(new Error('Cinematic World could not load. Enable the Google Map Tiles API for this key. ' + (err.message || String(err))));
+      renderErrorState(new Error('Cinematic World could not load. Explorer is still available. Enable the Google Map Tiles API for this key and verify billing/quota. ' + (err.message || String(err))));
       throw err;
     }
   }
@@ -1075,6 +1075,12 @@
       if (titleEl) titleEl.textContent = `${currentDay}: ${dayData ? dayData.label : ''}`;
       renderDayMetrics(metricEl, dayData);
       renderDayScene(dayData, selectionChanged);
+      if (currentRenderer === 'world' && selectionChanged && dayData) {
+        prepareCinematicWorld(dayData).catch(err => {
+          setRenderer('explorer');
+          renderErrorState(new Error('Could not rebuild Cinematic World for ' + currentDay + '. ' + (err.message || String(err))));
+        });
+      }
     }
   }
 
@@ -2023,6 +2029,7 @@
       cancelRouteFlyThrough();
       return;
     }
+    setRenderer('explorer');
 
     const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
     if (currentDay === 'all') {
