@@ -180,6 +180,7 @@
         '</nav>' +
         '<div class="mobile-more-sheet" id="mobileMoreSheet" onclick="if(event.target===this)showMobilePlannerMore(false)"><div class="mobile-more-panel"><div class="mobile-more-head"><b>More</b><button aria-label="Close more planner sections" onclick="showMobilePlannerMore(false)">×</button></div><div class="mobile-more-grid">' +
           '<button onclick="goMobilePlanner(\'planview\')">Plan</button>' +
+          '<button onclick="goMobilePlanner(\'visualizeview\')">3D Visualize</button>' +
           '<button onclick="goMobilePlanner(\'checklistview\')">Master Checklist</button>' +
           '<button onclick="goMobilePlanner(\'bookings\')">Bookings</button>' +
           '<button onclick="goMobilePlanner(\'hotels\')">Hotels</button>' +

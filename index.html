@@ -11,6 +11,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='14' width='64' height='64' fill='%23173d54'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-size='32'%3E%F0%9F%8F%94%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<link rel="stylesheet" href="visualize-3d.css" />
 <style>
 :root{
   --bg:#07131d;--panel:#0e2232;--panel2:#112a3d;--panel3:#0a1b28;--line:#2a4960;
@@ -438,6 +439,7 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
       <button class="on" data-view="planview">Plan</button>
       <button data-view="checklistview">Checklist</button>
       <button data-view="mapview">Map</button>
+      <button data-view="visualizeview">Visualize</button>
       <button data-view="overview">Days</button>
       <button data-view="bookings">Book</button>
       <button data-view="hotels">Hotels</button>
@@ -521,6 +523,8 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
   </div>
 </div>
 </section>
+
+<section class="view" id="visualizeview" aria-label="3D Geographic Visualization"></section>
 
 <section class="view" id="overview">
   <div class="overview-layout">
@@ -693,6 +697,9 @@ a{color:inherit;text-decoration:none} button,input,select,textarea{font:inherit}
 <script src="product-plan.js"></script>
 <script src="trip-checklist.js"></script>
 <script src="closure-policy.js"></script>
+<script src="/runtime-config.js"></script>
+<script src="visualize-elevation.js"></script>
+<script src="visualize-3d.js"></script>
 <script src="scroll-policy.js"></script>
 </body>
 </html>

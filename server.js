@@ -2,6 +2,23 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Load local .env file if present (zero-dependency)
+const envFile = path.join(__dirname, '.env');
+if (fs.existsSync(envFile)) {
+  try {
+    const raw = fs.readFileSync(envFile, 'utf8');
+    raw.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#') && trimmed.includes('=')) {
+        const [k, ...v] = trimmed.split('=');
+        const key = k.trim();
+        const val = v.join('=').trim().replace(/^["']|["']$/g, '');
+        if (!process.env[key]) process.env[key] = val;
+      }
+    });
+  } catch (_) {}
+}
+
 const PORT = process.env.PORT || 3000;
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -24,6 +41,17 @@ const server = http.createServer((req, res) => {
     return;
   }
   if (reqPath === '/' || !reqPath) reqPath = '/index.html';
+
+  if (reqPath === '/runtime-config.js') {
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY || '';
+    const configBody = `window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.stringify({ googleMapsApiKey: apiKey })});\n`;
+    res.writeHead(200, {
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Cache-Control': 'no-cache, no-store, must-revalidate'
+    });
+    res.end(configBody);
+    return;
+  }
 
   if (reqPath.includes('..')) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });

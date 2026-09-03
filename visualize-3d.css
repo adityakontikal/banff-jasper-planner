@@ -1,0 +1,653 @@
+/* visualize-3d.css
+ * Dark glass styling for the 3D Canadian Rockies visualization workspace.
+ */
+
+/* ---------------- Top-level view container ---------------- */
+#visualizeview.view.on {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  position: relative;
+}
+
+.visualize-workspace {
+  display: grid;
+  grid-template-columns: 370px 1fr;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ---------------- Floating Left Sidebar ---------------- */
+.visualize-sidebar {
+  background: #0b1e2c;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  z-index: 20;
+}
+
+.vis-sidehead {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: #10283a;
+  flex-shrink: 0;
+}
+
+.vis-sidetitle {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 750;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.vis-dayswitch {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-top: 8px;
+  scrollbar-width: none;
+}
+.vis-dayswitch::-webkit-scrollbar {
+  display: none;
+}
+
+.vis-daybtn {
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  background: #081a27;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 9px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all .15s ease;
+}
+
+.vis-daybtn:hover {
+  color: #fff;
+  border-color: #3b6b8c;
+}
+
+.vis-daybtn.on {
+  background: #173d54;
+  color: #fff;
+  border-color: #4e7891;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+.vis-sidebody {
+  padding: 10px 12px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Metric chips */
+.vis-day-metric-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.vis-metric-chip {
+  background: #071925;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.vis-met-val {
+  font-size: 13px;
+  font-weight: 850;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.vis-met-lbl {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* Action buttons row */
+.vis-actions-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.vis-actions-row button {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+/* Route Flight Progress HUD */
+.vis-flight-hud {
+  background: linear-gradient(135deg, #0f2d42, #163d59);
+  border: 1px solid #376e93;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+  animation: visPulseGaze 2.5s infinite ease-in-out;
+}
+
+@keyframes visPulseGaze {
+  0%, 100% { border-color: #376e93; }
+  50% { border-color: #56c6a5; }
+}
+
+.vis-flight-hud-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.vis-flight-hud-sub {
+  font-size: 10.5px;
+  color: #a4c4d7;
+  margin-top: 2px;
+}
+
+.vis-flight-hud-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.vis-flight-hud-actions button {
+  flex: 1;
+}
+
+/* Stop list */
+.vis-stoplist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vis-stop-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+  align-items: center;
+  background: #0d2536;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 7px 9px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.vis-stop-item:hover {
+  border-color: #3f6888;
+  background: #112d42;
+  transform: translateX(2px);
+}
+
+.vis-stop-item.selected {
+  border-color: #56c6a5;
+  background: #103848;
+  box-shadow: 0 0 0 1px #56c6a5;
+}
+
+.vis-stop-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #071925;
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 850;
+  color: #a8c7db;
+}
+
+.vis-stop-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vis-stop-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.vis-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+.vis-badge.must { background: rgba(86,198,165,.2); color: #84ebcb; border: 1px solid #367d69; }
+.vis-badge.nice { background: rgba(104,185,255,.2); color: #bde0ff; border: 1px solid #3c6d96; }
+.vis-badge.hotel { background: rgba(197,166,255,.2); color: #ebdfff; border: 1px solid #7d65ac; }
+
+/* Whole trip summary row */
+.vis-wholeday-row {
+  background: #0d2536;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all .15s ease;
+  margin-bottom: 6px;
+}
+.vis-wholeday-row:hover {
+  background: #112d42;
+  border-color: #4a7596;
+}
+.vis-wholeday-title {
+  font-size: 12px;
+  color: #fff;
+}
+.vis-wholeday-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ---------------- Main 3D Viewport ---------------- */
+.visualize-main {
+  position: relative;
+  background: #040d14;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.visualize-map-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+/* Top Floating Bar */
+.vis-map-toolbar {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  right: 14px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: rgba(11, 30, 44, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 4px 6px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.vis-pill-group {
+  display: flex;
+  background: #071925;
+  border-radius: 6px;
+  padding: 2px;
+  border: 1px solid var(--line);
+}
+
+.vis-tool-btn {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.vis-tool-btn:hover {
+  color: #fff;
+}
+.vis-tool-btn.on {
+  background: #173d54;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+/* ---------------- Elevation Drawer ---------------- */
+.visualize-elevation-drawer {
+  position: absolute;
+  z-index: 15;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  background: rgba(11, 30, 44, 0.92);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 250px;
+}
+
+.visualize-elevation-drawer.collapsed {
+  max-height: 42px;
+}
+
+.vis-elev-header {
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(16, 40, 58, 0.7);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.vis-elev-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.vis-elev-stats-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #72cca7;
+  background: rgba(86,198,165,0.12);
+  border: 1px solid rgba(86,198,165,0.25);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.vis-elev-toggle-btn {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.vis-elev-content {
+  padding: 8px 12px 10px;
+}
+
+.elev-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 140px;
+}
+
+.elev-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.elev-tooltip {
+  position: absolute;
+  background: #081a27;
+  border: 1px solid #56c6a5;
+  color: #fff;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 30;
+}
+
+.elev-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.elev-empty-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+/* ---------------- Overlay / Setup Card ---------------- */
+.visualize-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  background: rgba(4, 13, 20, 0.88);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.vis-overlay-card {
+  background: #0b1e2c;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+}
+
+.vis-overlay-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.vis-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(86,198,165,0.2);
+  border-top-color: #56c6a5;
+  border-radius: 50%;
+  animation: visSpin 0.9s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes visSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Setup state card */
+.visualize-setup-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+}
+
+.vis-setup-card {
+  background: #0b1e2c;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 580px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+}
+
+.vis-setup-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #56c6a5;
+  background: rgba(86,198,165,0.15);
+  border: 1px solid rgba(86,198,165,0.3);
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.vis-setup-card h2 {
+  margin: 0 0 10px;
+  font-size: 21px;
+  color: #fff;
+}
+
+.vis-setup-card p {
+  color: #c7d9e4;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 0;
+}
+
+.vis-setup-instructions {
+  background: #071925;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 16px 0;
+}
+
+.vis-setup-instructions ol {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #adc6d6;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.vis-setup-instructions code {
+  background: #05111a;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: #7cdbb5;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+}
+
+.vis-setup-form {
+  margin-top: 14px;
+}
+
+.vis-setup-form label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.vis-setup-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.vis-setup-input-group input {
+  flex: 1;
+}
+
+/* ---------------- Mobile Responsive Layout (max-width: 768px, ~390px) ---------------- */
+@media (max-width: 768px) {
+  #visualizeview.view.on {
+    height: calc(100vh - 120px) !important;
+    min-height: 500px !important;
+  }
+
+  .visualize-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0;
+    height: 100%;
+  }
+
+  .visualize-sidebar {
+    height: auto;
+    max-height: 200px;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0;
+  }
+
+  .vis-day-metric-card {
+    display: none;
+  }
+
+  .vis-actions-row {
+    margin-bottom: 6px;
+  }
+
+  .vis-stoplist {
+    max-height: 80px;
+    overflow-y: auto;
+  }
+
+  .visualize-main {
+    border-radius: 0 0 10px 10px;
+    height: 100%;
+    min-height: 380px;
+  }
+
+  .vis-map-toolbar {
+    top: 8px;
+    right: 8px;
+    padding: 3px 5px;
+  }
+
+  .visualize-elevation-drawer {
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    max-height: 160px;
+  }
+
+  .visualize-elevation-drawer.collapsed {
+    max-height: 38px;
+  }
+
+  .elev-chart-wrapper {
+    height: 90px;
+  }
+
+  .vis-setup-card {
+    padding: 18px;
+  }
+}
