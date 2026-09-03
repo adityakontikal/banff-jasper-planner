@@ -23,6 +23,14 @@
   overflow: hidden;
 }
 
+.visualize-workspace.map-only {
+  grid-template-columns: 1fr;
+}
+
+.visualize-workspace.map-only .visualize-sidebar {
+  display: none;
+}
+
 /* ---------------- Floating Left Sidebar ---------------- */
 .visualize-sidebar {
   background: #0b1e2c;
