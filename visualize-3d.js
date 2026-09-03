@@ -53,14 +53,13 @@
   let selectedStopId = null;
   let lastRenderedSelection = null;
 
-  // Fly-through animation state
+  // Fly-through animation state (Dollhouse cinematic mode)
   let isFlying = false;
   let isFlightPaused = false;
-  let flightAbortController = null;
+  let flightSpeedMultiplier = 1;
   let flightTimeoutId = null;
-  let flightPathPoints = [];
-  let flightCurrentIndex = 0;
-  let flightStops = [];
+  let flightTrajectory = [];
+  let flightLegIndex = 0;
 
   // Elevation state
   let currentElevationProfile = null;
@@ -477,11 +476,25 @@
 
             <!-- Route Flight Progress HUD (Hidden when not flying) -->
             <div class="vis-flight-hud hidden" id="visFlightHud">
+              <div class="vis-flight-progress-bar">
+                <div class="vis-flight-progress-fill" id="visFlightProgressFill"></div>
+              </div>
+              <div class="vis-flight-badge-row">
+                <span class="vis-flight-badge" id="visFlightBadge">CINEMATIC FLYOVER</span>
+                <span class="vis-flight-speed-tag" id="visFlightSpeedTag">1.0x</span>
+              </div>
               <div class="vis-flight-hud-title" id="visFlightTitle">Following route…</div>
-              <div class="vis-flight-hud-sub" id="visFlightSub">Approaching next stop</div>
+              <div class="vis-flight-hud-sub" id="visFlightSub">Glacial valleys & mountain passes</div>
               <div class="vis-flight-hud-actions">
-                <button class="btn small" id="visPauseFlightBtn">Pause</button>
-                <button class="btn small danger" id="visStopFlightBtn">Stop</button>
+                <button class="btn small" id="visPrevFlightLegBtn" title="Previous stop">⏮</button>
+                <button class="btn small primary" id="visPauseFlightBtn" title="Pause / Resume">⏸</button>
+                <button class="btn small" id="visNextFlightLegBtn" title="Next stop">⏭</button>
+                <div class="vis-flight-speed-group" role="group" aria-label="Playback speed">
+                  <button class="vis-speed-btn" data-speed="0.5" title="0.5x Scenic">0.5x</button>
+                  <button class="vis-speed-btn active" data-speed="1" title="1x Cinematic">1x</button>
+                  <button class="vis-speed-btn" data-speed="2" title="2x Fast">2x</button>
+                </div>
+                <button class="btn small danger" id="visStopFlightBtn" title="Exit flyover">⏹</button>
               </div>
             </div>
 
@@ -498,12 +511,38 @@
         <main class="visualize-main" id="visualizeMain">
           <!-- Floating Stop Inspector for Map-Only Mode / Mobile -->
           <div class="vis-map-stop-card hidden" id="visMapStopCard"></div>
+
+          <!-- Floating Movie Flyover HUD for Map-Only Mode / Fullscreen -->
+          <div class="vis-map-flight-hud hidden" id="visMapFlightHud">
+            <div class="vis-flight-progress-bar">
+              <div class="vis-flight-progress-fill" id="visMapFlightProgressFill"></div>
+            </div>
+            <div class="vis-flight-badge-row">
+              <span class="vis-flight-badge" id="visMapFlightBadge">CINEMATIC FLYOVER</span>
+              <span class="vis-flight-speed-tag" id="visMapFlightSpeedTag">1.0x</span>
+            </div>
+            <div class="vis-flight-hud-title" id="visMapFlightTitle">Following route…</div>
+            <div class="vis-flight-hud-sub" id="visMapFlightSub">Glacial valleys & mountain passes</div>
+            <div class="vis-flight-hud-actions">
+              <button class="btn small" id="visMapPrevFlightLegBtn" title="Previous stop">⏮</button>
+              <button class="btn small primary" id="visMapPauseFlightBtn" title="Pause / Resume">⏸</button>
+              <button class="btn small" id="visMapNextFlightLegBtn" title="Next stop">⏭</button>
+              <div class="vis-flight-speed-group" role="group" aria-label="Playback speed">
+                <button class="vis-speed-btn" data-speed="0.5" title="0.5x Scenic">0.5x</button>
+                <button class="vis-speed-btn active" data-speed="1" title="1x Cinematic">1x</button>
+                <button class="vis-speed-btn" data-speed="2" title="2x Fast">2x</button>
+              </div>
+              <button class="btn small danger" id="visMapStopFlightBtn" title="Exit flyover">⏹</button>
+            </div>
+          </div>
+
           <!-- Map style / quick camera presets. Kept left so Google's native exploration controls remain unobstructed on the right. -->
           <div class="vis-map-toolbar">
             <div class="vis-pill-group" role="group" aria-label="Map style">
               <button class="vis-tool-btn on" id="visModeHybridBtn" data-mode="HYBRID">Hybrid</button>
               <button class="vis-tool-btn" id="visModeSatBtn" data-mode="SATELLITE">Satellite</button>
             </div>
+            <button class="vis-tool-btn" id="visPresetDollhouseBtn" title="Dollhouse 3D miniature perspective">Dollhouse</button>
             <button class="vis-tool-btn" id="visPresetValleyBtn" title="Oblique valley perspective">Valley</button>
             <button class="vis-tool-btn" id="visPresetHighBtn" title="High aerial perspective">Aerial</button>
             <button class="vis-tool-btn" id="visControlsHelpBtn" aria-pressed="false" title="Show 3D control help">Controls</button>
@@ -576,17 +615,38 @@
     const playBtn = document.getElementById('visPlayRouteBtn');
     if (playBtn) playBtn.onclick = () => startRouteFlyThrough();
 
-    const pauseBtn = document.getElementById('visPauseFlightBtn');
-    if (pauseBtn) pauseBtn.onclick = () => togglePauseFlyThrough();
+    ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.onclick = () => togglePauseFlyThrough();
+    });
 
-    const stopFlightBtn = document.getElementById('visStopFlightBtn');
-    if (stopFlightBtn) stopFlightBtn.onclick = () => cancelRouteFlyThrough();
+    ['visStopFlightBtn', 'visMapStopFlightBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.onclick = () => cancelRouteFlyThrough(true);
+    });
+
+    ['visNextFlightLegBtn', 'visMapNextFlightLegBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.onclick = () => skipFlightLeg(1);
+    });
+
+    ['visPrevFlightLegBtn', 'visMapPrevFlightLegBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.onclick = () => skipFlightLeg(-1);
+    });
+
+    document.querySelectorAll('.vis-speed-btn').forEach(btn => {
+      btn.onclick = () => setFlightSpeed(Number(btn.dataset.speed));
+    });
 
     const hybridBtn = document.getElementById('visModeHybridBtn');
     if (hybridBtn) hybridBtn.onclick = () => setMapMode('HYBRID');
 
     const satBtn = document.getElementById('visModeSatBtn');
     if (satBtn) satBtn.onclick = () => setMapMode('SATELLITE');
+
+    const dollhouseBtn = document.getElementById('visPresetDollhouseBtn');
+    if (dollhouseBtn) dollhouseBtn.onclick = () => setCameraPreset('dollhouse');
 
     const valleyBtn = document.getElementById('visPresetValleyBtn');
     if (valleyBtn) valleyBtn.onclick = () => setCameraPreset('valley');
@@ -656,6 +716,12 @@
     }
     if (mapCard) {
       mapCard.classList.toggle('hidden', !(next && selectedStopId));
+    }
+    const sidebarHud = document.getElementById('visFlightHud');
+    const mapHud = document.getElementById('visMapFlightHud');
+    if (sidebarHud && mapHud) {
+      sidebarHud.classList.toggle('hidden', !(!next && isFlying));
+      mapHud.classList.toggle('hidden', !(next && isFlying));
     }
     setTimeout(refreshCameraReadout, 80);
   }
@@ -1442,7 +1508,15 @@
     if (isFlying) cancelRouteFlyThrough(false);
     const center = getCurrentCameraCenter();
 
-    if (preset === 'valley') {
+    if (preset === 'dollhouse') {
+      flyCameraTo({
+        center,
+        range: 5200,
+        tilt: 60,
+        heading: normalizeHeading(map3D.heading || 330),
+        durationMillis: prefersReducedMotion() ? 0 : 850
+      });
+    } else if (preset === 'valley') {
       flyCameraTo({
         center,
         range: Math.min(Math.max(Number(map3D.range) || 4500, 2500), 12000),
@@ -1527,11 +1601,167 @@
   }
 
   /* ============================================================
-   * 6. ROUTE FLY-THROUGH ("PLAY ROUTE")
+   * 6. ROUTE FLY-THROUGH ("CINEMATIC DOLLHOUSE FLYOVER")
    * ============================================================ */
 
   /**
-   * Starts a cinematic road fly-through along the day's active route geometry.
+   * Generates a cinematic dollhouse flight trajectory for a day.
+   * Instead of thousands of tiny 140m steps that stutter and crawl,
+   * this builds a smooth 10-18 point keyframe spline connecting all active stops
+   * and high-clearance highway corridor passes.
+   */
+  function generateDollhouseFlightTrajectory(dayData) {
+    if (!dayData || !dayData.activeStops || dayData.activeStops.length === 0) return [];
+    const stops = dayData.activeStops;
+    const routeCoords = (dayData.routeCoordinates && dayData.routeCoordinates.length >= 2)
+      ? dayData.routeCoordinates
+      : null;
+
+    const waypoints = [];
+
+    for (let i = 0; i < stops.length; i++) {
+      const stop = stops[i];
+      const profile = getLandmarkCameraProfile(stop);
+      const targetLat = stop.lat + (profile.targetOffset ? profile.targetOffset.lat : 0);
+      const targetLng = stop.lng + (profile.targetOffset ? profile.targetOffset.lng : 0);
+      const targetAltitude = profile.elevation || 1500;
+
+      // Add stop landmark waypoint with curated dollhouse vista
+      waypoints.push({
+        isStop: true,
+        stopId: stop.id,
+        stopIndex: i + 1,
+        totalStops: stops.length,
+        name: stop.name,
+        lat: targetLat,
+        lng: targetLng,
+        altitude: targetAltitude,
+        range: profile.range || 5500,
+        tilt: profile.tilt || 56,
+        heading: profile.heading || 330,
+        viewContext: profile.viewContext || "Glacial basin & surrounding peaks",
+        flightDuration: 3600,
+        hoverDuration: 1300
+      });
+
+      // If there's a subsequent stop, evaluate if highway corridor waypoints are needed
+      if (i < stops.length - 1) {
+        const nextStop = stops[i + 1];
+        const distMeters = Math.hypot((nextStop.lat - stop.lat) * 111000, (nextStop.lng - stop.lng) * 78000);
+
+        if (distMeters > 16000) {
+          // Determine how many intermediate corridor vistas based on distance
+          const corridorCount = distMeters > 55000 ? 2 : 1;
+          for (let c = 1; c <= corridorCount; c++) {
+            const fraction = c / (corridorCount + 1);
+            const midCoord = sampleRouteCoordinate(routeCoords, stop, nextStop, fraction);
+            const heading = midCoord.heading != null ? midCoord.heading : computeBearing(stop, nextStop);
+            const corridorName = getCorridorName(stop, nextStop, fraction);
+
+            waypoints.push({
+              isStop: false,
+              stopId: null,
+              stopIndex: i + 1,
+              totalStops: stops.length,
+              name: corridorName,
+              lat: midCoord.lat,
+              lng: midCoord.lng,
+              altitude: midCoord.altitude || 1480,
+              range: 7000, // High-angle dollhouse perspective
+              tilt: 58,   // Movie tilt-shift angle
+              heading: heading,
+              viewContext: "High-angle dollhouse flight over winding mountain highway",
+              flightDuration: 3000,
+              hoverDuration: 0 // Continuous smooth sweep
+            });
+          }
+        }
+      }
+    }
+
+    return waypoints;
+  }
+
+  /**
+   * Calculates geographic compass heading from p1 to p2 in degrees (0-360).
+   */
+  function computeBearing(p1, p2) {
+    if (!p1 || !p2) return 0;
+    if (typeof window !== 'undefined' && window.VisualizeElevation && window.VisualizeElevation.computeBearing) {
+      return window.VisualizeElevation.computeBearing(p1, p2);
+    }
+    const dLng = (p2.lng - p1.lng) * Math.PI / 180;
+    const lat1 = p1.lat * Math.PI / 180;
+    const lat2 = p2.lat * Math.PI / 180;
+    const y = Math.sin(dLng) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  }
+
+  /**
+   * Samples a coordinate and heading along the route geometry between two stops.
+   */
+  function sampleRouteCoordinate(routeCoords, stop1, stop2, fraction) {
+    if (routeCoords && routeCoords.length >= 2) {
+      let idx1 = -1;
+      let idx2 = -1;
+      let minD1 = Infinity;
+      let minD2 = Infinity;
+
+      for (let i = 0; i < routeCoords.length; i++) {
+        const c = routeCoords[i];
+        const d1 = Math.hypot(c[1] - stop1.lat, c[0] - stop1.lng);
+        const d2 = Math.hypot(c[1] - stop2.lat, c[0] - stop2.lng);
+        if (d1 < minD1) { minD1 = d1; idx1 = i; }
+        if (d2 < minD2) { minD2 = d2; idx2 = i; }
+      }
+
+      if (idx1 !== -1 && idx2 !== -1 && idx1 !== idx2) {
+        const start = Math.min(idx1, idx2);
+        const end = Math.max(idx1, idx2);
+        const targetIdx = idx1 < idx2
+          ? Math.round(start + (end - start) * fraction)
+          : Math.round(end - (end - start) * fraction);
+        const coord = routeCoords[targetIdx];
+        const fwdIdx = Math.min(routeCoords.length - 1, targetIdx + 4);
+        const fwdCoord = routeCoords[fwdIdx];
+        const heading = computeBearing(
+          { lat: coord[1], lng: coord[0] },
+          { lat: fwdCoord[1], lng: fwdCoord[0] }
+        );
+        return { lat: coord[1], lng: coord[0], heading, altitude: 1480 };
+      }
+    }
+
+    // Fallback: linear interpolation
+    const lat = stop1.lat + (stop2.lat - stop1.lat) * fraction;
+    const lng = stop1.lng + (stop2.lng - stop1.lng) * fraction;
+    const heading = computeBearing(stop1, stop2);
+    return { lat, lng, heading, altitude: 1480 };
+  }
+
+  /**
+   * Gives a human-friendly scenic corridor name based on nearby attractions.
+   */
+  function getCorridorName(s1, s2, fraction) {
+    const combined = `${s1.name || ''} ${s2.name || ''}`.toLowerCase();
+    if (combined.includes('icefield') || combined.includes('jasper') || combined.includes('sunwapta') || combined.includes('athabasca') || combined.includes('hinton')) {
+      return 'Icefields Parkway (Hwy 93N)';
+    }
+    if (combined.includes('louise') || combined.includes('cochrane') || combined.includes('canmore') || combined.includes('banff') || combined.includes('airport') || combined.includes('yyc')) {
+      return 'Bow Valley Corridor (Trans-Canada Hwy)';
+    }
+    if (combined.includes('maligne') || combined.includes('medicine')) {
+      return 'Maligne Valley Mountain Pass';
+    }
+    if (combined.includes('yoho') || combined.includes('emerald') || combined.includes('bridge')) {
+      return 'Kicking Horse Canyon Pass';
+    }
+    return 'Canadian Rockies Mountain Pass';
+  }
+
+  /**
+   * Starts a cinematic dollhouse movie flyover along the day's active route geometry.
    */
   function startRouteFlyThrough() {
     if (isFlying) {
@@ -1546,8 +1776,8 @@
     }
 
     const dayData = getVisualizeDayData(currentDay);
-    if (!dayData || !dayData.routeCoordinates || dayData.routeCoordinates.length < 2) {
-      alert('No road route coordinates available to play.');
+    if (!dayData || !dayData.activeStops || dayData.activeStops.length === 0) {
+      alert('No stops available to play.');
       return;
     }
 
@@ -1556,95 +1786,131 @@
       return;
     }
 
-    const VE = (typeof window !== 'undefined' && window.VisualizeElevation)
-      ? window.VisualizeElevation
-      : null;
+    flightTrajectory = generateDollhouseFlightTrajectory(dayData);
+    if (flightTrajectory.length === 0) return;
 
-    // Resample polyline every 140 meters for smooth flight
-    const rawCoords = dayData.routeCoordinates.map(c => ({ lat: c[1], lng: c[0] }));
-    flightPathPoints = VE ? VE.resamplePathByDistance(rawCoords, 140) : rawCoords;
-    if (flightPathPoints.length < 2) return;
-
-    flightStops = dayData.activeStops;
-    flightCurrentIndex = 0;
+    flightLegIndex = 0;
     isFlying = true;
     isFlightPaused = false;
 
-    // Show flight HUD
-    const hud = document.getElementById('visFlightHud');
+    // Show HUDs in sidebar and floating map overlay
+    updateFlightHudVisibility(true);
+
     const playBtn = document.getElementById('visPlayRouteBtn');
-    if (hud) hud.classList.remove('hidden');
     if (playBtn) playBtn.textContent = '⏹ Stop flight';
 
-    executeFlightStep();
+    executeDollhouseFlightStep();
   }
 
   /**
-   * Recursively executes next segment in the fly-through.
+   * Updates flight HUD elements across sidebar and floating map overlay.
    */
-  function executeFlightStep() {
+  function updateFlightHudVisibility(show) {
+    const sidebarHud = document.getElementById('visFlightHud');
+    const mapHud = document.getElementById('visMapFlightHud');
+    const workspace = document.getElementById('visualizeWorkspace');
+    const isMapOnly = workspace && workspace.classList.contains('map-only');
+
+    if (sidebarHud) sidebarHud.classList.toggle('hidden', !show || isMapOnly);
+    if (mapHud) mapHud.classList.toggle('hidden', !show || !isMapOnly);
+  }
+
+  /**
+   * Executes next keyframe in the smooth dollhouse flight.
+   */
+  function executeDollhouseFlightStep() {
     if (!isFlying || isFlightPaused || !map3D) return;
 
-    if (flightCurrentIndex >= flightPathPoints.length - 1) {
-      // Completed flight
+    if (flightLegIndex >= flightTrajectory.length) {
       finishFlyThrough();
       return;
     }
 
-    const curr = flightPathPoints[flightCurrentIndex];
-    const next = flightPathPoints[Math.min(flightPathPoints.length - 1, flightCurrentIndex + 1)];
+    const wp = flightTrajectory[flightLegIndex];
+    const pct = Math.round((flightLegIndex / (flightTrajectory.length - 1)) * 100);
 
-    // Calculate heading towards next path vertex
-    let heading = 0;
-    if (typeof window !== 'undefined' && window.VisualizeElevation) {
-      heading = window.VisualizeElevation.computeBearing(curr, next);
-    } else {
-      const dLng = next.lng - curr.lng;
-      const dLat = next.lat - curr.lat;
-      heading = (Math.atan2(dLng, dLat) * 180 / Math.PI + 360) % 360;
+    // Update HUD titles, subtitles, badges, and progress bar across all HUD instances
+    const titleText = wp.isStop
+      ? `Stop ${wp.stopIndex} of ${wp.totalStops}: ${wp.name}`
+      : `Cruising: ${wp.name}`;
+    const subText = wp.isStop
+      ? `🏔️ ${wp.viewContext}`
+      : `Glacial valleys & mountain highway (${pct}%)`;
+    const badgeText = wp.isStop ? 'LANDMARK VISTA' : 'CORRIDOR PASS';
+
+    document.querySelectorAll('.vis-flight-hud-title').forEach(el => el.textContent = titleText);
+    document.querySelectorAll('.vis-flight-hud-sub').forEach(el => el.textContent = subText);
+    document.querySelectorAll('.vis-flight-badge').forEach(el => el.textContent = badgeText);
+    document.querySelectorAll('.vis-flight-progress-fill').forEach(el => el.style.width = `${pct}%`);
+
+    // Highlight stop in left panel if this waypoint represents a stop
+    if (wp.stopId) {
+      document.querySelectorAll('.vis-stop-item').forEach(el => {
+        el.classList.toggle('selected', el.dataset.stopId === wp.stopId);
+      });
+      const activeEl = document.querySelector(`.vis-stop-item[data-stop-id="${wp.stopId}"]`);
+      if (activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // Check if we are near an active stop
-    let approachingStop = null;
-    let stopIdx = -1;
-    let stopProfile = null;
-    for (let s = 0; s < flightStops.length; s++) {
-      const st = flightStops[s];
-      const gapMeters = Math.hypot((st.lat - curr.lat) * 111000, (st.lng - curr.lng) * 111000);
-      if (gapMeters < 320) {
-        approachingStop = st;
-        stopIdx = s + 1;
-        stopProfile = getLandmarkCameraProfile(st);
-        break;
-      }
-    }
-
-    // Update HUD with signature sightline information
-    const titleEl = document.getElementById('visFlightTitle');
-    const subEl = document.getElementById('visFlightSub');
-    if (approachingStop && stopProfile) {
-      if (titleEl) titleEl.textContent = `Stop ${stopIdx} of ${flightStops.length}: ${approachingStop.name}`;
-      if (subEl) subEl.textContent = `🏔️ ${stopProfile.viewContext || 'Surrounding mountain basin'}`;
-      heading = stopProfile.heading;
-    } else {
-      const pct = Math.round((flightCurrentIndex / (flightPathPoints.length - 1)) * 100);
-      if (titleEl) titleEl.textContent = `Following route (${pct}%)`;
-      if (subEl) subEl.textContent = 'Glacial valleys & mountain passes';
-    }
-
-    // Move camera with tailored range & tilt when viewing stops
-    const stepDuration = approachingStop ? 3200 : 1200;
-
+    // Fly camera smoothly to this dollhouse keyframe
+    const flightDur = Math.round(wp.flightDuration / flightSpeedMultiplier);
     flyCameraTo({
-      center: { lat: curr.lat, lng: curr.lng, altitude: (stopProfile ? stopProfile.elevation : 1500) },
-      range: approachingStop ? (stopProfile ? stopProfile.range : 5200) : 4200,
-      tilt: approachingStop ? (stopProfile ? stopProfile.tilt : 54) : 60,
-      heading,
-      durationMillis: stepDuration
+      center: { lat: wp.lat, lng: wp.lng, altitude: wp.altitude },
+      range: wp.range,
+      tilt: wp.tilt,
+      heading: wp.heading,
+      durationMillis: flightDur
     });
 
-    flightCurrentIndex += approachingStop ? 1 : 1;
-    flightTimeoutId = setTimeout(executeFlightStep, stepDuration + 50);
+    // Schedule next waypoint: flight time + brief landmark hover
+    const hoverDur = wp.hoverDuration ? Math.round(wp.hoverDuration / flightSpeedMultiplier) : 0;
+    const totalLegTime = flightDur + hoverDur;
+
+    if (flightTimeoutId) clearTimeout(flightTimeoutId);
+    flightTimeoutId = setTimeout(() => {
+      if (!isFlying || isFlightPaused) return;
+      flightLegIndex++;
+      executeDollhouseFlightStep();
+    }, totalLegTime);
+  }
+
+  /**
+   * Sets playback speed multiplier (0.5x, 1x, 2x).
+   */
+  function setFlightSpeed(speed) {
+    if (!speed || speed <= 0) return;
+    flightSpeedMultiplier = speed;
+
+    document.querySelectorAll('.vis-flight-speed-tag').forEach(el => {
+      el.textContent = `${speed}x`;
+    });
+
+    document.querySelectorAll('.vis-speed-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.speed) === speed);
+    });
+
+    // If currently flying and not paused, re-adjust current step timing
+    if (isFlying && !isFlightPaused) {
+      if (flightTimeoutId) clearTimeout(flightTimeoutId);
+      flightLegIndex = Math.min(flightTrajectory.length - 1, flightLegIndex + 1);
+      executeDollhouseFlightStep();
+    }
+  }
+
+  /**
+   * Skips forward or backward to adjacent stops.
+   */
+  function skipFlightLeg(delta) {
+    if (!isFlying || !flightTrajectory.length) return;
+    if (flightTimeoutId) clearTimeout(flightTimeoutId);
+
+    // Find next/prev stop waypoint in trajectory
+    let target = flightLegIndex + delta;
+    while (target >= 0 && target < flightTrajectory.length && !flightTrajectory[target].isStop) {
+      target += delta;
+    }
+    flightLegIndex = clamp(target, 0, flightTrajectory.length - 1);
+    executeDollhouseFlightStep();
   }
 
   /**
@@ -1653,14 +1919,16 @@
   function togglePauseFlyThrough() {
     if (!isFlying) return;
     isFlightPaused = !isFlightPaused;
-    const pauseBtn = document.getElementById('visPauseFlightBtn');
+
+    ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = isFlightPaused ? '▶' : '⏸';
+    });
 
     if (isFlightPaused) {
       if (flightTimeoutId) clearTimeout(flightTimeoutId);
-      if (pauseBtn) pauseBtn.textContent = 'Resume';
     } else {
-      if (pauseBtn) pauseBtn.textContent = 'Pause';
-      executeFlightStep();
+      executeDollhouseFlightStep();
     }
   }
 
@@ -1672,12 +1940,16 @@
     isFlightPaused = false;
     if (flightTimeoutId) clearTimeout(flightTimeoutId);
 
-    const hud = document.getElementById('visFlightHud');
+    updateFlightHudVisibility(false);
+
     const playBtn = document.getElementById('visPlayRouteBtn');
-    if (hud) hud.classList.add('hidden');
     if (playBtn) playBtn.textContent = '▶ Play route';
 
-    // Manual takeover should leave the camera exactly where the user took control.
+    ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = '⏸';
+    });
+
     if (restoreFit) fitActiveRoute();
     else refreshCameraReadout();
   }
@@ -1690,10 +1962,15 @@
     isFlightPaused = false;
     if (flightTimeoutId) clearTimeout(flightTimeoutId);
 
-    const hud = document.getElementById('visFlightHud');
+    updateFlightHudVisibility(false);
+
     const playBtn = document.getElementById('visPlayRouteBtn');
-    if (hud) hud.classList.add('hidden');
     if (playBtn) playBtn.textContent = '▶ Play route';
+
+    ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.textContent = '⏸';
+    });
 
     refreshCameraReadout();
   }
@@ -1951,6 +2228,9 @@
     startRouteFlyThrough,
     cancelRouteFlyThrough,
     togglePauseFlyThrough,
+    setFlightSpeed,
+    skipFlightLeg,
+    generateDollhouseFlightTrajectory,
     clearLocalKeyAndReload,
     getVisualizeActiveStops,
     getVisualizeRouteGeometry,

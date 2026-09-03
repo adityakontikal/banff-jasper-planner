@@ -316,4 +316,34 @@ test('getLandmarkCameraProfile provides signature vistas for major Rockies attra
   assert(gondolaProf.viewContext.includes('Bow Valley'), 'Expected Bow Valley in view context');
 });
 
+test('generateDollhouseFlightTrajectory produces keyframes with authentic elevations and highway corridors', () => {
+  const dayData = {
+    activeStops: [
+      { id: 'yyc', name: 'Calgary Airport', lat: 51.13, lng: -114.01, priority: 'must' },
+      { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.24, lng: -115.50, priority: 'must' },
+      { id: 'banff', name: 'Banff Town', lat: 51.17, lng: -115.57, priority: 'must' }
+    ],
+    routeCoordinates: [
+      [-114.01, 51.13],
+      [-114.50, 51.15],
+      [-115.00, 51.18],
+      [-115.50, 51.24],
+      [-115.57, 51.17]
+    ]
+  };
+
+  const trajectory = V3D.generateDollhouseFlightTrajectory(dayData);
+  assert(trajectory.length >= 3, `Expected at least 3 waypoints, got ${trajectory.length}`);
+
+  // First waypoint must be Calgary Airport
+  assert.strictEqual(trajectory[0].name, 'Calgary Airport');
+  assert.strictEqual(trajectory[0].isStop, true);
+  assert(trajectory[0].altitude >= 1000, 'Altitude must be authentic Rockies elevation (>1000m)');
+  assert(trajectory[0].range >= 4500, 'Range must provide high clearance');
+
+  // Must have inserted intermediate highway pass between Calgary and Minnewanka (~100km apart)
+  const hasCorridor = trajectory.some(wp => !wp.isStop && wp.name.includes('Corridor'));
+  assert(hasCorridor, 'Expected intermediate highway corridor waypoint for long-distance leg');
+});
+
 console.log(`\n🎉 All ${passedTests} tests passed successfully!\n`);

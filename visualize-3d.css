@@ -149,41 +149,120 @@
   font-size: 11px;
 }
 
-/* Route Flight Progress HUD */
+/* Route Flight Progress HUD (Cinematic Movie Style) */
 .vis-flight-hud {
-  background: linear-gradient(135deg, #0f2d42, #163d59);
+  background: linear-gradient(135deg, rgba(15, 45, 66, 0.96), rgba(22, 61, 89, 0.96));
   border: 1px solid #376e93;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.35);
-  animation: visPulseGaze 2.5s infinite ease-in-out;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-@keyframes visPulseGaze {
-  0%, 100% { border-color: #376e93; }
-  50% { border-color: #56c6a5; }
+.vis-flight-hud.hidden {
+  display: none !important;
+}
+
+.vis-flight-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.vis-flight-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #56c6a5, #38bdf8);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.vis-flight-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.vis-flight-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #194639;
+  color: #6ee7b7;
+  border: 1px solid #297a62;
+}
+
+.vis-flight-speed-tag {
+  font-size: 10.5px;
+  font-weight: 750;
+  color: #38bdf8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .vis-flight-hud-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   color: #fff;
+  line-height: 1.3;
 }
 
 .vis-flight-hud-sub {
-  font-size: 10.5px;
+  font-size: 11px;
   color: #a4c4d7;
-  margin-top: 2px;
+  margin-top: 3px;
+  line-height: 1.35;
 }
 
 .vis-flight-hud-actions {
   display: flex;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 5px;
+  align-items: center;
+  margin-top: 10px;
 }
+
 .vis-flight-hud-actions button {
-  flex: 1;
+  white-space: nowrap;
+}
+
+.vis-flight-speed-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  margin: 0 2px;
+}
+
+.vis-speed-btn {
+  border: none;
+  background: transparent;
+  color: #8ba2b5;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.vis-speed-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vis-speed-btn.active {
+  background: #38bdf8;
+  color: #081a27;
 }
 
 /* Stop list */
@@ -377,6 +456,33 @@
 
 @keyframes visSlideUp {
   from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating Flight HUD over the 3D Map (for Map-Only mode & Fullscreen) */
+.vis-map-flight-hud {
+  position: absolute;
+  top: 56px;
+  left: 20px;
+  max-width: 440px;
+  width: calc(100% - 40px);
+  z-index: 45;
+  background: rgba(11, 30, 44, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #376e93;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
+  animation: visSlideDown .25s ease-out;
+}
+
+.vis-map-flight-hud.hidden {
+  display: none !important;
+}
+
+@keyframes visSlideDown {
+  from { opacity: 0; transform: translateY(-12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
