@@ -5,6 +5,7 @@
 const assert = require('assert');
 const VE = require('./visualize-elevation.js');
 const V3D = require('./visualize-3d.js');
+const VW = require('./visualize-world.js');
 
 console.log('🧪 Starting 3D Visualize Test Suite...\n');
 
@@ -344,6 +345,48 @@ test('generateDollhouseFlightTrajectory produces keyframes with authentic elevat
   // Must have inserted intermediate highway pass between Calgary and Minnewanka (~100km apart)
   const hasCorridor = trajectory.some(wp => !wp.isStop && wp.name.includes('Corridor'));
   assert(hasCorridor, 'Expected intermediate highway corridor waypoint for long-distance leg');
+});
+
+// ------------------------------------------------------------
+// 6. Cinematic World math / time / route tests
+// ------------------------------------------------------------
+test('Cinematic World samples a continuous route by cumulative distance', () => {
+  const route = [[-115.57, 51.17], [-115.70, 51.20], [-115.84, 51.245]];
+  const c = VW.computeCumulative(route);
+  assert(c.totalDistanceMeters > 15000);
+  const mid = VW.sampleRouteAtDistance(c.route, c.cumulative, c.totalDistanceMeters, c.totalDistanceMeters / 2);
+  assert(mid.lat > 51.17 && mid.lat < 51.245);
+  assert(mid.lng < -115.57 && mid.lng > -115.84);
+});
+
+test('Cinematic World elevation interpolation follows profile fraction', () => {
+  const profile = { samples: [
+    { fraction: 0, elevation: 1400 },
+    { fraction: 0.5, elevation: 2000 },
+    { fraction: 1, elevation: 1600 }
+  ] };
+  assert.strictEqual(Math.round(VW.elevationAtFraction(profile, 0)), 1400);
+  assert.strictEqual(Math.round(VW.elevationAtFraction(profile, 0.25)), 1700);
+  assert.strictEqual(Math.round(VW.elevationAtFraction(profile, 0.75)), 1800);
+});
+
+test('Cinematic World trip clock encodes Alberta MDT for September', () => {
+  assert.strictEqual(
+    VW.buildTripIsoDate('2026-09-27', '06:00'),
+    '2026-09-27T06:00:00-06:00'
+  );
+});
+
+test('Cinematic World solar position is finite for Banff trip time', () => {
+  const p = VW.solarPosition(new Date('2026-09-27T14:00:00Z'), 51.1784, -115.5708);
+  assert(Number.isFinite(p.azimuth));
+  assert(Number.isFinite(p.altitude));
+  assert(p.azimuth >= 0 && p.azimuth < 360);
+});
+
+test('Cinematic World heading smoothing crosses north without a 360-degree jump', () => {
+  const h = VW.smoothHeading(355, 5, 0.5);
+  assert(h < 5 || h > 355, `Expected near north, got ${h}`);
 });
 
 console.log(`\n🎉 All ${passedTests} tests passed successfully!\n`);
