@@ -53,7 +53,16 @@
   let selectedStopId = null;
   let lastRenderedSelection = null;
 
-  // Fly-through animation state (Dollhouse cinematic mode)
+  // Renderer state: Explorer is the Google Maps 3D planning view; World is the
+  // Cesium + Google Photorealistic 3D Tiles cinematic route corridor.
+  let currentRenderer = 'explorer';
+  let worldReadyDay = null;
+  let worldLoading = false;
+  let worldStopsWithDistances = [];
+  let worldCameraMode = 'road';
+  let worldLastProgress = null;
+
+  // Fly-through animation state (legacy dollhouse flyover + world drive controller)
   let isFlying = false;
   let isFlightPaused = false;
   let flightSpeedMultiplier = 1;
@@ -469,9 +478,10 @@
 
             <!-- Action Controls -->
             <div class="vis-actions-row">
-              <button class="btn primary small" id="visPlayRouteBtn">▶ Play route</button>
+              <button class="btn primary small" id="visPlayRouteBtn">▶ Drive route</button>
+              <button class="btn small" id="visLegacyFlyBtn" title="High-level landmark flyover in Explorer">Flyover</button>
               <button class="btn small" id="visWholeTripBtn">Whole trip</button>
-              <button class="btn small" id="visResetCamBtn">Reset view</button>
+              <button class="btn small" id="visResetCamBtn">Reset</button>
             </div>
 
             <!-- Route Flight Progress HUD (Hidden when not flying) -->
@@ -538,7 +548,11 @@
 
           <!-- Map style / quick camera presets. Kept left so Google's native exploration controls remain unobstructed on the right. -->
           <div class="vis-map-toolbar">
-            <div class="vis-pill-group" role="group" aria-label="Map style">
+            <div class="vis-pill-group vis-renderer-switch" role="group" aria-label="3D renderer">
+              <button class="vis-tool-btn on" id="visRendererExplorerBtn">Explorer</button>
+              <button class="vis-tool-btn" id="visRendererWorldBtn">World</button>
+            </div>
+            <div class="vis-pill-group vis-map-style-switch" role="group" aria-label="Map style">
               <button class="vis-tool-btn on" id="visModeHybridBtn" data-mode="HYBRID">Hybrid</button>
               <button class="vis-tool-btn" id="visModeSatBtn" data-mode="SATELLITE">Satellite</button>
             </div>
@@ -571,8 +585,24 @@
             <span>Drag to move • scroll/pinch to zoom • use the camera pad or Google's controls to rotate and tilt.</span>
           </div>
 
-          <!-- The actual 3D Map Container -->
+          <!-- Google 3D Explorer -->
           <div class="visualize-map-container" id="visualizeMapContainer"></div>
+
+          <!-- Cinematic route world: Cesium + Google Photorealistic 3D Tiles. -->
+          <div class="visualize-world-container hidden" id="visualizeWorldContainer" aria-label="Cinematic 3D route world"></div>
+          <div class="vis-world-status hidden" id="visWorldStatus">
+            <div class="vis-world-status-top">
+              <span class="vis-world-badge">LIVE WORLD</span>
+              <span id="visWorldClock">Trip time</span>
+              <span id="visWorldSun">Sun —</span>
+            </div>
+            <div class="vis-world-status-sub" id="visWorldStatusSub">Real route • real terrain • real trip-time sunlight</div>
+            <div class="vis-world-camera-modes" role="group" aria-label="World camera height">
+              <button class="vis-world-mode active" data-world-camera="road">Road</button>
+              <button class="vis-world-mode" data-world-camera="scenic">Scenic</button>
+              <button class="vis-world-mode" data-world-camera="aerial">Aerial</button>
+            </div>
+          </div>
 
           <!-- Notice / Loading / Error Overlay -->
           <div class="visualize-overlay hidden" id="visualizeOverlay"></div>
@@ -614,6 +644,19 @@
 
     const playBtn = document.getElementById('visPlayRouteBtn');
     if (playBtn) playBtn.onclick = () => startRouteFlyThrough();
+
+    const legacyFlyBtn = document.getElementById('visLegacyFlyBtn');
+    if (legacyFlyBtn) legacyFlyBtn.onclick = () => startDollhouseFlyThrough();
+
+    const rendererExplorerBtn = document.getElementById('visRendererExplorerBtn');
+    if (rendererExplorerBtn) rendererExplorerBtn.onclick = () => setRenderer('explorer');
+
+    const rendererWorldBtn = document.getElementById('visRendererWorldBtn');
+    if (rendererWorldBtn) rendererWorldBtn.onclick = () => activateWorldView(false);
+
+    document.querySelectorAll('.vis-world-mode').forEach(btn => {
+      btn.onclick = () => setWorldCameraMode(btn.dataset.worldCamera);
+    });
 
     ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
       const btn = document.getElementById(id);
@@ -696,6 +739,170 @@
         e.stopPropagation();
         toggleElevationDrawer();
       };
+    }
+  }
+
+  function setRenderer(renderer) {
+    const next = renderer === 'world' ? 'world' : 'explorer';
+    currentRenderer = next;
+
+    const main = document.getElementById('visualizeMain');
+    const googleContainer = document.getElementById('visualizeMapContainer');
+    const worldContainer = document.getElementById('visualizeWorldContainer');
+    const worldStatus = document.getElementById('visWorldStatus');
+    const explorerBtn = document.getElementById('visRendererExplorerBtn');
+    const worldBtn = document.getElementById('visRendererWorldBtn');
+
+    if (main) main.classList.toggle('world-mode', next === 'world');
+    if (googleContainer) googleContainer.classList.toggle('hidden', next === 'world');
+    if (worldContainer) worldContainer.classList.toggle('hidden', next !== 'world');
+    if (worldStatus) worldStatus.classList.toggle('hidden', next !== 'world');
+    if (explorerBtn) explorerBtn.classList.toggle('on', next === 'explorer');
+    if (worldBtn) worldBtn.classList.toggle('on', next === 'world');
+
+    if (next === 'explorer' && typeof window !== 'undefined' && window.VisualizeWorld) {
+      window.VisualizeWorld.stop(false);
+      window.VisualizeWorld.hide();
+    } else if (next === 'world' && typeof window !== 'undefined' && window.VisualizeWorld) {
+      window.VisualizeWorld.show();
+    }
+  }
+
+  function resolveDayIso(dateLabel) {
+    try {
+      if (typeof DATE_ISO !== 'undefined' && DATE_ISO && DATE_ISO[dateLabel]) return DATE_ISO[dateLabel];
+    } catch (_) {}
+    const year = (typeof S !== 'undefined' && S.settings && S.settings.startDate)
+      ? String(S.settings.startDate).slice(0, 4)
+      : '2026';
+    const match = String(dateLabel || '').match(/([A-Za-z]{3})\s+(\d{1,2})/);
+    if (!match) return year + '-09-27';
+    const months = { Jan:'01', Feb:'02', Mar:'03', Apr:'04', May:'05', Jun:'06', Jul:'07', Aug:'08', Sep:'09', Oct:'10', Nov:'11', Dec:'12' };
+    return year + '-' + (months[match[1]] || '09') + '-' + String(Number(match[2])).padStart(2, '0');
+  }
+
+  function formatWorldClock(date) {
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Edmonton',
+        weekday: 'short',
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(date);
+    } catch (_) {
+      return date ? date.toLocaleTimeString() : 'Trip time';
+    }
+  }
+
+  function updateWorldHud(info) {
+    if (!info) return;
+    worldLastProgress = info;
+    const clock = document.getElementById('visWorldClock');
+    const sun = document.getElementById('visWorldSun');
+    const sub = document.getElementById('visWorldStatusSub');
+    if (clock && info.date) clock.textContent = formatWorldClock(info.date);
+    if (sun && info.sun) {
+      const sunState = info.sun.altitude >= 0 ? 'above horizon' : 'below horizon';
+      sun.textContent = 'Sun ' + Math.round(info.sun.azimuth) + '° • ' + Math.round(info.sun.altitude) + '° ' + sunState;
+    }
+    if (sub) {
+      sub.textContent = Math.round(info.surfaceHeight || 0) + ' m terrain • ' +
+        Math.round(info.cameraHeight || 0) + ' m camera • ' +
+        Math.round((info.distanceMeters || 0) / 1000) + ' / ' +
+        Math.round((info.totalDistanceMeters || 0) / 1000) + ' km';
+    }
+
+    const pct = Math.round((info.progress || 0) * 100);
+    document.querySelectorAll('.vis-flight-progress-fill').forEach(el => el.style.width = pct + '%');
+    document.querySelectorAll('.vis-flight-hud-title').forEach(el => el.textContent = 'Driving the real route • ' + pct + '%');
+    document.querySelectorAll('.vis-flight-hud-sub').forEach(el => {
+      el.textContent = formatWorldClock(info.date) + ' • sun ' + Math.round(info.sun.altitude) + '° • ' + info.cameraMode + ' camera';
+    });
+    document.querySelectorAll('.vis-flight-badge').forEach(el => el.textContent = 'VIRTUAL WORLD DRIVE');
+  }
+
+  function setWorldCameraMode(mode) {
+    worldCameraMode = ['road', 'scenic', 'aerial'].includes(mode) ? mode : 'road';
+    document.querySelectorAll('.vis-world-mode').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.worldCamera === worldCameraMode);
+    });
+    if (typeof window !== 'undefined' && window.VisualizeWorld) {
+      window.VisualizeWorld.setCameraMode(worldCameraMode);
+    }
+  }
+
+  async function prepareCinematicWorld(dayData) {
+    if (!dayData || dayData.date === 'all') throw new Error('Select an individual day for Cinematic World.');
+    if (worldLoading) return false;
+    const VW = (typeof window !== 'undefined') ? window.VisualizeWorld : null;
+    const VE = (typeof window !== 'undefined') ? window.VisualizeElevation : null;
+    if (!VW || !VE) throw new Error('Cinematic World module is unavailable.');
+
+    const worldContainer = document.getElementById('visualizeWorldContainer');
+    if (!worldContainer) throw new Error('Cinematic World container is unavailable.');
+
+    worldLoading = true;
+    try {
+      renderLoadingState('Building route corridor world • loading photorealistic terrain…');
+      await VW.initialize(worldContainer, getApiKey());
+
+      const profile = await VE.fetchElevationProfile(dayData.routeCoordinates, { stops: dayData.activeStops });
+      worldStopsWithDistances = VE.mapStopsToDistances(dayData.activeStops, dayData.routeCoordinates);
+
+      VW.loadDay({
+        routeCoordinates: dayData.routeCoordinates,
+        elevationProfile: profile,
+        stopsWithDistances: worldStopsWithDistances,
+        dateISO: resolveDayIso(dayData.date),
+        startTime: dayData.start || '08:00',
+        driveDurationSeconds: Math.max(60, Number(dayData.driveDurationMin || 0) * 60),
+        handlers: {
+          onProgress: updateWorldHud,
+          onStop: (stop, index) => {
+            if (!stop) return;
+            document.querySelectorAll('.vis-stop-item').forEach(el => {
+              el.classList.toggle('selected', el.dataset.stopId === stop.id);
+            });
+            document.querySelectorAll('.vis-flight-hud-title').forEach(el => {
+              el.textContent = 'Passing stop ' + (index + 1) + ': ' + stop.name;
+            });
+          },
+          onEnd: finishWorldDrive
+        }
+      });
+      VW.setCameraMode(worldCameraMode);
+      VW.setSpeed(flightSpeedMultiplier);
+      worldReadyDay = dayData.date;
+      setRenderer('world');
+      hideOverlay();
+      return true;
+    } finally {
+      worldLoading = false;
+    }
+  }
+
+  async function activateWorldView(autoPlay) {
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    if (currentDay === 'all') {
+      if (typeof alert === 'function') alert('Select an individual day to enter the route-level virtual world.');
+      return;
+    }
+    const dayData = getVisualizeDayData(currentDay);
+    if (!dayData || !dayData.routeCoordinates || dayData.routeCoordinates.length < 2) {
+      if (typeof alert === 'function') alert('The road route is still loading. Try again when its geometry is ready.');
+      return;
+    }
+
+    try {
+      if (worldReadyDay !== dayData.date) await prepareCinematicWorld(dayData);
+      else setRenderer('world');
+      if (autoPlay && window.VisualizeWorld) {
+        window.VisualizeWorld.play({ speed: flightSpeedMultiplier, cameraMode: worldCameraMode });
+      }
+    } catch (err) {
+      setRenderer('explorer');
+      renderErrorState(new Error('Cinematic World could not load. Enable the Google Map Tiles API for this key. ' + (err.message || String(err))));
+      throw err;
     }
   }
 
@@ -850,6 +1057,10 @@
     const isAll = currentDay === 'all';
     const selectionChanged = currentDay !== lastRenderedSelection;
     lastRenderedSelection = currentDay;
+    if (selectionChanged) {
+      worldReadyDay = null;
+      if (currentDay === 'all' && currentRenderer === 'world') setRenderer('explorer');
+    }
 
     // Update sidebar title & metrics
     const titleEl = document.getElementById('visSideTitle');
@@ -1761,9 +1972,53 @@
   }
 
   /**
+   * Primary Play action: enter the route-level virtual world and continuously
+   * drive the exact OSRM road geometry. The previous landmark flyover remains
+   * available through the secondary Flyover button.
+   */
+  async function startRouteFlyThrough() {
+    if (isFlying) {
+      cancelRouteFlyThrough(false);
+      return;
+    }
+    if (prefersReducedMotion()) {
+      if (typeof alert === 'function') alert('Route drive animation is disabled because reduced motion is enabled. You can still open World and explore manually.');
+      return;
+    }
+
+    const currentDay = (typeof S !== 'undefined' && S.selectedDay) ? S.selectedDay : 'Sep 26';
+    if (currentDay === 'all') {
+      if (typeof alert === 'function') alert('Select an individual day before driving the route.');
+      return;
+    }
+
+    try {
+      await activateWorldView(false);
+      const VW = (typeof window !== 'undefined') ? window.VisualizeWorld : null;
+      if (!VW || worldReadyDay !== currentDay) throw new Error('Virtual world is not ready.');
+
+      isFlying = true;
+      isFlightPaused = false;
+      updateFlightHudVisibility(true);
+      const playBtn = document.getElementById('visPlayRouteBtn');
+      if (playBtn) playBtn.textContent = '⏹ Stop drive';
+      document.querySelectorAll('.vis-flight-badge').forEach(el => el.textContent = 'VIRTUAL WORLD DRIVE');
+      VW.setSpeed(flightSpeedMultiplier);
+      VW.setCameraMode(worldCameraMode);
+      VW.play({ speed: flightSpeedMultiplier, cameraMode: worldCameraMode });
+    } catch (err) {
+      isFlying = false;
+      isFlightPaused = false;
+      updateFlightHudVisibility(false);
+      // Keep Explorer usable. Do not silently launch a totally different movie
+      // after a world-loading failure; surface the configuration problem instead.
+    }
+  }
+
+  /**
    * Starts a cinematic dollhouse movie flyover along the day's active route geometry.
    */
-  function startRouteFlyThrough() {
+  function startDollhouseFlyThrough() {
     if (isFlying) {
       cancelRouteFlyThrough();
       return;
@@ -1880,6 +2135,9 @@
   function setFlightSpeed(speed) {
     if (!speed || speed <= 0) return;
     flightSpeedMultiplier = speed;
+    if (currentRenderer === 'world' && typeof window !== 'undefined' && window.VisualizeWorld) {
+      window.VisualizeWorld.setSpeed(speed);
+    }
 
     document.querySelectorAll('.vis-flight-speed-tag').forEach(el => {
       el.textContent = `${speed}x`;
@@ -1901,7 +2159,24 @@
    * Skips forward or backward to adjacent stops.
    */
   function skipFlightLeg(delta) {
-    if (!isFlying || !flightTrajectory.length) return;
+    if (!isFlying) return;
+    if (currentRenderer === 'world' && typeof window !== 'undefined' && window.VisualizeWorld) {
+      const status = window.VisualizeWorld.getStatus();
+      if (!worldStopsWithDistances.length) return;
+      const current = Number(status.progress || 0);
+      let targetIndex = delta > 0 ? worldStopsWithDistances.length - 1 : 0;
+      if (delta > 0) {
+        targetIndex = worldStopsWithDistances.findIndex(entry => Number(entry.fraction || 0) > current + 0.01);
+        if (targetIndex < 0) targetIndex = worldStopsWithDistances.length - 1;
+      } else {
+        for (let i = worldStopsWithDistances.length - 1; i >= 0; i--) {
+          if (Number(worldStopsWithDistances[i].fraction || 0) < current - 0.01) { targetIndex = i; break; }
+        }
+      }
+      window.VisualizeWorld.setProgress(Number(worldStopsWithDistances[targetIndex].fraction || 0));
+      return;
+    }
+    if (!flightTrajectory.length) return;
     if (flightTimeoutId) clearTimeout(flightTimeoutId);
 
     // Find next/prev stop waypoint in trajectory
@@ -1918,7 +2193,11 @@
    */
   function togglePauseFlyThrough() {
     if (!isFlying) return;
-    isFlightPaused = !isFlightPaused;
+    if (currentRenderer === 'world' && typeof window !== 'undefined' && window.VisualizeWorld) {
+      isFlightPaused = window.VisualizeWorld.togglePause();
+    } else {
+      isFlightPaused = !isFlightPaused;
+    }
 
     ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
       const btn = document.getElementById(id);
@@ -1927,9 +2206,18 @@
 
     if (isFlightPaused) {
       if (flightTimeoutId) clearTimeout(flightTimeoutId);
-    } else {
+    } else if (currentRenderer !== 'world') {
       executeDollhouseFlightStep();
     }
+  }
+
+  function finishWorldDrive() {
+    isFlying = false;
+    isFlightPaused = false;
+    updateFlightHudVisibility(false);
+    const playBtn = document.getElementById('visPlayRouteBtn');
+    if (playBtn) playBtn.textContent = '▶ Drive route';
+    document.querySelectorAll('.vis-flight-badge').forEach(el => el.textContent = 'VIRTUAL WORLD DRIVE');
   }
 
   /**
@@ -1939,11 +2227,14 @@
     isFlying = false;
     isFlightPaused = false;
     if (flightTimeoutId) clearTimeout(flightTimeoutId);
+    if (currentRenderer === 'world' && typeof window !== 'undefined' && window.VisualizeWorld) {
+      window.VisualizeWorld.stop(restoreFit);
+    }
 
     updateFlightHudVisibility(false);
 
     const playBtn = document.getElementById('visPlayRouteBtn');
-    if (playBtn) playBtn.textContent = '▶ Play route';
+    if (playBtn) playBtn.textContent = '▶ Drive route';
 
     ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
       const btn = document.getElementById(id);
@@ -1965,7 +2256,7 @@
     updateFlightHudVisibility(false);
 
     const playBtn = document.getElementById('visPlayRouteBtn');
-    if (playBtn) playBtn.textContent = '▶ Play route';
+    if (playBtn) playBtn.textContent = '▶ Drive route';
 
     ['visPauseFlightBtn', 'visMapPauseFlightBtn'].forEach(id => {
       const btn = document.getElementById(id);
@@ -2226,6 +2517,10 @@
     toggleMapOnly,
     toggleElevationDrawer,
     startRouteFlyThrough,
+    startDollhouseFlyThrough,
+    activateWorldView,
+    setRenderer,
+    setWorldCameraMode,
     cancelRouteFlyThrough,
     togglePauseFlyThrough,
     setFlightSpeed,
