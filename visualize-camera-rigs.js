@@ -18,8 +18,6 @@
   const originalSetSpeed = World.setSpeed.bind(World);
   const originalLoadDay = World.loadDay.bind(World);
 
-  // Physical rigs are intentionally very different. Road is a low third-person
-  // driving camera; Scenic is a chase drone; Aerial is an aircraft/helicopter shot.
   const RIGS = {
     road: {
       backDistance: 7,
@@ -35,7 +33,8 @@
       panMetersPerPixel: 0.12,
       maxPanMeters: 260,
       fallbackZoom: 16.1,
-      fallbackPitch: 80
+      fallbackPitch: 80,
+      headingSampleMeters: 7
     },
     scenic: {
       backDistance: 620,
@@ -51,7 +50,8 @@
       panMetersPerPixel: 1.2,
       maxPanMeters: 3200,
       fallbackZoom: 12.4,
-      fallbackPitch: 69
+      fallbackPitch: 69,
+      headingSampleMeters: 28
     },
     aerial: {
       backDistance: 3600,
@@ -67,7 +67,8 @@
       panMetersPerPixel: 5.0,
       maxPanMeters: 14000,
       fallbackZoom: 9.7,
-      fallbackPitch: 61
+      fallbackPitch: 61,
+      headingSampleMeters: 80
     }
   };
 
@@ -80,10 +81,11 @@
     lastTracked: null,
     manualGuardBusy: false,
     manualGuardTimer: 0,
-    canvas: null
+    canvas: null,
+    headingAnchor: null,
+    motionBearing: null
   };
 
-  // Manual controls stay in rig-space so automatic Drive never erases them.
   const controls = {
     yawDeg: 0,
     lookDeg: 0,
@@ -200,6 +202,42 @@
     return [Number(fallbackCenter.lng), Number(fallbackCenter.lat)];
   }
 
+  function haversineMeters(a, b) {
+    const rad = Math.PI / 180;
+    const lat1 = Number(a[1]) * rad;
+    const lat2 = Number(b[1]) * rad;
+    const dLat = lat2 - lat1;
+    const dLng = (Number(b[0]) - Number(a[0])) * rad;
+    const h = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return 6371008.8 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+
+  function bearingBetween(a, b) {
+    const rad = Math.PI / 180;
+    const lat1 = Number(a[1]) * rad;
+    const lat2 = Number(b[1]) * rad;
+    const dLng = (Number(b[0]) - Number(a[0])) * rad;
+    const y = Math.sin(dLng) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) -
+      Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+    return normalizeHeading(Math.atan2(y, x) / rad);
+  }
+
+  function sampledMotionBearing(vehicle, fallbackBearing, rig) {
+    if (!camera.headingAnchor) {
+      camera.headingAnchor = vehicle.slice();
+      camera.motionBearing = normalizeHeading(fallbackBearing);
+      return camera.motionBearing;
+    }
+    const travelled = haversineMeters(camera.headingAnchor, vehicle);
+    if (travelled >= rig.headingSampleMeters) {
+      camera.motionBearing = bearingBetween(camera.headingAnchor, vehicle);
+      camera.headingAnchor = vehicle.slice();
+    }
+    return Number.isFinite(camera.motionBearing) ? camera.motionBearing : normalizeHeading(fallbackBearing);
+  }
+
   function smoothBearing(previous, target, dt, rig) {
     const targetHeading = normalizeHeading(target);
     if (!Number.isFinite(previous)) return targetHeading;
@@ -226,9 +264,6 @@
     const viewBearing = normalizeHeading(routeBearing + controls.yawDeg);
     const distanceScale = clamp(controls.distanceScale, rig.minDistanceScale, rig.maxDistanceScale);
     const orbitCenter = applyPan(vehicle, viewBearing, rig);
-
-    // Lead down the road only when the user faces forward. Side/back views orbit
-    // the moving vehicle instead of looking away from it.
     const yawFromRoute = Math.abs(shortestHeadingDelta(routeBearing, viewBearing));
     const leadFactor = clamp(Math.cos(Math.min(90, yawFromRoute) * Math.PI / 180), 0, 1);
     const focus = movePoint(orbitCenter, routeBearing, rig.focusLead * leadFactor);
@@ -246,8 +281,6 @@
       cameraAltitude = Math.max(cameraAltitude, corridorGround + rig.corridorClearance);
     }
 
-    // Vertical two-finger motion changes the physical look target, so it survives
-    // Drive's from/to calculation instead of being overwritten on the next frame.
     const horizontal = Math.max(8, backDistance + rig.focusLead * leadFactor);
     const lookMetersPerDegree = Math.max(0.45, horizontal * 0.012);
     const lookOffset = controls.lookDeg * lookMetersPerDegree;
@@ -330,24 +363,17 @@
       const dx = Number(event.deltaX || 0);
       const dy = Number(event.deltaY || 0);
       const rig = activeRig();
-
       if (event.ctrlKey) {
-        // macOS/Chrome exposes pinch as ctrlKey WheelEvent.
         const factor = Math.exp(clamp(dy, -45, 45) * 0.0105);
         controls.distanceScale = clamp(controls.distanceScale * factor, rig.minDistanceScale, rig.maxDistanceScale);
         return;
       }
-
       if (event.shiftKey) {
-        // Shift + two-finger scroll = deliberate map-plane pan without click-drag.
         const scale = rig.panMetersPerPixel * controls.distanceScale;
         controls.panRightMeters = clamp(controls.panRightMeters + dx * scale, -rig.maxPanMeters, rig.maxPanMeters);
         controls.panForwardMeters = clamp(controls.panForwardMeters + dy * scale, -rig.maxPanMeters, rig.maxPanMeters);
         return;
       }
-
-      // Normal two-finger motion is an open-world camera orbit: horizontal is
-      // unlimited yaw (full 360); vertical looks up/down. Diagonals do both.
       if (Math.abs(dx) > 0.2) {
         controls.yawDeg += dx * 0.22;
         if (Math.abs(controls.yawDeg) > 7200) controls.yawDeg %= 360;
@@ -370,7 +396,6 @@
       const ratio = scale / Math.max(0.01, controls.gestureScale);
       controls.distanceScale = clamp(controls.distanceScale / Math.pow(ratio, 0.90), rig.minDistanceScale, rig.maxDistanceScale);
       controls.gestureScale = scale;
-
       const rotation = Number(event.rotation || 0);
       controls.yawDeg += rotation - controls.gestureRotation;
       controls.gestureRotation = rotation;
@@ -402,7 +427,6 @@
       controls.pointerX = event.clientX;
       controls.pointerY = event.clientY;
       const rig = activeRig();
-
       if (controls.rotatePointer) {
         controls.yawDeg += dx * 0.30;
         controls.lookDeg = clamp(controls.lookDeg - dy * 0.12, -24, 24);
@@ -434,7 +458,6 @@
     camera.map = map;
     camera.previousJump = map.jumpTo.bind(map);
     camera.nativeJump = map.__rockiesNativeJumpTo || camera.previousJump;
-
     try { map.setMaxPitch(82); } catch (_) {}
     installDriveInteractions(map);
 
@@ -445,18 +468,17 @@
         Number.isFinite(Number(opts.bearing)) && Number.isFinite(Number(opts.pitch)) &&
         Number.isFinite(Number(opts.zoom));
       if (!autoFrame) return camera.previousJump(opts, eventData);
-
       const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
       const dt = camera.lastAt ? clamp((now - camera.lastAt) / 1000, 0.008, 0.08) : 0.016;
       camera.lastAt = now;
       const rig = RIGS[st.cameraMode] || RIGS.scenic;
-      camera.autoBearing = smoothBearing(camera.autoBearing, Number(opts.bearing), dt, rig);
       const vehicle = currentTrackedPoint(map, opts.center);
+      const motionBearing = sampledMotionBearing(vehicle, Number(opts.bearing), rig);
+      camera.autoBearing = smoothBearing(camera.autoBearing, motionBearing, dt, rig);
       const rigOptions = cameraOptionsForRig(map, vehicle, camera.autoBearing, rig);
       return camera.nativeJump(rigOptions, eventData);
     };
 
-    // Outside Drive, keep the free camera from settling inside real terrain.
     map.on('move', function () {
       if (status().active || camera.manualGuardBusy) return;
       if (camera.manualGuardTimer) clearTimeout(camera.manualGuardTimer);
@@ -481,7 +503,6 @@
       const corridorGround = maxTerrainBetween(map, cameraCoord, centerCoord, Math.max(localGround, centerGround), 12);
       const requiredAltitude = Math.max(localGround + 12, corridorGround + 18);
       if (!Number.isFinite(currentAltitude) || currentAltitude >= requiredAltitude) return;
-
       camera.manualGuardBusy = true;
       if (typeof map.calculateCameraOptionsFromCameraLngLatAltRotation === 'function') {
         const safe = map.calculateCameraOptionsFromCameraLngLatAltRotation(
@@ -501,10 +522,6 @@
 
   function cinematicDurationMs(totalDistanceMeters) {
     const km = Math.max(0, Number(totalDistanceMeters || 0) / 1000);
-    // Desired 1x screen time: 5–10 minutes. The underlying world still caps its
-    // base duration at five minutes, so cinematicPlay maps requested UI speed to
-    // a lower effective engine speed. This preserves 0.5x / 1x / 2x semantics:
-    // long days become ~20 / 10 / 5 minutes respectively.
     return clamp(km * 2500, 300000, 600000);
   }
 
@@ -529,6 +546,8 @@
     opts.speed = effectiveEngineSpeed(requestedSpeed, st.totalDistanceMeters);
     camera.autoBearing = null;
     camera.lastAt = 0;
+    camera.headingAnchor = null;
+    camera.motionBearing = null;
     resetControls();
     return originalPlay(opts);
   };
@@ -549,6 +568,8 @@
       camera.autoBearing = null;
       camera.lastAt = 0;
       camera.lastTracked = null;
+      camera.headingAnchor = null;
+      camera.motionBearing = null;
       return originalSetProgress(fraction);
     };
   }
@@ -558,6 +579,8 @@
     World.setCameraMode = function finalRigSetCameraMode(mode) {
       camera.autoBearing = null;
       camera.lastAt = 0;
+      camera.headingAnchor = null;
+      camera.motionBearing = null;
       resetControls();
       return originalSetCameraMode(mode);
     };
@@ -568,9 +591,7 @@
     if (map) {
       installDriveRig(map);
       styleRouteForOpenWorld(map);
-      try {
-        map.on('idle', function () { styleRouteForOpenWorld(map); });
-      } catch (_) {}
+      try { map.on('idle', function () { styleRouteForOpenWorld(map); }); } catch (_) {}
     }
     return map;
   };
