@@ -70,8 +70,8 @@ const server = http.createServer((req, res) => {
   if (reqPath === '/' || !reqPath) reqPath = '/index.html';
 
   if (reqPath === '/runtime-config.js') {
-    // Google is strictly optional/legacy. The default Visualize experience is
-    // a keyless MapLibre/OpenFreeMap/AWS Open Terrain world.
+    // Google is optional. The default Visualize experience remains the keyless
+    // MapLibre/OpenFreeMap/AWS Open Terrain world.
     const apiKey = process.env.GOOGLE_MAPS_API_KEY || '';
     const localTerrain = resolveLocalTerrainConfig();
     const config = {
@@ -105,17 +105,31 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     document.body.appendChild(script);
   }
 
+  function loadGoogleSwitcherThenFree(){
+    if (document.getElementById('visualizeGoogleSwitcherScript')) {
+      loadFreeController();
+      return;
+    }
+    var switcher = document.createElement('script');
+    switcher.id = 'visualizeGoogleSwitcherScript';
+    switcher.src = 'visualize-google-switcher.js';
+    switcher.async = false;
+    switcher.onload = loadFreeController;
+    switcher.onerror = loadFreeController;
+    document.body.appendChild(switcher);
+  }
+
   function loadCameraRigsThenController(){
     if (document.getElementById('visualizeCameraRigsScript')) {
-      loadFreeController();
+      loadGoogleSwitcherThenFree();
       return;
     }
     var rigs = document.createElement('script');
     rigs.id = 'visualizeCameraRigsScript';
     rigs.src = 'visualize-camera-rigs.js';
     rigs.async = false;
-    rigs.onload = loadFreeController;
-    rigs.onerror = loadFreeController;
+    rigs.onload = loadGoogleSwitcherThenFree;
+    rigs.onerror = loadGoogleSwitcherThenFree;
     document.body.appendChild(rigs);
   }
 
