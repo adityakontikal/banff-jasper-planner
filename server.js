@@ -32,6 +32,32 @@ const MIME = {
   '.ico': 'image/x-icon'
 };
 
+function resolveLocalTerrainConfig() {
+  const localTerrainDir = path.join(__dirname, 'terrain');
+  const manifestPath = path.join(localTerrainDir, 'terrain-manifest.json');
+  const requested = process.env.ROCKIES_LOCAL_TERRAIN === '1';
+
+  if (!requested || !fs.existsSync(localTerrainDir) || !fs.existsSync(manifestPath)) {
+    return { enabled: false, verified: false, reason: 'Local terrain is not explicitly enabled with a verified manifest.' };
+  }
+
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const source = String(manifest.source || manifest.dataset || '');
+    const encoding = String(manifest.encoding || manifest.format || '').toLowerCase();
+    const isRealNrcan = /nrcan|natural resources canada/i.test(source);
+    const isTerrarium = /terrarium/.test(encoding);
+    const explicitlyNonSynthetic = manifest.synthetic === false;
+
+    if (isRealNrcan && isTerrarium && explicitlyNonSynthetic) {
+      return { enabled: true, verified: true, reason: 'Verified NRCan Terrarium manifest.' };
+    }
+    return { enabled: false, verified: false, reason: 'Manifest did not prove genuine non-synthetic NRCan Terrarium data.' };
+  } catch (err) {
+    return { enabled: false, verified: false, reason: 'Local terrain manifest could not be validated: ' + err.message };
+  }
+}
+
 const server = http.createServer((req, res) => {
   let reqPath;
   try {
@@ -44,17 +70,18 @@ const server = http.createServer((req, res) => {
   if (reqPath === '/' || !reqPath) reqPath = '/index.html';
 
   if (reqPath === '/runtime-config.js') {
-    // Google is now strictly optional/legacy. The default Visualize experience is
+    // Google is strictly optional/legacy. The default Visualize experience is
     // a keyless MapLibre/OpenFreeMap/AWS Open Terrain world.
     const apiKey = process.env.GOOGLE_MAPS_API_KEY || '';
-    const localTerrainDir = path.join(__dirname, 'terrain');
-    const hasLocalTerrain = fs.existsSync(localTerrainDir);
+    const localTerrain = resolveLocalTerrainConfig();
     const config = {
       googleMapsApiKey: apiKey,
       freeWorld: true,
       paidApiRequired: false,
-      localTerrain: hasLocalTerrain,
-      terrainTileUrl: hasLocalTerrain ? '/terrain/{z}/{x}/{y}.png' : null
+      localTerrain: localTerrain.enabled,
+      localTerrainVerified: localTerrain.verified,
+      localTerrainReason: localTerrain.reason,
+      terrainTileUrl: localTerrain.enabled ? '/terrain/{z}/{x}/{y}.png' : null
     };
     const configBody = `
 window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.stringify(config)});
@@ -69,15 +96,34 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     document.head.appendChild(link);
   }
 
+  function loadFreeController(){
+    if (document.getElementById('visualizeFreeScript')) return;
+    var script = document.createElement('script');
+    script.id = 'visualizeFreeScript';
+    script.src = 'visualize-free.js';
+    script.async = false;
+    document.body.appendChild(script);
+  }
+
+  function loadStabilityThenController(){
+    if (document.getElementById('visualizeStabilityScript')) {
+      loadFreeController();
+      return;
+    }
+    var stability = document.createElement('script');
+    stability.id = 'visualizeStabilityScript';
+    stability.src = 'visualize-stability.js';
+    stability.async = false;
+    stability.onload = loadFreeController;
+    stability.onerror = loadFreeController;
+    document.body.appendChild(stability);
+  }
+
   var attempts = 0;
   function loadController(){
     if (document.getElementById('visualizeFreeScript')) return;
     if (window.Visualize3D && window.VisualizeWorld) {
-      var script = document.createElement('script');
-      script.id = 'visualizeFreeScript';
-      script.src = 'visualize-free.js';
-      script.async = false;
-      document.body.appendChild(script);
+      loadStabilityThenController();
       return;
     }
     attempts += 1;
@@ -101,6 +147,17 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
   }
 
   if (reqPath.startsWith('/terrain/')) {
+    const localTerrain = resolveLocalTerrainConfig();
+    if (!localTerrain.enabled) {
+      res.writeHead(404, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-store'
+      });
+      res.end('Local terrain disabled: ' + localTerrain.reason);
+      return;
+    }
+
     const terrainFile = path.resolve(__dirname, '.' + path.sep + path.normalize(reqPath));
     if (fs.existsSync(terrainFile)) {
       res.writeHead(200, {
@@ -111,7 +168,9 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
       fs.createReadStream(terrainFile).pipe(res);
       return;
     }
-    // Fallback & dynamic caching: AWS Open Data Terrarium for any tile not yet generated locally
+
+    // A verified local pyramid may be intentionally sparse. Missing tiles use
+    // the consistent AWS Open Data Terrarium DEM rather than fabricated relief.
     const relTile = reqPath.replace(/^\/terrain\//, '');
     const awsFallback = `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${relTile}`;
     https.get(awsFallback, (s3Res) => {
@@ -121,18 +180,7 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
           'Access-Control-Allow-Origin': '*',
           'Cache-Control': 'public, max-age=86400, immutable'
         });
-        const chunks = [];
-        s3Res.on('data', chunk => {
-          res.write(chunk);
-          chunks.push(chunk);
-        });
-        s3Res.on('end', () => {
-          res.end();
-          try {
-            fs.mkdirSync(path.dirname(terrainFile), { recursive: true });
-            fs.writeFile(terrainFile, Buffer.concat(chunks), () => {});
-          } catch (_) {}
-        });
+        s3Res.pipe(res);
       } else {
         res.writeHead(s3Res.statusCode || 404, {
           'Content-Type': 'text/plain',
