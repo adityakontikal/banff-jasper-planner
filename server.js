@@ -105,17 +105,31 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     document.body.appendChild(script);
   }
 
+  function loadCameraRigsThenController(){
+    if (document.getElementById('visualizeCameraRigsScript')) {
+      loadFreeController();
+      return;
+    }
+    var rigs = document.createElement('script');
+    rigs.id = 'visualizeCameraRigsScript';
+    rigs.src = 'visualize-camera-rigs.js';
+    rigs.async = false;
+    rigs.onload = loadFreeController;
+    rigs.onerror = loadFreeController;
+    document.body.appendChild(rigs);
+  }
+
   function loadStabilityThenController(){
     if (document.getElementById('visualizeStabilityScript')) {
-      loadFreeController();
+      loadCameraRigsThenController();
       return;
     }
     var stability = document.createElement('script');
     stability.id = 'visualizeStabilityScript';
     stability.src = 'visualize-stability.js';
     stability.async = false;
-    stability.onload = loadFreeController;
-    stability.onerror = loadFreeController;
+    stability.onload = loadCameraRigsThenController;
+    stability.onerror = loadCameraRigsThenController;
     document.body.appendChild(stability);
   }
 
