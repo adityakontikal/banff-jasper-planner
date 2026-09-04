@@ -1,10 +1,9 @@
 /* visualize-camera-rigs.js
- * Final camera-rig layer for the free Rockies world.
+ * Final interactive camera-rig layer for the free Rockies world.
  *
- * This layer intentionally sits after visualize-stability.js. Stability keeps
- * terrain authenticity, open-world styling and trackpad gesture state. This file
- * owns only the route-playback timescale and the three physically distinct
- * camera rigs so Road / Scenic / Aerial cannot collapse into the same framing.
+ * Owns active Drive camera composition and controls. Terrain stability remains
+ * in visualize-stability.js; this layer restores game-like manual camera control
+ * while the route continues moving underneath it.
  */
 (function (root) {
   'use strict';
@@ -16,44 +15,59 @@
   const World = root.VisualizeWorld;
   const originalInitialize = World.initialize.bind(World);
   const originalPlay = World.play.bind(World);
+  const originalSetSpeed = World.setSpeed.bind(World);
+  const originalLoadDay = World.loadDay.bind(World);
 
-  // Intentionally very different physical camera positions.
-  // Distances are horizontal metres behind the tracked route point.
-  // heightAboveTerrain is a minimum camera clearance above the highest sampled
-  // terrain between camera and target; it is not a fake terrain elevation.
+  // Physical rigs are intentionally very different. Road is a low third-person
+  // driving camera; Scenic is a chase drone; Aerial is an aircraft/helicopter shot.
   const RIGS = {
     road: {
-      distance: 24,
-      heightAboveTerrain: 7,
-      minHeightAboveCameraGround: 5,
-      targetLift: 2.2,
-      bearingRate: 1.20,
-      bearingDeadband: 0.85,
-      maxTurnRate: 11,
-      minDistance: 12,
-      maxDistance: 95
+      backDistance: 7,
+      focusLead: 22,
+      eyeClearance: 3.6,
+      corridorClearance: 0,
+      lookLift: 1.4,
+      bearingRate: 0.92,
+      bearingDeadband: 1.35,
+      maxTurnRate: 6.5,
+      minDistanceScale: 0.55,
+      maxDistanceScale: 4.0,
+      panMetersPerPixel: 0.12,
+      maxPanMeters: 260,
+      fallbackZoom: 16.1,
+      fallbackPitch: 80
     },
     scenic: {
-      distance: 680,
-      heightAboveTerrain: 220,
-      minHeightAboveCameraGround: 170,
-      targetLift: 5,
-      bearingRate: 0.48,
-      bearingDeadband: 1.8,
-      maxTurnRate: 5.5,
-      minDistance: 260,
-      maxDistance: 1800
+      backDistance: 620,
+      focusLead: 95,
+      eyeClearance: 185,
+      corridorClearance: 120,
+      lookLift: 8,
+      bearingRate: 0.34,
+      bearingDeadband: 2.4,
+      maxTurnRate: 3.0,
+      minDistanceScale: 0.42,
+      maxDistanceScale: 2.8,
+      panMetersPerPixel: 1.2,
+      maxPanMeters: 3200,
+      fallbackZoom: 12.4,
+      fallbackPitch: 69
     },
     aerial: {
-      distance: 3600,
-      heightAboveTerrain: 1450,
-      minHeightAboveCameraGround: 1100,
-      targetLift: 20,
-      bearingRate: 0.30,
-      bearingDeadband: 2.4,
-      maxTurnRate: 3.2,
-      minDistance: 1500,
-      maxDistance: 7800
+      backDistance: 3600,
+      focusLead: 520,
+      eyeClearance: 1320,
+      corridorClearance: 900,
+      lookLift: 45,
+      bearingRate: 0.18,
+      bearingDeadband: 4.0,
+      maxTurnRate: 1.5,
+      minDistanceScale: 0.48,
+      maxDistanceScale: 2.6,
+      panMetersPerPixel: 5.0,
+      maxPanMeters: 14000,
+      fallbackZoom: 9.7,
+      fallbackPitch: 61
     }
   };
 
@@ -65,7 +79,24 @@
     lastAt: 0,
     lastTracked: null,
     manualGuardBusy: false,
-    manualGuardTimer: 0
+    manualGuardTimer: 0,
+    canvas: null
+  };
+
+  // Manual controls stay in rig-space so automatic Drive never erases them.
+  const controls = {
+    yawDeg: 0,
+    lookDeg: 0,
+    distanceScale: 1,
+    panRightMeters: 0,
+    panForwardMeters: 0,
+    pointerActive: false,
+    pointerId: null,
+    pointerX: 0,
+    pointerY: 0,
+    rotatePointer: false,
+    gestureScale: 1,
+    gestureRotation: 0
   };
 
   function clamp(value, min, max) {
@@ -85,13 +116,25 @@
     try { return World.getStatus ? World.getStatus() : {}; } catch (_) { return {}; }
   }
 
-  function offsets() {
+  function activeRig() {
+    const mode = status().cameraMode;
+    return RIGS[mode] || RIGS.scenic;
+  }
+
+  function resetControls() {
+    controls.yawDeg = 0;
+    controls.lookDeg = 0;
+    controls.distanceScale = 1;
+    controls.panRightMeters = 0;
+    controls.panForwardMeters = 0;
+    controls.pointerActive = false;
+    controls.pointerId = null;
+    controls.rotatePointer = false;
     try {
-      if (root.ROCKIES_CAMERA_GESTURES && typeof root.ROCKIES_CAMERA_GESTURES.getOffsets === 'function') {
-        return root.ROCKIES_CAMERA_GESTURES.getOffsets() || {};
+      if (root.ROCKIES_CAMERA_GESTURES && typeof root.ROCKIES_CAMERA_GESTURES.resetViewOffsets === 'function') {
+        root.ROCKIES_CAMERA_GESTURES.resetViewOffsets();
       }
     } catch (_) {}
-    return { zoomDelta: 0, pitchDelta: 0, bearingDelta: 0 };
   }
 
   function movePoint(origin, bearingDeg, distanceMeters) {
@@ -131,11 +174,11 @@
     }
   }
 
-  function maxTerrainBetween(map, from, to, fallback) {
+  function maxTerrainBetween(map, from, to, fallback, samples) {
     let maximum = Number(fallback || 0);
-    // More samples than the previous guard because Aerial spans kilometres.
-    for (let i = 0; i <= 16; i++) {
-      maximum = Math.max(maximum, terrainHeight(map, interpolateCoord(from, to, i / 16), fallback));
+    const count = Math.max(4, Number(samples || 12));
+    for (let i = 0; i <= count; i++) {
+      maximum = Math.max(maximum, terrainHeight(map, interpolateCoord(from, to, i / count), fallback));
     }
     return maximum;
   }
@@ -153,7 +196,8 @@
       }
     } catch (_) {}
     if (camera.lastTracked) return camera.lastTracked.slice();
-    return Array.isArray(fallbackCenter) ? fallbackCenter.slice() : [Number(fallbackCenter.lng), Number(fallbackCenter.lat)];
+    if (Array.isArray(fallbackCenter)) return fallbackCenter.slice();
+    return [Number(fallbackCenter.lng), Number(fallbackCenter.lat)];
   }
 
   function smoothBearing(previous, target, dt, rig) {
@@ -169,50 +213,219 @@
     return normalizeHeading(previous + step);
   }
 
-  function cameraOptionsForRig(map, target, viewBearing, rig, gestureOffsets) {
-    const zoomDelta = Number(gestureOffsets.zoomDelta || 0);
-    // Positive pinch-in moves closer; pinch-out moves farther. Preserve large
-    // separation between rigs even at the user's maximum gesture offset.
-    const distanceScale = Math.pow(2, -zoomDelta * 0.34);
-    const distance = clamp(rig.distance * distanceScale, rig.minDistance, rig.maxDistance);
-    const fromCoord = movePoint(target, normalizeHeading(viewBearing + 180), distance);
+  function applyPan(point, viewBearing, rig) {
+    const maxPan = rig.maxPanMeters;
+    const forward = clamp(controls.panForwardMeters, -maxPan, maxPan);
+    const right = clamp(controls.panRightMeters, -maxPan, maxPan);
+    let shifted = movePoint(point, viewBearing, forward);
+    shifted = movePoint(shifted, viewBearing + 90, right);
+    return shifted;
+  }
 
-    const targetGround = terrainHeight(map, target, 0);
-    const cameraGround = terrainHeight(map, fromCoord, targetGround);
-    const corridorGround = maxTerrainBetween(map, fromCoord, target, Math.max(targetGround, cameraGround));
-    const targetAltitude = targetGround + rig.targetLift;
+  function cameraOptionsForRig(map, vehicle, routeBearing, rig) {
+    const viewBearing = normalizeHeading(routeBearing + controls.yawDeg);
+    const distanceScale = clamp(controls.distanceScale, rig.minDistanceScale, rig.maxDistanceScale);
+    const orbitCenter = applyPan(vehicle, viewBearing, rig);
 
-    // Each rig has its own actual altitude floor. This is what makes Aerial an
-    // aircraft-like shot instead of simply a zoomed version of Road.
-    const cameraAltitude = Math.max(
-      corridorGround + rig.heightAboveTerrain,
-      cameraGround + rig.minHeightAboveCameraGround,
-      targetAltitude + rig.heightAboveTerrain
-    );
+    // Lead down the road only when the user faces forward. Side/back views orbit
+    // the moving vehicle instead of looking away from it.
+    const yawFromRoute = Math.abs(shortestHeadingDelta(routeBearing, viewBearing));
+    const leadFactor = clamp(Math.cos(Math.min(90, yawFromRoute) * Math.PI / 180), 0, 1);
+    const focus = movePoint(orbitCenter, routeBearing, rig.focusLead * leadFactor);
+    const backDistance = rig.backDistance * distanceScale;
+    const fromCoord = movePoint(orbitCenter, viewBearing + 180, backDistance);
+
+    const vehicleGround = terrainHeight(map, orbitCenter, 0);
+    const cameraGround = terrainHeight(map, fromCoord, vehicleGround);
+    const focusGround = terrainHeight(map, focus, vehicleGround);
+    let cameraAltitude = Math.max(cameraGround + rig.eyeClearance, vehicleGround + rig.eyeClearance);
+
+    if (rig.corridorClearance > 0) {
+      const sampleCount = rig === RIGS.aerial ? 24 : 14;
+      const corridorGround = maxTerrainBetween(map, fromCoord, focus, Math.max(cameraGround, focusGround), sampleCount);
+      cameraAltitude = Math.max(cameraAltitude, corridorGround + rig.corridorClearance);
+    }
+
+    // Vertical two-finger motion changes the physical look target, so it survives
+    // Drive's from/to calculation instead of being overwritten on the next frame.
+    const horizontal = Math.max(8, backDistance + rig.focusLead * leadFactor);
+    const lookMetersPerDegree = Math.max(0.45, horizontal * 0.012);
+    const lookOffset = controls.lookDeg * lookMetersPerDegree;
+    const floorBelowTerrain = rig === RIGS.road ? 5 : Math.min(450, horizontal * 0.15);
+    let targetAltitude = Math.max(focusGround - floorBelowTerrain, focusGround + rig.lookLift + lookOffset);
+    targetAltitude = Math.min(targetAltitude, cameraAltitude - 0.5);
 
     try {
       if (typeof map.calculateCameraOptionsFromTo === 'function' && root.maplibregl && root.maplibregl.LngLat) {
         const from = new root.maplibregl.LngLat(fromCoord[0], fromCoord[1]);
-        const to = new root.maplibregl.LngLat(target[0], target[1]);
-        // IMPORTANT: use the CameraOptions exactly as calculated. The previous
-        // regression overwrote `center` afterwards, invalidating the from/to
-        // geometry and causing the three modes to converge visually.
+        const to = new root.maplibregl.LngLat(focus[0], focus[1]);
         const options = map.calculateCameraOptionsFromTo(from, cameraAltitude, to, targetAltitude);
         options.elevation = targetAltitude;
         return options;
       }
     } catch (_) {}
 
-    // Conservative fallback for browsers missing calculateCameraOptionsFromTo.
-    const fallbackZoom = rig === RIGS.road ? 15 : (rig === RIGS.scenic ? 12.6 : 9.8);
-    const fallbackPitch = rig === RIGS.road ? 76 : (rig === RIGS.scenic ? 68 : 58);
     return {
-      center: target.slice(),
+      center: focus.slice(),
       elevation: targetAltitude,
-      bearing: normalizeHeading(viewBearing),
-      pitch: clamp(fallbackPitch + Number(gestureOffsets.pitchDelta || 0), 20, 79),
-      zoom: clamp(fallbackZoom + zoomDelta, 6, 15)
+      bearing: viewBearing,
+      pitch: clamp(rig.fallbackPitch + controls.lookDeg * 0.35, 20, 82),
+      zoom: clamp(rig.fallbackZoom - Math.log2(distanceScale), 5.5, 16.5)
     };
+  }
+
+  function styleRouteForOpenWorld(map) {
+    if (!map) return;
+    try {
+      if (map.getSource('rockies-route') && !map.getLayer('rockies-route-glow')) {
+        map.addLayer({
+          id: 'rockies-route-glow',
+          type: 'line',
+          source: 'rockies-route',
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: {
+            'line-color': 'rgba(255, 92, 48, 0.30)',
+            'line-width': ['interpolate', ['linear'], ['zoom'], 7, 7, 12, 11, 16, 17],
+            'line-blur': 2.2
+          }
+        }, map.getLayer('rockies-route-casing') ? 'rockies-route-casing' : undefined);
+      }
+      if (map.getLayer('rockies-route-casing')) {
+        map.setPaintProperty('rockies-route-casing', 'line-color', 'rgba(27, 11, 8, 0.92)');
+        map.setPaintProperty('rockies-route-casing', 'line-width', ['interpolate', ['linear'], ['zoom'], 7, 4.5, 12, 6.5, 16, 9.0]);
+      }
+      if (map.getLayer('rockies-route-line')) {
+        map.setPaintProperty('rockies-route-line', 'line-color', '#ff5c30');
+        map.setPaintProperty('rockies-route-line', 'line-opacity', 0.98);
+        map.setPaintProperty('rockies-route-line', 'line-width', ['interpolate', ['linear'], ['zoom'], 7, 2.8, 12, 4.2, 16, 5.8]);
+      }
+      if (map.getLayer('rockies-vehicle-halo')) {
+        map.setPaintProperty('rockies-vehicle-halo', 'circle-color', 'rgba(255, 92, 48, 0.24)');
+        map.setPaintProperty('rockies-vehicle-halo', 'circle-stroke-color', 'rgba(255, 116, 70, 0.90)');
+      }
+      if (map.getLayer('rockies-vehicle-puck')) {
+        map.setPaintProperty('rockies-vehicle-puck', 'circle-stroke-color', '#ff5c30');
+      }
+    } catch (_) {}
+  }
+
+  function activeEvent(event) {
+    if (!status().active) return false;
+    if (event && event.preventDefault) event.preventDefault();
+    if (event && event.stopImmediatePropagation) event.stopImmediatePropagation();
+    return true;
+  }
+
+  function installDriveInteractions(map) {
+    if (!map || map.__rockiesDriveInteractions) return;
+    map.__rockiesDriveInteractions = true;
+    const canvas = (typeof map.getCanvasContainer === 'function' && map.getCanvasContainer()) || map.getCanvas();
+    if (!canvas) return;
+    camera.canvas = canvas;
+    canvas.style.touchAction = 'none';
+    canvas.tabIndex = canvas.tabIndex >= 0 ? canvas.tabIndex : 0;
+
+    canvas.addEventListener('wheel', function (event) {
+      if (!activeEvent(event)) return;
+      const dx = Number(event.deltaX || 0);
+      const dy = Number(event.deltaY || 0);
+      const rig = activeRig();
+
+      if (event.ctrlKey) {
+        // macOS/Chrome exposes pinch as ctrlKey WheelEvent.
+        const factor = Math.exp(clamp(dy, -45, 45) * 0.0105);
+        controls.distanceScale = clamp(controls.distanceScale * factor, rig.minDistanceScale, rig.maxDistanceScale);
+        return;
+      }
+
+      if (event.shiftKey) {
+        // Shift + two-finger scroll = deliberate map-plane pan without click-drag.
+        const scale = rig.panMetersPerPixel * controls.distanceScale;
+        controls.panRightMeters = clamp(controls.panRightMeters + dx * scale, -rig.maxPanMeters, rig.maxPanMeters);
+        controls.panForwardMeters = clamp(controls.panForwardMeters + dy * scale, -rig.maxPanMeters, rig.maxPanMeters);
+        return;
+      }
+
+      // Normal two-finger motion is an open-world camera orbit: horizontal is
+      // unlimited yaw (full 360); vertical looks up/down. Diagonals do both.
+      if (Math.abs(dx) > 0.2) {
+        controls.yawDeg += dx * 0.22;
+        if (Math.abs(controls.yawDeg) > 7200) controls.yawDeg %= 360;
+      }
+      if (Math.abs(dy) > 0.2) {
+        controls.lookDeg = clamp(controls.lookDeg - dy * 0.055, -24, 24);
+      }
+    }, { passive: false, capture: true });
+
+    canvas.addEventListener('gesturestart', function (event) {
+      if (!activeEvent(event)) return;
+      controls.gestureScale = Math.max(0.01, Number(event.scale || 1));
+      controls.gestureRotation = Number(event.rotation || 0);
+    }, { passive: false, capture: true });
+
+    canvas.addEventListener('gesturechange', function (event) {
+      if (!activeEvent(event)) return;
+      const rig = activeRig();
+      const scale = Math.max(0.01, Number(event.scale || 1));
+      const ratio = scale / Math.max(0.01, controls.gestureScale);
+      controls.distanceScale = clamp(controls.distanceScale / Math.pow(ratio, 0.90), rig.minDistanceScale, rig.maxDistanceScale);
+      controls.gestureScale = scale;
+
+      const rotation = Number(event.rotation || 0);
+      controls.yawDeg += rotation - controls.gestureRotation;
+      controls.gestureRotation = rotation;
+    }, { passive: false, capture: true });
+
+    canvas.addEventListener('gestureend', function (event) {
+      if (!activeEvent(event)) return;
+      controls.gestureScale = 1;
+      controls.gestureRotation = 0;
+    }, { passive: false, capture: true });
+
+    canvas.addEventListener('pointerdown', function (event) {
+      if (!status().active) return;
+      if (event.button !== 0 && event.button !== 2) return;
+      activeEvent(event);
+      controls.pointerActive = true;
+      controls.pointerId = event.pointerId;
+      controls.pointerX = event.clientX;
+      controls.pointerY = event.clientY;
+      controls.rotatePointer = event.button === 2 || event.ctrlKey || event.metaKey;
+      try { canvas.setPointerCapture(event.pointerId); } catch (_) {}
+    }, { passive: false, capture: true });
+
+    canvas.addEventListener('pointermove', function (event) {
+      if (!controls.pointerActive || event.pointerId !== controls.pointerId || !status().active) return;
+      activeEvent(event);
+      const dx = event.clientX - controls.pointerX;
+      const dy = event.clientY - controls.pointerY;
+      controls.pointerX = event.clientX;
+      controls.pointerY = event.clientY;
+      const rig = activeRig();
+
+      if (controls.rotatePointer) {
+        controls.yawDeg += dx * 0.30;
+        controls.lookDeg = clamp(controls.lookDeg - dy * 0.12, -24, 24);
+      } else {
+        const scale = rig.panMetersPerPixel * controls.distanceScale;
+        controls.panRightMeters = clamp(controls.panRightMeters - dx * scale, -rig.maxPanMeters, rig.maxPanMeters);
+        controls.panForwardMeters = clamp(controls.panForwardMeters + dy * scale, -rig.maxPanMeters, rig.maxPanMeters);
+      }
+    }, { passive: false, capture: true });
+
+    function finishPointer(event) {
+      if (!controls.pointerActive || event.pointerId !== controls.pointerId) return;
+      if (status().active) activeEvent(event);
+      try { canvas.releasePointerCapture(event.pointerId); } catch (_) {}
+      controls.pointerActive = false;
+      controls.pointerId = null;
+      controls.rotatePointer = false;
+    }
+    canvas.addEventListener('pointerup', finishPointer, { passive: false, capture: true });
+    canvas.addEventListener('pointercancel', finishPointer, { passive: false, capture: true });
+    canvas.addEventListener('contextmenu', function (event) {
+      if (status().active) activeEvent(event);
+    }, { passive: false, capture: true });
   }
 
   function installDriveRig(map) {
@@ -222,7 +435,8 @@
     camera.previousJump = map.jumpTo.bind(map);
     camera.nativeJump = map.__rockiesNativeJumpTo || camera.previousJump;
 
-    try { map.setMaxPitch(80); } catch (_) {}
+    try { map.setMaxPitch(82); } catch (_) {}
+    installDriveInteractions(map);
 
     map.jumpTo = function finalRigJumpTo(options, eventData) {
       const opts = Object.assign({}, options || {});
@@ -230,30 +444,23 @@
       const autoFrame = !!st.active && Array.isArray(opts.center) &&
         Number.isFinite(Number(opts.bearing)) && Number.isFinite(Number(opts.pitch)) &&
         Number.isFinite(Number(opts.zoom));
-
       if (!autoFrame) return camera.previousJump(opts, eventData);
 
       const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
       const dt = camera.lastAt ? clamp((now - camera.lastAt) / 1000, 0.008, 0.08) : 0.016;
       camera.lastAt = now;
-
-      const mode = st.cameraMode === 'road' || st.cameraMode === 'aerial' ? st.cameraMode : 'scenic';
-      const rig = RIGS[mode];
-      const gestureOffsets = offsets();
+      const rig = RIGS[st.cameraMode] || RIGS.scenic;
       camera.autoBearing = smoothBearing(camera.autoBearing, Number(opts.bearing), dt, rig);
-      const bearing = normalizeHeading(camera.autoBearing + Number(gestureOffsets.bearingDelta || 0));
-      const target = currentTrackedPoint(map, opts.center);
-      const rigOptions = cameraOptionsForRig(map, target, bearing, rig, gestureOffsets);
-
+      const vehicle = currentTrackedPoint(map, opts.center);
+      const rigOptions = cameraOptionsForRig(map, vehicle, camera.autoBearing, rig);
       return camera.nativeJump(rigOptions, eventData);
     };
 
-    // If the user manually drives the free camera into terrain, correct only
-    // after a short idle period. We do not fight normal gestures frame-by-frame.
+    // Outside Drive, keep the free camera from settling inside real terrain.
     map.on('move', function () {
       if (status().active || camera.manualGuardBusy) return;
       if (camera.manualGuardTimer) clearTimeout(camera.manualGuardTimer);
-      camera.manualGuardTimer = setTimeout(function () { protectManualCamera(map); }, 90);
+      camera.manualGuardTimer = setTimeout(function () { protectManualCamera(map); }, 100);
     });
   }
 
@@ -271,7 +478,7 @@
       const centerCoord = [center.lng, center.lat];
       const localGround = terrainHeight(map, cameraCoord, 0);
       const centerGround = terrainHeight(map, centerCoord, localGround);
-      const corridorGround = maxTerrainBetween(map, cameraCoord, centerCoord, Math.max(localGround, centerGround));
+      const corridorGround = maxTerrainBetween(map, cameraCoord, centerCoord, Math.max(localGround, centerGround), 12);
       const requiredAltitude = Math.max(localGround + 12, corridorGround + 18);
       if (!Number.isFinite(currentAltitude) || currentAltitude >= requiredAltitude) return;
 
@@ -281,12 +488,12 @@
           cameraLngLat,
           requiredAltitude,
           map.getBearing(),
-          clamp(map.getPitch(), 0, 78),
+          clamp(map.getPitch(), 0, 80),
           0
         );
         camera.nativeJump(safe);
       }
-      setTimeout(function () { camera.manualGuardBusy = false; }, 40);
+      setTimeout(function () { camera.manualGuardBusy = false; }, 50);
     } catch (_) {
       camera.manualGuardBusy = false;
     }
@@ -294,19 +501,46 @@
 
   function cinematicDurationMs(totalDistanceMeters) {
     const km = Math.max(0, Number(totalDistanceMeters || 0) / 1000);
-    // 1x target: roughly 1.8 seconds of screen time per route kilometre,
-    // bounded to 4–15 minutes. 0.5x therefore becomes 8–30 minutes, while 2x
-    // remains useful for quickly reviewing a long day.
-    return clamp(km * 1800, 240000, 900000);
+    // Desired 1x screen time: 5–10 minutes. The underlying world still caps its
+    // base duration at five minutes, so cinematicPlay maps requested UI speed to
+    // a lower effective engine speed. This preserves 0.5x / 1x / 2x semantics:
+    // long days become ~20 / 10 / 5 minutes respectively.
+    return clamp(km * 2500, 300000, 600000);
   }
+
+  function effectiveEngineSpeed(requestedSpeed, totalDistanceMeters) {
+    const desiredDuration = cinematicDurationMs(totalDistanceMeters);
+    const engineDuration = Math.min(300000, desiredDuration);
+    return clamp(Number(requestedSpeed || 1) * engineDuration / desiredDuration, 0.25, 4);
+  }
+
+  World.setSpeed = function cinematicSetSpeed(value) {
+    const st = status();
+    return originalSetSpeed(effectiveEngineSpeed(clamp(Number(value || 1), 0.5, 2), st.totalDistanceMeters));
+  };
 
   World.play = function cinematicPlay(options) {
     const opts = Object.assign({}, options || {});
     const st = status();
-    opts.durationMs = cinematicDurationMs(st.totalDistanceMeters);
+    const requestedSpeed = clamp(Number(opts.speed || 1), 0.5, 2);
+    const desiredDuration = cinematicDurationMs(st.totalDistanceMeters);
+    const engineDuration = Math.min(300000, desiredDuration);
+    opts.durationMs = engineDuration;
+    opts.speed = effectiveEngineSpeed(requestedSpeed, st.totalDistanceMeters);
     camera.autoBearing = null;
     camera.lastAt = 0;
+    resetControls();
     return originalPlay(opts);
+  };
+
+  World.loadDay = function finalRigLoadDay(options) {
+    const result = originalLoadDay(options);
+    const map = World.getMap ? World.getMap() : camera.map;
+    if (map) {
+      styleRouteForOpenWorld(map);
+      setTimeout(function () { styleRouteForOpenWorld(map); }, 0);
+    }
+    return result;
   };
 
   if (World.setProgress) {
@@ -324,19 +558,37 @@
     World.setCameraMode = function finalRigSetCameraMode(mode) {
       camera.autoBearing = null;
       camera.lastAt = 0;
+      resetControls();
       return originalSetCameraMode(mode);
     };
   }
 
   World.initialize = async function finalRigInitialize(targetContainer) {
     const map = await originalInitialize(targetContainer);
-    if (map) installDriveRig(map);
+    if (map) {
+      installDriveRig(map);
+      styleRouteForOpenWorld(map);
+      try {
+        map.on('idle', function () { styleRouteForOpenWorld(map); });
+      } catch (_) {}
+    }
     return map;
   };
 
   root.ROCKIES_FINAL_CAMERA_RIGS = {
     rigs: RIGS,
     cinematicDurationMs: cinematicDurationMs,
+    effectiveEngineSpeed: effectiveEngineSpeed,
+    resetControls: resetControls,
+    getControls: function () {
+      return {
+        yawDeg: controls.yawDeg,
+        lookDeg: controls.lookDeg,
+        distanceScale: controls.distanceScale,
+        panRightMeters: controls.panRightMeters,
+        panForwardMeters: controls.panForwardMeters
+      };
+    },
     protectManualCamera: function () {
       if (camera.map) protectManualCamera(camera.map);
     }
