@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test-visualize.js && node test-free-world.js && node test-network-contract.js && node test-terrain-integrity.js",
-    "check": "node --check app.js && node --check verified-plan.js && node --check mobile-ui.js && node --check adaptive-map-timeline.js && node --check product-plan.js && node --check trip-checklist.js && node --check closure-policy.js && node --check scroll-policy.js && node --check server.js && node --check visualize-elevation.js && node --check visualize-world.js && node --check visualize-stability.js && node --check visualize-3d.js && node --check visualize-free.js && node --check test-visualize.js && node --check test-free-world.js && node --check test-network-contract.js && node --check test-terrain-integrity.js"
+    "test": "node test-visualize.js && node test-free-world.js && node test-network-contract.js && node test-terrain-integrity.js && node test-camera-gestures.js",
+    "check": "node --check app.js && node --check verified-plan.js && node --check mobile-ui.js && node --check adaptive-map-timeline.js && node --check product-plan.js && node --check trip-checklist.js && node --check closure-policy.js && node --check scroll-policy.js && node --check server.js && node --check visualize-elevation.js && node --check visualize-world.js && node --check visualize-stability.js && node --check visualize-3d.js && node --check visualize-free.js && node --check test-visualize.js && node --check test-free-world.js && node --check test-network-contract.js && node --check test-terrain-integrity.js && node --check test-camera-gestures.js"
   },
   "engines": {
     "node": ">=20.0.0"
