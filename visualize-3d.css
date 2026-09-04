@@ -1,0 +1,1175 @@
+/* visualize-3d.css
+ * Dark glass styling for the 3D Canadian Rockies visualization workspace.
+ */
+
+/* ---------------- Top-level view container ---------------- */
+#visualizeview.view.on {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  position: relative;
+}
+
+.visualize-workspace {
+  display: grid;
+  grid-template-columns: 370px 1fr;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.visualize-workspace.map-only {
+  grid-template-columns: 1fr;
+}
+
+.visualize-workspace.map-only .visualize-sidebar {
+  display: none;
+}
+
+/* ---------------- Floating Left Sidebar ---------------- */
+.visualize-sidebar {
+  background: #0b1e2c;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  z-index: 20;
+}
+
+.vis-sidehead {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: #10283a;
+  flex-shrink: 0;
+}
+
+.vis-sidetitle {
+  margin: 2px 0 0;
+  font-size: 15px;
+  font-weight: 750;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.vis-dayswitch {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-top: 8px;
+  scrollbar-width: none;
+}
+.vis-dayswitch::-webkit-scrollbar {
+  display: none;
+}
+
+.vis-daybtn {
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  background: #081a27;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 9px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all .15s ease;
+}
+
+.vis-daybtn:hover {
+  color: #fff;
+  border-color: #3b6b8c;
+}
+
+.vis-daybtn.on {
+  background: #173d54;
+  color: #fff;
+  border-color: #4e7891;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+.vis-sidebody {
+  padding: 10px 12px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Metric chips */
+.vis-day-metric-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.vis-metric-chip {
+  background: #071925;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.vis-met-val {
+  font-size: 13px;
+  font-weight: 850;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.vis-met-lbl {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* Action buttons row */
+.vis-actions-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.vis-actions-row button {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11px;
+}
+
+/* Route Flight Progress HUD (Cinematic Movie Style) */
+.vis-flight-hud {
+  background: linear-gradient(135deg, rgba(15, 45, 66, 0.96), rgba(22, 61, 89, 0.96));
+  border: 1px solid #376e93;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.vis-flight-hud.hidden {
+  display: none !important;
+}
+
+.vis-flight-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.vis-flight-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #56c6a5, #38bdf8);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.vis-flight-badge-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.vis-flight-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #194639;
+  color: #6ee7b7;
+  border: 1px solid #297a62;
+}
+
+.vis-flight-speed-tag {
+  font-size: 10.5px;
+  font-weight: 750;
+  color: #38bdf8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.vis-flight-hud-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.3;
+}
+
+.vis-flight-hud-sub {
+  font-size: 11px;
+  color: #a4c4d7;
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.vis-flight-hud-actions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.vis-flight-hud-actions button {
+  white-space: nowrap;
+}
+
+.vis-flight-speed-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+  margin: 0 2px;
+}
+
+.vis-speed-btn {
+  border: none;
+  background: transparent;
+  color: #8ba2b5;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.vis-speed-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vis-speed-btn.active {
+  background: #38bdf8;
+  color: #081a27;
+}
+
+/* Stop list */
+.vis-stoplist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vis-stop-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 8px;
+  align-items: center;
+  background: #0d2536;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 7px 9px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+
+.vis-stop-item:hover {
+  border-color: #3f6888;
+  background: #112d42;
+  transform: translateX(2px);
+}
+
+.vis-stop-item.selected {
+  border-color: #56c6a5;
+  background: #103848;
+  box-shadow: 0 0 0 1px #56c6a5;
+}
+
+.vis-stop-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #071925;
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 850;
+  color: #a8c7db;
+}
+
+.vis-stop-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vis-stop-meta {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ---------------- Selected Stop Inspector Card ---------------- */
+.vis-selected-stop-card {
+  background: linear-gradient(135deg, #0e293c, #0d202d);
+  border: 1px solid #376e93;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.4);
+  transition: all .2s ease;
+}
+
+.vis-selected-stop-card.hidden {
+  display: none !important;
+}
+
+.vis-stop-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.vis-stop-card-step {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #56c6a5;
+  font-weight: 800;
+}
+
+.vis-stop-card-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.vis-stop-card-close {
+  background: transparent;
+  border: none;
+  color: #7fa0b6;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.vis-stop-card-close:hover {
+  color: #fff;
+  background: rgba(255,255,255,.1);
+}
+
+.vis-stop-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.vis-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #a4c4d7;
+  background: rgba(255,255,255,.07);
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.vis-stop-card-context {
+  display: flex;
+  gap: 8px;
+  background: rgba(86, 198, 165, 0.09);
+  border-left: 3px solid #56c6a5;
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  margin: 8px 0 10px;
+  font-size: 11.5px;
+  color: #cde6f5;
+  line-height: 1.45;
+}
+
+.vis-context-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.vis-context-text {
+  flex: 1;
+}
+
+.vis-stop-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.vis-stop-card-nav {
+  display: flex;
+  gap: 4px;
+}
+
+/* Floating Stop Card over the 3D Map (for Map-Only mode & Mobile) */
+.vis-map-stop-card {
+  position: absolute;
+  bottom: 60px;
+  left: 20px;
+  max-width: 440px;
+  width: calc(100% - 40px);
+  z-index: 40;
+  background: rgba(11, 30, 44, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #376e93;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
+  animation: visSlideUp .25s ease-out;
+}
+
+.vis-map-stop-card.hidden {
+  display: none !important;
+}
+
+@keyframes visSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating Flight HUD over the 3D Map (for Map-Only mode & Fullscreen) */
+.vis-map-flight-hud {
+  position: absolute;
+  top: 56px;
+  left: 20px;
+  max-width: 440px;
+  width: calc(100% - 40px);
+  z-index: 45;
+  background: rgba(11, 30, 44, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #376e93;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.6);
+  animation: visSlideDown .25s ease-out;
+}
+
+.vis-map-flight-hud.hidden {
+  display: none !important;
+}
+
+@keyframes visSlideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vis-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+.vis-badge.must { background: rgba(86,198,165,.2); color: #84ebcb; border: 1px solid #367d69; }
+.vis-badge.nice { background: rgba(104,185,255,.2); color: #bde0ff; border: 1px solid #3c6d96; }
+.vis-badge.hotel { background: rgba(197,166,255,.2); color: #ebdfff; border: 1px solid #7d65ac; }
+
+/* Whole trip summary row */
+.vis-wholeday-row {
+  background: #0d2536;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all .15s ease;
+  margin-bottom: 6px;
+}
+.vis-wholeday-row:hover {
+  background: #112d42;
+  border-color: #4a7596;
+}
+.vis-wholeday-title {
+  font-size: 12px;
+  color: #fff;
+}
+.vis-wholeday-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ---------------- Main 3D Viewport ---------------- */
+.visualize-main {
+  position: relative;
+  background: #040d14;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.visualize-map-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+/* Top Floating Bar */
+.vis-map-toolbar {
+  position: absolute;
+  z-index: 10;
+  top: 12px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  background: rgba(11, 30, 44, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 4px 6px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.vis-pill-group {
+  display: flex;
+  background: #071925;
+  border-radius: 6px;
+  padding: 2px;
+  border: 1px solid var(--line);
+}
+
+.vis-tool-btn {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.vis-tool-btn:hover {
+  color: #fff;
+}
+.vis-tool-btn.on {
+  background: #173d54;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+
+/* Explicit camera controls. Google 3D's native exploration controls remain visible on the right. */
+.vis-camera-dock {
+  position: absolute;
+  z-index: 11;
+  top: 58px;
+  left: 14px;
+  width: 174px;
+  padding: 7px;
+  background: rgba(7,25,37,.9);
+  backdrop-filter: blur(12px);
+  border-radius: 11px;
+  box-shadow: 0 5px 18px rgba(0,0,0,.42);
+}
+
+.vis-camera-row {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.vis-camera-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.vis-camera-btn,
+.vis-camera-fit {
+  min-height: 32px;
+  border: 1px solid #365970;
+  border-radius: 7px;
+  background: rgba(13,37,54,.96);
+  color: #eaf5fa;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+
+.vis-camera-btn:hover,
+.vis-camera-fit:hover {
+  background: #173d54;
+  border-color: #5a89a7;
+}
+
+.vis-camera-btn:active,
+.vis-camera-fit:active {
+  transform: translateY(1px);
+}
+
+.vis-camera-north {
+  color: #79d4b5;
+}
+
+.vis-camera-wide {
+  grid-column: span 3;
+  min-height: 29px;
+  font-size: 10px;
+}
+
+.vis-camera-readout {
+  min-width: 0;
+  text-align: center;
+  font-size: 9.5px;
+  color: #a8c0cf;
+  white-space: nowrap;
+}
+
+.vis-camera-fit {
+  width: 100%;
+  margin-top: 5px;
+  min-height: 29px;
+  font-size: 10px;
+}
+
+.vis-control-help {
+  position: absolute;
+  z-index: 12;
+  top: 12px;
+  left: 380px;
+  max-width: 390px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border: 1px solid #42667d;
+  border-radius: 9px;
+  background: rgba(7,25,37,.94);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.35);
+  font-size: 10px;
+  color: #b8ccd8;
+  pointer-events: none;
+}
+.vis-control-help b { color: #fff; font-size: 10px; }
+
+/* ---------------- Elevation Drawer ---------------- */
+.visualize-elevation-drawer {
+  position: absolute;
+  z-index: 15;
+  bottom: 10px;
+  left: 12px;
+  right: auto;
+  width: min(680px, calc(100% - 24px));
+  background: rgba(11, 30, 44, 0.92);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 250px;
+}
+
+.visualize-elevation-drawer.collapsed {
+  max-height: 42px;
+}
+
+.vis-elev-header {
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(16, 40, 58, 0.7);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.vis-elev-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.vis-elev-stats-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #72cca7;
+  background: rgba(86,198,165,0.12);
+  border: 1px solid rgba(86,198,165,0.25);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.vis-elev-toggle-btn {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 4px;
+  transition: transform 0.2s ease;
+}
+
+.vis-elev-content {
+  padding: 8px 12px 10px;
+}
+
+.elev-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 140px;
+}
+
+.elev-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.elev-tooltip {
+  position: absolute;
+  background: #081a27;
+  border: 1px solid #56c6a5;
+  color: #fff;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 30;
+}
+
+.elev-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
+.elev-empty-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+/* ---------------- Overlay / Setup Card ---------------- */
+.visualize-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 25;
+  background: rgba(4, 13, 20, 0.88);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.vis-overlay-card {
+  background: #0b1e2c;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+}
+
+.vis-overlay-icon {
+  font-size: 36px;
+  margin-bottom: 12px;
+}
+
+.vis-spinner {
+  width: 38px;
+  height: 38px;
+  border: 3px solid rgba(86,198,165,0.2);
+  border-top-color: #56c6a5;
+  border-radius: 50%;
+  animation: visSpin 0.9s linear infinite;
+  margin: 0 auto;
+}
+
+@keyframes visSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Setup state card */
+.visualize-setup-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+}
+
+.vis-setup-card {
+  background: #0b1e2c;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 580px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.55);
+}
+
+.vis-setup-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #56c6a5;
+  background: rgba(86,198,165,0.15);
+  border: 1px solid rgba(86,198,165,0.3);
+  padding: 3px 9px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.vis-setup-card h2 {
+  margin: 0 0 10px;
+  font-size: 21px;
+  color: #fff;
+}
+
+.vis-setup-card p {
+  color: #c7d9e4;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 0;
+}
+
+.vis-setup-instructions {
+  background: #071925;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 16px 0;
+}
+
+.vis-setup-instructions ol {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #adc6d6;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.vis-setup-instructions code {
+  background: #05111a;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 2px 5px;
+  border-radius: 5px;
+  color: #7cdbb5;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 11px;
+}
+
+.vis-setup-form {
+  margin-top: 14px;
+}
+
+.vis-setup-form label {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.vis-setup-input-group {
+  display: flex;
+  gap: 8px;
+}
+
+.vis-setup-input-group input {
+  flex: 1;
+}
+
+/* ---------------- Mobile Responsive Layout (max-width: 768px, ~390px) ---------------- */
+@media (max-width: 768px) {
+  #visualizeview.view.on {
+    height: calc(100vh - 120px) !important;
+    min-height: 500px !important;
+  }
+
+  .visualize-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0;
+    height: 100%;
+  }
+
+  .visualize-sidebar {
+    height: auto;
+    max-height: 200px;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0;
+  }
+
+  .vis-day-metric-card {
+    display: none;
+  }
+
+  .vis-actions-row {
+    margin-bottom: 6px;
+  }
+
+  .vis-stoplist {
+    max-height: 80px;
+    overflow-y: auto;
+  }
+
+  .visualize-main {
+    border-radius: 0 0 10px 10px;
+    height: 100%;
+    min-height: 380px;
+  }
+
+  .vis-map-toolbar {
+    top: 8px;
+    left: 8px;
+    right: auto;
+    max-width: calc(100% - 16px);
+    overflow-x: auto;
+    padding: 3px 5px;
+  }
+
+  .vis-camera-dock {
+    top: 52px;
+    left: 8px;
+    width: 154px;
+    padding: 6px;
+  }
+
+  .vis-camera-row {
+    grid-template-columns: 31px 1fr 31px;
+  }
+
+  .vis-camera-btn,
+  .vis-camera-fit {
+    min-height: 34px;
+  }
+
+  .vis-control-help {
+    top: 52px;
+    left: 170px;
+    right: 8px;
+    max-width: none;
+    font-size: 9px;
+  }
+
+  .visualize-elevation-drawer {
+    left: 6px;
+    right: auto;
+    width: calc(100% - 12px);
+    bottom: 6px;
+    max-height: 160px;
+  }
+
+  .visualize-elevation-drawer.collapsed {
+    max-height: 38px;
+  }
+
+  .elev-chart-wrapper {
+    height: 90px;
+  }
+
+  .vis-setup-card {
+    padding: 18px;
+  }
+}
+
+
+/* ---------------- Cinematic World renderer ---------------- */
+.visualize-world-container {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #02070b;
+  overflow: hidden;
+}
+
+.visualize-world-container .cesium-viewer,
+.visualize-world-container .cesium-viewer-cesiumWidgetContainer,
+.visualize-world-container .cesium-widget,
+.visualize-world-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.visualize-world-container .cesium-viewer-bottom {
+  z-index: 70;
+}
+
+.visualize-main.world-mode .vis-map-style-switch,
+.visualize-main.world-mode #visPresetDollhouseBtn,
+.visualize-main.world-mode #visPresetValleyBtn,
+.visualize-main.world-mode #visPresetHighBtn,
+.visualize-main.world-mode #visControlsHelpBtn,
+.visualize-main.world-mode .vis-camera-dock,
+.visualize-main.world-mode .vis-control-help {
+  display: none !important;
+}
+
+.visualize-main.world-mode .vis-map-toolbar {
+  background: rgba(4, 13, 20, .78);
+}
+
+.vis-world-status {
+  position: absolute;
+  z-index: 44;
+  top: 58px;
+  right: 14px;
+  min-width: 260px;
+  max-width: 390px;
+  padding: 9px 11px;
+  border: 1px solid rgba(86,198,165,.42);
+  border-radius: 11px;
+  background: rgba(4, 13, 20, .84);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.52);
+  color: #eaf6fb;
+  pointer-events: auto;
+}
+
+.vis-world-status-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.vis-world-badge {
+  border: 1px solid rgba(86,198,165,.55);
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: rgba(86,198,165,.16);
+  color: #8ff0d0;
+  font-size: 8.5px;
+  letter-spacing: .07em;
+}
+
+.vis-world-status-sub {
+  margin-top: 5px;
+  color: #9db8c8;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.vis-world-camera-modes {
+  display: flex;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.vis-world-mode {
+  flex: 1;
+  min-height: 28px;
+  border: 1px solid #31546b;
+  border-radius: 7px;
+  background: rgba(12, 35, 50, .92);
+  color: #a8c1d0;
+  cursor: pointer;
+  font-size: 9.5px;
+  font-weight: 800;
+}
+
+.vis-world-mode:hover {
+  border-color: #5a89a7;
+  color: #fff;
+}
+
+.vis-world-mode.active {
+  border-color: #56c6a5;
+  background: rgba(86,198,165,.18);
+  color: #d8fff2;
+}
+
+.visualize-main.world-mode .visualize-elevation-drawer {
+  opacity: .84;
+}
+
+.visualize-main.world-mode .vis-map-flight-hud {
+  background: rgba(4, 13, 20, .86);
+  border-color: rgba(86,198,165,.46);
+}
+
+@media (max-width: 768px) {
+  .vis-world-status {
+    top: 50px;
+    right: 8px;
+    left: auto;
+    min-width: 0;
+    width: min(250px, calc(100% - 176px));
+    padding: 7px 8px;
+  }
+
+  .vis-world-status-top {
+    gap: 4px;
+    font-size: 8.5px;
+  }
+
+  .vis-world-status-sub {
+    font-size: 8.5px;
+  }
+
+  .vis-world-mode {
+    min-height: 30px;
+    font-size: 9px;
+  }
+
+  .visualize-main.world-mode .vis-map-flight-hud {
+    top: 142px;
+    left: 8px;
+    width: calc(100% - 16px);
+    max-width: none;
+  }
+}

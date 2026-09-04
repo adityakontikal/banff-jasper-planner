@@ -1,0 +1,186 @@
+/* Free/open-data Visualize skin. Loaded by /runtime-config.js. */
+.free-world-workspace {
+  grid-template-columns: 340px minmax(0, 1fr);
+}
+
+.free-world-main {
+  background: linear-gradient(180deg, #5a82a6 0%, #9cbcd4 45%, #d6e2e6 75%, #bcc8b8 100%);
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.visualize-world-container,
+#visualizeWorldContainer,
+#visualizeWorldContainer.maplibregl-map {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 2;
+  background: linear-gradient(180deg, #5a82a6 0%, #9cbcd4 45%, #d6e2e6 75%, #bcc8b8 100%);
+  overflow: hidden !important;
+}
+
+.visualize-world-container .maplibregl-canvas-container,
+.visualize-world-container .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.vis-free-source-note {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 10px;
+  padding: 9px 10px;
+  border: 1px solid rgba(86,198,165,.28);
+  border-left: 3px solid #56c6a5;
+  border-radius: 9px;
+  background: rgba(86,198,165,.07);
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #a9c7d5;
+}
+.vis-free-source-note b { color: #dffdf4; font-size: 11px; }
+
+.free-world-actions {
+  margin-bottom: 7px;
+}
+
+.vis-free-playback-row {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto auto;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.free-world-camera-modes {
+  margin-bottom: 10px;
+}
+
+.vis-free-live-card {
+  padding: 9px 10px;
+  border: 1px solid rgba(104,185,255,.26);
+  border-radius: 10px;
+  background: linear-gradient(145deg,rgba(9,29,43,.92),rgba(7,23,34,.92));
+}
+
+.vis-free-live-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.vis-free-live-main {
+  margin: 6px 0 7px;
+  color: #a9c1cf;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.vis-free-map-hud {
+  position: absolute;
+  z-index: 45;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 88px);
+  padding: 6px 9px;
+  border: 1px solid rgba(86,198,165,.32);
+  border-radius: 9px;
+  background: rgba(3,13,20,.76);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 5px 18px rgba(0,0,0,.35);
+  font-size: 10px;
+  color: #bed4df;
+  pointer-events: none;
+}
+
+.free-stop-button {
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+}
+
+.free-stop-button.selected {
+  border-color: #56c6a5;
+  background: #103848;
+  box-shadow: 0 0 0 1px rgba(86,198,165,.55);
+}
+
+.free-world-main .maplibregl-ctrl-bottom-left,
+.free-world-main .maplibregl-ctrl-bottom-right {
+  z-index: 55;
+}
+
+.free-world-main .maplibregl-ctrl-attrib {
+  background: rgba(3,13,20,.72);
+  color: #a9bdca;
+  font-size: 9px;
+}
+.free-world-main .maplibregl-ctrl-attrib a { color: #dcebf2; }
+
+.free-world-main .maplibregl-ctrl-group {
+  background: rgba(5,20,30,.88);
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 5px 16px rgba(0,0,0,.35);
+}
+.free-world-main .maplibregl-ctrl button .maplibregl-ctrl-icon {
+  filter: invert(1) opacity(.8);
+}
+
+.free-world-workspace.map-only {
+  grid-template-columns: 1fr;
+}
+.free-world-workspace.map-only .visualize-sidebar { display: none; }
+
+@media (max-width: 768px) {
+  .free-world-workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(380px,1fr);
+  }
+
+  .free-world-workspace .visualize-sidebar {
+    max-height: 220px;
+  }
+
+  .free-world-workspace .vis-sidebody {
+    padding-top: 7px;
+  }
+
+  .vis-free-source-note,
+  .free-world-workspace .vis-day-metric-card,
+  .free-world-workspace .vis-free-live-card,
+  .free-world-workspace .vis-stoplist,
+  .free-world-workspace .vis-sidebody > .ey {
+    display: none;
+  }
+
+  .vis-free-playback-row {
+    grid-template-columns: 1fr auto auto;
+    margin-bottom: 5px;
+  }
+
+  .free-world-camera-modes {
+    margin-bottom: 0;
+  }
+
+  .vis-free-map-hud {
+    left: 8px;
+    top: 8px;
+    max-width: calc(100% - 68px);
+    padding: 5px 7px;
+    font-size: 8.5px;
+  }
+}

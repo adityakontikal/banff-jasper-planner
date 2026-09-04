@@ -1560,6 +1560,10 @@ function getLeg(s1, s2) {
           }
         }
       }
+      const visView = document.getElementById('visualizeview');
+      if (visView && visView.classList.contains('on') && window.Visualize3D && typeof window.Visualize3D.chooseVisualizeDay === 'function') {
+        window.Visualize3D.chooseVisualizeDay(S.selectedDay);
+      }
     } else {
       legCache[key] = { ...fallback, status: 'error' };
       renderSummary();
@@ -2093,6 +2097,15 @@ function setView(id) {
   if (id === 'fieldview') renderField();
   if (id === 'settings') refreshRawJson();
   if (id === 'finalize') renderSummary();
+  if (id === 'visualizeview') {
+    if (window.Visualize3D && typeof window.Visualize3D.onVisualizeTabActivated === 'function') {
+      window.Visualize3D.onVisualizeTabActivated();
+    }
+  } else {
+    if (window.Visualize3D && typeof window.Visualize3D.cancelRouteFlyThrough === 'function') {
+      window.Visualize3D.cancelRouteFlyThrough();
+    }
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
@@ -3478,3 +3491,25 @@ if (tripPhase() === 'during' && todayLabel()) {
 } else if (!isBooked('shuttle')) {
   toast('Set an alarm: shuttle seats Sep 25, 8:00 AM Mountain.');
 }
+
+function applyInitialHashView() {
+  const hash = (window.location.hash || '').replace(/^#/, '');
+  if (!hash) return;
+  const [viewId, query] = hash.split('?');
+  if (document.getElementById(viewId)) {
+    setView(viewId);
+    if (query && viewId === 'visualizeview') {
+      const params = new URLSearchParams(query);
+      const day = params.get('day');
+      if (day && window.Visualize3D && typeof window.Visualize3D.chooseVisualizeDay === 'function') {
+        window.Visualize3D.chooseVisualizeDay(day);
+      }
+      const stop = params.get('stop');
+      if (stop && window.Visualize3D && typeof window.Visualize3D.selectStopById === 'function') {
+        setTimeout(() => window.Visualize3D.selectStopById(stop), 700);
+      }
+    }
+  }
+}
+window.addEventListener('hashchange', applyInitialHashView);
+applyInitialHashView();
