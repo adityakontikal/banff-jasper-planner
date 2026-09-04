@@ -484,15 +484,16 @@
       });
       World.setCameraMode(cameraMode);
       World.setSpeed(speed);
-      World.setProgress(0);
       worldReadyDay = dayData.date;
       hideOverlay();
 
       if (autoPlay) {
         isPlaying = true;
+        World.setProgress(0);
         World.play({ speed: speed, cameraMode: cameraMode });
       } else {
         isPlaying = false;
+        World.fitRoute(0);
       }
       updatePlaybackUi();
     } catch (err) {

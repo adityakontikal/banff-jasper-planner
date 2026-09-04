@@ -46,10 +46,14 @@ const server = http.createServer((req, res) => {
     // Google is now strictly optional/legacy. The default Visualize experience is
     // a keyless MapLibre/OpenFreeMap/AWS Open Terrain world.
     const apiKey = process.env.GOOGLE_MAPS_API_KEY || '';
+    const localTerrainDir = path.join(__dirname, 'terrain');
+    const hasLocalTerrain = fs.existsSync(localTerrainDir);
     const config = {
       googleMapsApiKey: apiKey,
       freeWorld: true,
-      paidApiRequired: false
+      paidApiRequired: false,
+      localTerrain: hasLocalTerrain,
+      terrainTileUrl: hasLocalTerrain ? '/terrain/{z}/{x}/{y}.png' : null
     };
     const configBody = `
 window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.stringify(config)});
@@ -95,6 +99,24 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     return;
   }
 
+  if (reqPath.startsWith('/terrain/')) {
+    const terrainFile = path.resolve(__dirname, '.' + path.sep + path.normalize(reqPath));
+    if (fs.existsSync(terrainFile)) {
+      res.writeHead(200, {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=86400, immutable'
+      });
+      fs.createReadStream(terrainFile).pipe(res);
+      return;
+    }
+    // Fallback: AWS Open Data Terrarium for any tile not yet generated locally
+    const relTile = reqPath.replace(/^\/terrain\//, '');
+    const awsFallback = `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${relTile}`;
+    res.writeHead(302, { 'Location': awsFallback, 'Cache-Control': 'public, max-age=86400' });
+    res.end();
+    return;
+  }
+
   const filePath = path.resolve(__dirname, '.' + path.sep + path.normalize(reqPath));
 
   if (!filePath.startsWith(__dirname + path.sep) && filePath !== path.join(__dirname, 'index.html')) {
@@ -106,6 +128,11 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
   fs.readFile(filePath, (err, data) => {
     if (err) {
       if (err.code === 'ENOENT') {
+        if (reqPath.startsWith('/terrain/') || /\.(png|jpg|jpeg|webp|pbf|bin|svg|css|js|json)$/i.test(reqPath)) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('404 Not Found');
+          return;
+        }
         fs.readFile(path.join(__dirname, 'index.html'), (err2, indexData) => {
           if (err2) {
             res.writeHead(404, { 'Content-Type': 'text/plain' });

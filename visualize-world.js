@@ -30,6 +30,7 @@
   let map = null;
   let container = null;
   let mapLoaded = false;
+  let initPromise = null;
 
   const state = {
     route: [],
@@ -52,6 +53,8 @@
     baseDurationMs: 90000,
     smoothedHeading: null,
     smoothedGroundElevation: null,
+    groundElevationHistory: [],
+    lastDistanceMeters: 0,
     lastStopIndex: -1,
     lastLightingUpdate: 0,
     handlers: {}
@@ -167,6 +170,66 @@
     let delta = target - previous;
     if (Number.isFinite(maxDelta)) delta = clamp(delta, -Math.abs(maxDelta), Math.abs(maxDelta));
     return previous + delta * clamp(alpha, 0, 1);
+  }
+
+  function median(values) {
+    if (!values || !values.length) return 0;
+    const sorted = values.slice().sort(function (a, b) { return a - b; });
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+
+  function smoothHeadingExp(previous, target, rate, dtSeconds) {
+    const normTarget = normalizeHeading(target);
+    if (!Number.isFinite(previous)) return normTarget;
+    const dt = clamp(Number(dtSeconds || 0.016), 0.001, 0.2);
+    const r = Number.isFinite(rate) ? rate : 5.5;
+    const alpha = 1 - Math.exp(-r * dt);
+    const delta = ((normTarget - previous + 540) % 360) - 180;
+    return normalizeHeading(previous + delta * alpha);
+  }
+
+  // Landmark scenic viewpoints with subtle yaw bias (degrees) to favor panoramic vistas
+  const SCENIC_LANDMARKS = [
+    // Bow Lake (Icefields Parkway northbound: lake sits to west / left)
+    { lat: 51.668, lng: -116.452, radiusMeters: 2800, biasDeg: -14, name: 'Bow Lake' },
+    // Peyto Lake viewpoint / Bow Summit (viewpoint is west / left)
+    { lat: 51.725, lng: -116.505, radiusMeters: 2400, biasDeg: -12, name: 'Peyto Lake' },
+    // Columbia Icefield / Athabasca Glacier (glacier sits southwest / west)
+    { lat: 52.215, lng: -117.225, radiusMeters: 3200, biasDeg: -16, name: 'Athabasca Glacier' },
+    // Medicine Lake (lake along road)
+    { lat: 52.875, lng: -117.805, radiusMeters: 3000, biasDeg: 12, name: 'Medicine Lake' },
+    // Maligne Lake (lake basin)
+    { lat: 52.730, lng: -117.640, radiusMeters: 2500, biasDeg: -10, name: 'Maligne Lake' }
+  ];
+
+  function computeScenicYawBias(point, cameraMode) {
+    if (cameraMode === 'aerial' || !point) return 0;
+    for (let i = 0; i < SCENIC_LANDMARKS.length; i++) {
+      const lm = SCENIC_LANDMARKS[i];
+      const dist = haversineMeters(point, { lat: lm.lat, lng: lm.lng });
+      if (dist < lm.radiusMeters) {
+        const t = Math.cos((dist / lm.radiusMeters) * (Math.PI / 2));
+        return lm.biasDeg * t;
+      }
+    }
+    return 0;
+  }
+
+  function computeAdaptiveLookahead(route, cumulative, totalDistance, currentDistance, mode) {
+    if (mode === 'aerial') return 1400;
+    if (mode === 'scenic') return 550;
+    if (!route || route.length < 2 || totalDistance <= 0) return 240;
+    const p0 = sampleRouteAtDistance(route, cumulative, totalDistance, currentDistance);
+    const p1 = sampleRouteAtDistance(route, cumulative, totalDistance, Math.min(totalDistance, currentDistance + 75));
+    const p2 = sampleRouteAtDistance(route, cumulative, totalDistance, Math.min(totalDistance, currentDistance + 160));
+    if (!p0 || !p1 || !p2) return 240;
+    const h1 = computeBearing(p0, p1);
+    const h2 = computeBearing(p1, p2);
+    const turn = Math.abs(((h2 - h1 + 540) % 360) - 180);
+    if (turn > 25) return 140; // tight curve / switchback
+    if (turn > 10) return 220; // moderate turn
+    return 360; // long straightaway
   }
 
   function timeOffsetSecondsAtFraction(anchors, fraction, fallbackSeconds) {
@@ -289,9 +352,13 @@
   function addOpenTerrain() {
     if (!map || map.getSource('rockies-terrain-dem')) return;
 
+    const tileUrl = (typeof window !== 'undefined' && window.ROCKIES_CONFIG && window.ROCKIES_CONFIG.terrainTileUrl)
+      ? window.ROCKIES_CONFIG.terrainTileUrl
+      : TERRAIN_TILE_URL;
+
     const terrainSpec = {
       type: 'raster-dem',
-      tiles: [TERRAIN_TILE_URL],
+      tiles: [tileUrl],
       tileSize: 256,
       encoding: 'terrarium',
       minzoom: 1,
@@ -300,27 +367,15 @@
     };
 
     map.addSource('rockies-terrain-dem', terrainSpec);
-    map.addSource('rockies-hillshade-dem', Object.assign({}, terrainSpec));
     map.setTerrain({ source: 'rockies-terrain-dem', exaggeration: 1 });
 
-    const beforeLabels = firstSymbolLayerId();
-    map.addLayer({
-      id: 'rockies-sun-hillshade',
-      type: 'hillshade',
-      source: 'rockies-hillshade-dem',
-      paint: {
-        'hillshade-method': 'basic',
-        'hillshade-illumination-anchor': 'map',
-        'hillshade-illumination-direction': 135,
-        'hillshade-illumination-altitude': 30,
-        'hillshade-shadow-color': 'rgba(24, 31, 38, 0.78)',
-        'hillshade-highlight-color': 'rgba(255, 246, 219, 0.72)',
-        'hillshade-accent-color': 'rgba(75, 105, 117, 0.5)',
-        'hillshade-exaggeration': 0.48
-      }
-    }, beforeLabels);
-
     try {
+      map.setLight({
+        anchor: 'viewport',
+        color: '#ffffff',
+        intensity: 0.85,
+        position: [1.5, 0, 32]
+      });
       map.setSky({
         'sky-color': '#77a9ca',
         'horizon-color': '#d8e5e7',
@@ -330,12 +385,6 @@
         'sky-horizon-blend': 0.62,
         'atmosphere-blend': 0.82
       });
-    } catch (_) {}
-
-    try {
-      if (typeof map.setSourceTileLodParams === 'function') {
-        map.setSourceTileLodParams(4, 3, 'rockies-terrain-dem');
-      }
     } catch (_) {}
   }
 
@@ -353,18 +402,72 @@
         paint: {
           'fill-extrusion-color': [
             'interpolate', ['linear'], ['zoom'],
-            12.5, '#9a9184',
-            16, '#c2b8aa'
+            12.5, '#9d9487',
+            15, '#c5bcaf'
           ],
-          'fill-extrusion-height': ['coalesce', ['get', 'render_height'], ['get', 'height'], 6],
-          'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], ['get', 'min_height'], 0],
-          'fill-extrusion-opacity': 0.82
+          'fill-extrusion-height': ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], 6],
+          'fill-extrusion-base': ['coalesce', ['to-number', ['get', 'render_min_height']], ['to-number', ['get', 'min_height']], 0],
+          'fill-extrusion-opacity': 0.85
         }
       }, firstSymbolLayerId());
-    } catch (_) {
-      // Some OpenMapTiles builds omit compatible building attributes. The free
-      // terrain/road/water world remains useful without extrusion.
-    }
+    } catch (_) {}
+  }
+
+  function applyRockiesPalette() {
+    if (!map) return;
+    try {
+      // 1. Water -> Signature Canadian Rockies glacial turquoise (Moraine / Louise / Bow / Peyto)
+      if (map.getLayer('water')) {
+        map.setPaintProperty('water', 'fill-color', [
+          'interpolate', ['linear'], ['zoom'],
+          6, '#185669',
+          11, '#1b798e',
+          14, '#2096ab'
+        ]);
+        map.setPaintProperty('water', 'fill-opacity', 0.94);
+      }
+      if (map.getLayer('waterway_river')) {
+        map.setPaintProperty('waterway_river', 'line-color', '#2096ab');
+        map.setPaintProperty('waterway_river', 'line-width', [
+          'interpolate', ['linear'], ['zoom'],
+          8, 1.0,
+          14, 2.5
+        ]);
+      }
+      if (map.getLayer('waterway_other')) {
+        map.setPaintProperty('waterway_other', 'line-color', '#2096ab');
+      }
+
+      // 2. Glaciers / Ice -> Cold crisp off-white cyan
+      if (map.getLayer('landcover_ice')) {
+        map.setPaintProperty('landcover_ice', 'fill-color', '#eaf6f8');
+        map.setPaintProperty('landcover_ice', 'fill-opacity', 0.95);
+      }
+
+      // 3. Montane / Subalpine forests -> Deep pine & fir evergreen
+      if (map.getLayer('landcover_wood')) {
+        map.setPaintProperty('landcover_wood', 'fill-color', '#324a38');
+        map.setPaintProperty('landcover_wood', 'fill-opacity', 0.65);
+      }
+      if (map.getLayer('park')) {
+        map.setPaintProperty('park', 'fill-color', '#2d4434');
+        map.setPaintProperty('park', 'fill-opacity', 0.45);
+      }
+      if (map.getLayer('landcover_grass')) {
+        map.setPaintProperty('landcover_grass', 'fill-color', '#41573e');
+        map.setPaintProperty('landcover_grass', 'fill-opacity', 0.55);
+      }
+
+      // 4. Base background (bare rock/talus/scree)
+      if (map.getLayer('background')) {
+        map.setPaintProperty('background', 'background-color', '#cad5cc');
+      }
+
+      // 5. Suppress noisy highway shield badges in 3D
+      ['highway-shield-non-us', 'highway-shield-us-interstate', 'road_shield_us'].forEach(function (id) {
+        if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none');
+      });
+    } catch (_) {}
   }
 
   async function initialize(targetContainer) {
@@ -372,55 +475,67 @@
     container = targetContainer;
     await loadMapLibre();
 
-    if (map) {
+    if (map && mapLoaded) {
       container.classList.remove('hidden');
       setTimeout(function () { try { map.resize(); } catch (_) {} }, 0);
       return map;
     }
+    if (initPromise) return initPromise;
 
     container.innerHTML = '';
     mapLoaded = false;
 
-    map = new ML.Map({
-      container: container,
-      style: OPENFREEMAP_STYLE,
-      center: [-116.4, 52.0],
-      zoom: 7.8,
-      pitch: 62,
-      bearing: 325,
-      maxPitch: 85,
-      renderWorldCopies: false,
-      attributionControl: true,
-      canvasContextAttributes: { antialias: true },
-      fadeDuration: 150,
-      terrainSkirtLength: 'auto'
+    initPromise = new Promise(function (resolve, reject) {
+      try {
+        map = new ML.Map({
+          container: container,
+          style: OPENFREEMAP_STYLE,
+          center: [-116.4, 52.0],
+          zoom: 7.8,
+          pitch: 62,
+          bearing: 325,
+          maxPitch: 85,
+          renderWorldCopies: false,
+          attributionControl: true,
+          canvasContextAttributes: { antialias: true },
+          fadeDuration: 150,
+          terrainSkirtLength: 'auto'
+        });
+
+        map.addControl(new ML.NavigationControl({ visualizePitch: true, showZoom: true, showCompass: true }), 'bottom-right');
+
+        const timeout = setTimeout(function () {
+          initPromise = null;
+          reject(new Error('OPEN_WORLD_LOAD_TIMEOUT'));
+        }, 25000);
+
+        map.once('load', function () {
+          clearTimeout(timeout);
+          try {
+            addOpenTerrain();
+            addBuildings3D();
+            applyRockiesPalette();
+            mapLoaded = true;
+            container.classList.remove('hidden');
+            resolve(map);
+          } catch (err) {
+            initPromise = null;
+            reject(err);
+          }
+        });
+
+        map.once('error', function (event) {
+          if (!mapLoaded && event && event.error) {
+            // Do not fail on every missing vector glyph or optional tile.
+          }
+        });
+      } catch (err) {
+        initPromise = null;
+        reject(err);
+      }
     });
 
-    map.addControl(new ML.NavigationControl({ visualizePitch: true, showZoom: true, showCompass: true }), 'bottom-right');
-
-    await new Promise(function (resolve, reject) {
-      const timeout = setTimeout(function () { reject(new Error('OPEN_WORLD_LOAD_TIMEOUT')); }, 20000);
-      map.once('load', function () {
-        clearTimeout(timeout);
-        try {
-          addOpenTerrain();
-          addBuildings3D();
-          mapLoaded = true;
-          container.classList.remove('hidden');
-          resolve();
-        } catch (err) {
-          reject(err);
-        }
-      });
-      map.once('error', function (event) {
-        if (!mapLoaded && event && event.error) {
-          // Do not fail on every missing vector glyph or optional tile. Only the
-          // load timeout / terrain setup should make initialization fatal.
-        }
-      });
-    });
-
-    return map;
+    return initPromise;
   }
 
   function routeGeoJSON() {
@@ -472,8 +587,8 @@
         source: 'rockies-route',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: {
-          'line-color': 'rgba(4, 12, 18, 0.82)',
-          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 2.2, 12, 6, 16, 10]
+          'line-color': 'rgba(6, 18, 24, 0.60)',
+          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 2.5, 12, 4.0, 16, 5.0]
         }
       });
     }
@@ -484,9 +599,14 @@
         source: 'rockies-route',
         layout: { 'line-join': 'round', 'line-cap': 'round' },
         paint: {
-          'line-color': '#56c6a5',
-          'line-opacity': 0.78,
-          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 1.5, 12, 3.2, 16, 5]
+          'line-color': '#42b998',
+          'line-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            7, 0.85,
+            12, 0.70,
+            15, 0.45
+          ],
+          'line-width': ['interpolate', ['linear'], ['zoom'], 7, 2.0, 12, 2.8, 16, 3.2]
         }
       });
     }
@@ -569,21 +689,28 @@
     if (!map || typeof map.queryTerrainElevation !== 'function') return fallbackElevation;
     try {
       const elevation = map.queryTerrainElevation([point.lng, point.lat]);
-      return Number.isFinite(Number(elevation)) ? Number(elevation) : fallbackElevation;
+      if (elevation === null || elevation === undefined) return fallbackElevation;
+      const num = Number(elevation);
+      if (!Number.isFinite(num) || num <= 0) return fallbackElevation;
+      return num;
     } catch (_) {
       return fallbackElevation;
     }
   }
 
   function getCameraSettings(mode) {
-    if (mode === 'aerial') return { height: 520, lookAhead: 1700, pitch: 58, headingAlpha: 0.13, groundAlpha: 0.13 };
-    if (mode === 'scenic') return { height: 120, lookAhead: 650, pitch: 70, headingAlpha: 0.16, groundAlpha: 0.16 };
-    return { height: 14, lookAhead: 230, pitch: 80, headingAlpha: 0.22, groundAlpha: 0.18 };
+    if (mode === 'aerial') return { height: 480, lookAhead: 1200, pitch: 52, headingRate: 4.0, groundRate: 3.5, zoom: 11.8 };
+    if (mode === 'scenic') return { height: 95, lookAhead: 520, pitch: 64, headingRate: 5.0, groundRate: 4.5, zoom: 13.5 };
+    return { height: 16, lookAhead: 260, pitch: 72, headingRate: 6.5, groundRate: 6.0, zoom: 14.8 };
   }
 
   function setCameraMode(mode) {
     const allowed = ['road', 'scenic', 'aerial'];
     state.cameraMode = allowed.indexOf(mode) === -1 ? 'road' : mode;
+    updateFrame(0);
+    try {
+      if (map) map.triggerRepaint();
+    } catch (_) {}
   }
 
   function setSpeed(speed) {
@@ -594,8 +721,14 @@
     state.progress = clamp(fraction, 0, 1);
     state.smoothedHeading = null;
     state.smoothedGroundElevation = null;
+    state.groundElevationHistory = [];
+    state.lastDistanceMeters = state.totalDistanceMeters * state.progress;
     state.lastStopIndex = -1;
+    state.lastLightingUpdate = 0;
     updateFrame(0);
+    try {
+      if (map) map.triggerRepaint();
+    } catch (_) {}
   }
 
   function currentTripDate() {
@@ -610,23 +743,17 @@
     if (now - state.lastLightingUpdate < 650) return sun;
     state.lastLightingUpdate = now;
 
-    const altitude = clamp(sun.altitude, 2, 88);
-    const warm = clamp((18 - sun.altitude) / 18, 0, 1);
-    const highlight = warm ? `rgba(255, ${Math.round(241 - warm * 36)}, ${Math.round(211 - warm * 54)}, 0.78)` : 'rgba(255, 248, 225, 0.72)';
-    const shadowAlpha = clamp(0.55 + warm * 0.23, 0.55, 0.82);
+    const warm = clamp((22 - sun.altitude) / 22, 0, 1);
+    const lightColor = warm > 0.6 ? '#ffe8d0' : (warm > 0.2 ? '#fff5e8' : '#ffffff');
+    const intensity = clamp(0.70 + Math.max(0, sun.altitude) / 120, 0.68, 0.95);
+    const polar = clamp(42 - Math.max(0, sun.altitude) * 0.25, 24, 48);
 
     try {
-      if (map.getLayer('rockies-sun-hillshade')) {
-        map.setPaintProperty('rockies-sun-hillshade', 'hillshade-illumination-direction', sun.azimuth);
-        map.setPaintProperty('rockies-sun-hillshade', 'hillshade-illumination-altitude', altitude);
-        map.setPaintProperty('rockies-sun-hillshade', 'hillshade-highlight-color', highlight);
-        map.setPaintProperty('rockies-sun-hillshade', 'hillshade-shadow-color', `rgba(20, 28, 36, ${shadowAlpha})`);
-      }
       map.setLight({
-        anchor: 'map',
-        color: warm > 0.5 ? '#ffd7a8' : '#fff4df',
-        intensity: clamp(0.35 + Math.max(0, sun.altitude) / 100, 0.28, 0.82),
-        position: [1.5, sun.azimuth, clamp(90 - sun.altitude, 5, 88)]
+        anchor: 'viewport',
+        color: lightColor,
+        intensity: intensity,
+        position: [1.5, 0, polar]
       });
       const skyColor = sun.altitude < 8 ? '#7d91ad' : '#78afd2';
       const horizonColor = sun.altitude < 8 ? '#f0c49e' : '#dce9e9';
@@ -663,26 +790,47 @@
       state.progress = clamp(state.progress + (deltaMs * state.speed) / state.baseDurationMs, 0, 1);
     }
 
+    const dtSeconds = deltaMs > 0 ? deltaMs / 1000 : 0.016;
     const settings = getCameraSettings(state.cameraMode);
     const currentDistance = state.totalDistanceMeters * state.progress;
+    const distanceDelta = Math.abs(currentDistance - (state.lastDistanceMeters || currentDistance));
+    state.lastDistanceMeters = currentDistance;
+
+    const lookAheadDist = computeAdaptiveLookahead(state.route, state.cumulative, state.totalDistanceMeters, currentDistance, state.cameraMode);
     const point = sampleRouteAtDistance(state.route, state.cumulative, state.totalDistanceMeters, currentDistance);
     const lookPoint = sampleRouteAtDistance(
       state.route,
       state.cumulative,
       state.totalDistanceMeters,
-      Math.min(state.totalDistanceMeters, currentDistance + settings.lookAhead)
+      Math.min(state.totalDistanceMeters, currentDistance + lookAheadDist)
     );
     if (!point || !lookPoint) return;
 
     const fallbackElevation = elevationAtFraction(state.elevationProfile, point.fraction);
-    const ground = queryGround(point, fallbackElevation);
-    state.smoothedGroundElevation = smoothValue(state.smoothedGroundElevation, ground, settings.groundAlpha, 35);
+    const rawGround = queryGround(point, fallbackElevation);
+
+    // 7-sample rolling median filter to eliminate DEM tile LOD pop anomalies
+    state.groundElevationHistory.push(rawGround);
+    if (state.groundElevationHistory.length > 7) state.groundElevationHistory.shift();
+    const filteredGround = median(state.groundElevationHistory);
+
+    if (!Number.isFinite(state.smoothedGroundElevation)) {
+      state.smoothedGroundElevation = filteredGround;
+    } else {
+      // Limit vertical velocity per simulated distance travelled (max 14% mountain grade + 1.8m buffer)
+      const maxDelta = Math.max(1.8, distanceDelta * 0.14);
+      const groundAlpha = 1 - Math.exp(-settings.groundRate * dtSeconds);
+      state.smoothedGroundElevation = smoothValue(state.smoothedGroundElevation, filteredGround, groundAlpha, maxDelta);
+    }
 
     const rawHeading = computeBearing(point, lookPoint);
-    state.smoothedHeading = smoothHeading(state.smoothedHeading, rawHeading, settings.headingAlpha);
+    const scenicYaw = computeScenicYawBias(point, state.cameraMode);
+    const targetHeading = normalizeHeading(rawHeading + scenicYaw);
+
+    state.smoothedHeading = smoothHeadingExp(state.smoothedHeading, targetHeading, settings.headingRate, dtSeconds);
 
     try {
-      const cameraAltitude = state.smoothedGroundElevation + settings.height;
+      const cameraAltitude = (Number.isFinite(state.smoothedGroundElevation) ? state.smoothedGroundElevation : fallbackElevation) + settings.height;
       const cameraOptions = map.calculateCameraOptionsFromCameraLngLatAltRotation(
         new ML.LngLat(point.lng, point.lat),
         cameraAltitude,
@@ -692,7 +840,12 @@
       );
       map.jumpTo(Object.assign({}, cameraOptions, { freezeElevation: true }));
     } catch (_) {
-      map.jumpTo({ center: [point.lng, point.lat], bearing: state.smoothedHeading, pitch: settings.pitch, zoom: state.cameraMode === 'road' ? 15.2 : (state.cameraMode === 'scenic' ? 13.5 : 11.4) });
+      map.jumpTo({
+        center: [point.lng, point.lat],
+        bearing: state.smoothedHeading,
+        pitch: settings.pitch,
+        zoom: settings.zoom
+      });
     }
 
     const date = currentTripDate();
@@ -721,6 +874,10 @@
       state.paused = false;
       if (state.handlers && typeof state.handlers.onEnd === 'function') state.handlers.onEnd();
     }
+
+    try {
+      map.triggerRepaint();
+    } catch (_) {}
   }
 
   function animationLoop(now) {
@@ -783,7 +940,9 @@
       totalDistanceMeters: state.totalDistanceMeters,
       renderer: 'maplibre-open-world',
       maplibreVersion: MAPLIBRE_VERSION,
-      terrain: 'AWS Open Data Terrarium',
+      terrain: (typeof window !== 'undefined' && window.ROCKIES_CONFIG && window.ROCKIES_CONFIG.localTerrain)
+        ? 'Local Canadian NRCan HRDEM Terrarium'
+        : 'AWS Open Data Terrarium',
       basemap: 'OpenFreeMap / OpenStreetMap',
       paidApiRequired: false
     };
@@ -796,6 +955,7 @@
     }
     map = null;
     mapLoaded = false;
+    initPromise = null;
     if (container) container.innerHTML = '';
     container = null;
   }
@@ -804,6 +964,7 @@
     MAPLIBRE_VERSION: MAPLIBRE_VERSION,
     OPENFREEMAP_STYLE: OPENFREEMAP_STYLE,
     TERRAIN_TILE_URL: TERRAIN_TILE_URL,
+    getMap: function () { return map; },
     loadMapLibre: loadMapLibre,
     initialize: initialize,
     loadDay: loadDay,
@@ -828,7 +989,11 @@
     sampleRouteAtDistance: sampleRouteAtDistance,
     elevationAtFraction: elevationAtFraction,
     smoothHeading: smoothHeading,
+    smoothHeadingExp: smoothHeadingExp,
     smoothValue: smoothValue,
+    median: median,
+    computeAdaptiveLookahead: computeAdaptiveLookahead,
+    computeScenicYawBias: computeScenicYawBias,
     timeOffsetSecondsAtFraction: timeOffsetSecondsAtFraction,
     computeBearing: computeBearing
   };
