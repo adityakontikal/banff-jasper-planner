@@ -12,12 +12,13 @@
   if (root.__ROCKIES_TERRAIN_STABILITY_PATCHED) return;
   root.__ROCKIES_TERRAIN_STABILITY_PATCHED = true;
 
-  root.ROCKIES_CONFIG = Object.assign(root.ROCKIES_CONFIG || {}, {
-    localTerrain: false,
-    terrainTileUrl: null,
-    terrainSource: 'aws-open-data-terrarium',
-    terrainStabilityMode: true
-  });
+  root.ROCKIES_CONFIG = root.ROCKIES_CONFIG || {};
+  if (root.ROCKIES_CONFIG.localTerrainVerified !== true) {
+    root.ROCKIES_CONFIG.localTerrain = false;
+    root.ROCKIES_CONFIG.terrainTileUrl = null;
+    root.ROCKIES_CONFIG.terrainSource = 'aws-open-data-terrarium';
+  }
+  root.ROCKIES_CONFIG.terrainStabilityMode = true;
 
   const World = root.VisualizeWorld;
   const originalInitialize = World.initialize.bind(World);
