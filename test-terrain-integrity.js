@@ -26,8 +26,8 @@ assert(
   'A terrain directory alone must never activate local terrain'
 );
 assert(
-  server.indexOf('visualize-stability.js') < server.indexOf('visualize-free.js'),
-  'Terrain stability guard must load before the free Visualize controller'
+  server.includes('stability.onload = loadFreeController'),
+  'Free Visualize controller must wait for the terrain stability guard'
 );
 
 assert(
@@ -39,8 +39,8 @@ assert(
   'Map and Terrarium DEM must share the native z15 ceiling'
 );
 assert(
-  stability.includes("terrainTileUrl: null"),
-  'Default stability path must use the consistent AWS/Open Data DEM, not leftover local tiles'
+  stability.includes('localTerrainVerified !== true') && stability.includes('terrainTileUrl = null'),
+  'Unverified local terrain must fall back to the consistent AWS/Open Data DEM'
 );
 assert(
   !fs.existsSync(path.join(root, 'tools/build-terrain/generate_terrarium_tiles.py')),
@@ -52,4 +52,4 @@ assert(
 );
 
 console.log('✓ Terrain integrity: local DEM requires explicit verified non-synthetic NRCan manifest');
-console.log('✓ Terrain stability: no skirts, no z13 DEM overzoom, stability guard loads first');
+console.log('✓ Terrain stability: no skirts, no z13 DEM overzoom, stability guard gates Visualize');
