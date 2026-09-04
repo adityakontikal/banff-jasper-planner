@@ -14,6 +14,8 @@ assert(rigs.includes('eyeClearance: 3.6'), 'Road camera must stay only a few met
 assert(rigs.includes('backDistance: 620') && rigs.includes('eyeClearance: 185'), 'Scenic must remain a materially higher chase-drone rig');
 assert(rigs.includes('backDistance: 3600') && rigs.includes('eyeClearance: 1320'), 'Aerial must remain an aircraft-scale rig');
 assert(rigs.includes('maxTurnRate: 1.5'), 'Aerial yaw must be deliberately slow and cinematic');
+assert(rigs.includes('headingSampleMeters: 7') && rigs.includes('sampledMotionBearing'), 'Road heading must come from sampled vehicle motion, not scenic landmark yaw');
+assert(rigs.includes('headingSampleMeters: 28') && rigs.includes('headingSampleMeters: 80'), 'Scenic/Aerial must use progressively wider heading samples for smoothness');
 
 assert(rigs.includes('calculateCameraOptionsFromTo'), 'Camera rigs must preserve explicit physical from/to geometry');
 assert(rigs.includes('queryTerrainElevation'), 'Camera rigs must use real terrain elevation');
