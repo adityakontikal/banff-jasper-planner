@@ -11,15 +11,19 @@
   root.__ROCKIES_GOOGLE_SWITCHER_LOADED = true;
 
   const googleObject = root.Visualize3D;
+  const rawGoogleOnActivate = googleObject.onVisualizeTabActivated;
+  const rawGoogleChooseDay = googleObject.chooseVisualizeDay;
+  const rawGoogleCancelFlight = googleObject.cancelRouteFlyThrough;
+  const rawGoogleToggleMapOnly = googleObject.toggleMapOnly;
   const googleOriginal = {
-    onVisualizeTabActivated: typeof googleObject.onVisualizeTabActivated === 'function'
-      ? googleObject.onVisualizeTabActivated.bind(googleObject) : null,
-    chooseVisualizeDay: typeof googleObject.chooseVisualizeDay === 'function'
-      ? googleObject.chooseVisualizeDay.bind(googleObject) : null,
-    cancelRouteFlyThrough: typeof googleObject.cancelRouteFlyThrough === 'function'
-      ? googleObject.cancelRouteFlyThrough.bind(googleObject) : null,
-    toggleMapOnly: typeof googleObject.toggleMapOnly === 'function'
-      ? googleObject.toggleMapOnly.bind(googleObject) : null
+    onVisualizeTabActivated: typeof rawGoogleOnActivate === 'function'
+      ? rawGoogleOnActivate.bind(googleObject) : null,
+    chooseVisualizeDay: typeof rawGoogleChooseDay === 'function'
+      ? rawGoogleChooseDay.bind(googleObject) : null,
+    cancelRouteFlyThrough: typeof rawGoogleCancelFlight === 'function'
+      ? rawGoogleCancelFlight.bind(googleObject) : null,
+    toggleMapOnly: typeof rawGoogleToggleMapOnly === 'function'
+      ? rawGoogleToggleMapOnly.bind(googleObject) : null
   };
 
   let freeApi = null;
@@ -42,8 +46,8 @@
   function captureFreeApi() {
     if (freeApi || !root.Visualize3D) return;
     const current = root.Visualize3D;
-    if (current.onVisualizeTabActivated === googleObject.onVisualizeTabActivated &&
-        current.chooseVisualizeDay === googleObject.chooseVisualizeDay) return;
+    if (current.onVisualizeTabActivated === rawGoogleOnActivate &&
+        current.chooseVisualizeDay === rawGoogleChooseDay) return;
     if (typeof current.onVisualizeTabActivated !== 'function') return;
     freeApi = {
       onVisualizeTabActivated: current.onVisualizeTabActivated.bind(current),
