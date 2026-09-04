@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
@@ -104,16 +105,48 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     if (fs.existsSync(terrainFile)) {
       res.writeHead(200, {
         'Content-Type': 'image/png',
+        'Access-Control-Allow-Origin': '*',
         'Cache-Control': 'public, max-age=86400, immutable'
       });
       fs.createReadStream(terrainFile).pipe(res);
       return;
     }
-    // Fallback: AWS Open Data Terrarium for any tile not yet generated locally
+    // Fallback & dynamic caching: AWS Open Data Terrarium for any tile not yet generated locally
     const relTile = reqPath.replace(/^\/terrain\//, '');
     const awsFallback = `https://s3.amazonaws.com/elevation-tiles-prod/terrarium/${relTile}`;
-    res.writeHead(302, { 'Location': awsFallback, 'Cache-Control': 'public, max-age=86400' });
-    res.end();
+    https.get(awsFallback, (s3Res) => {
+      if (s3Res.statusCode === 200) {
+        res.writeHead(200, {
+          'Content-Type': 'image/png',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'public, max-age=86400, immutable'
+        });
+        const chunks = [];
+        s3Res.on('data', chunk => {
+          res.write(chunk);
+          chunks.push(chunk);
+        });
+        s3Res.on('end', () => {
+          res.end();
+          try {
+            fs.mkdirSync(path.dirname(terrainFile), { recursive: true });
+            fs.writeFile(terrainFile, Buffer.concat(chunks), () => {});
+          } catch (_) {}
+        });
+      } else {
+        res.writeHead(s3Res.statusCode || 404, {
+          'Content-Type': 'text/plain',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end('Tile not found');
+      }
+    }).on('error', (err) => {
+      res.writeHead(502, {
+        'Content-Type': 'text/plain',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end('Elevation upstream error: ' + err.message);
+    });
     return;
   }
 
@@ -149,7 +182,11 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
       return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+    const headers = { 'Content-Type': MIME[ext] || 'application/octet-stream' };
+    if (ext === '.js' || ext === '.css' || ext === '.json' || ext === '.html') {
+      headers['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+    }
+    res.writeHead(200, headers);
     res.end(data);
   });
 });

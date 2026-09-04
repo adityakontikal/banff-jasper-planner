@@ -362,12 +362,32 @@
       tileSize: 256,
       encoding: 'terrarium',
       minzoom: 1,
-      maxzoom: 15,
+      maxzoom: 13,
       attribution: TERRAIN_ATTRIBUTION
     };
 
     map.addSource('rockies-terrain-dem', terrainSpec);
     map.setTerrain({ source: 'rockies-terrain-dem', exaggeration: 1 });
+
+    if (!map.getLayer('rockies-hillshade')) {
+      const layers = (map.getStyle() && map.getStyle().layers) || [];
+      const firstRoad = layers.find(function (l) {
+        return l.id.includes('road') || l.id.includes('transport') || l.id.includes('water') || l.type === 'symbol';
+      });
+      try {
+        map.addLayer({
+          id: 'rockies-hillshade',
+          type: 'hillshade',
+          source: 'rockies-terrain-dem',
+          paint: {
+            'hillshade-exaggeration': 0.55,
+            'hillshade-shadow-color': '#12262b',
+            'hillshade-highlight-color': '#ffffff',
+            'hillshade-accent-color': '#1e3a34'
+          }
+        }, firstRoad ? firstRoad.id : undefined);
+      } catch (_) {}
+    }
 
     try {
       map.setLight({
@@ -375,15 +395,6 @@
         color: '#ffffff',
         intensity: 0.85,
         position: [1.5, 0, 32]
-      });
-      map.setSky({
-        'sky-color': '#77a9ca',
-        'horizon-color': '#d8e5e7',
-        'fog-color': '#bdced2',
-        'fog-ground-blend': 0.56,
-        'horizon-fog-blend': 0.72,
-        'sky-horizon-blend': 0.62,
-        'atmosphere-blend': 0.82
       });
     } catch (_) {}
   }
@@ -399,6 +410,11 @@
         'source-layer': 'building',
         type: 'fill-extrusion',
         minzoom: 12.5,
+        filter: [
+          'all',
+          ['!=', ['get', 'type'], 'boundary'],
+          ['<=', ['coalesce', ['to-number', ['get', 'render_height']], ['to-number', ['get', 'height']], 6], 70]
+        ],
         paint: {
           'fill-extrusion-color': [
             'interpolate', ['linear'], ['zoom'],
@@ -492,9 +508,9 @@
           style: OPENFREEMAP_STYLE,
           center: [-116.4, 52.0],
           zoom: 7.8,
-          pitch: 62,
+          pitch: 58,
           bearing: 325,
-          maxPitch: 85,
+          maxPitch: 65,
           renderWorldCopies: false,
           attributionControl: true,
           canvasContextAttributes: { antialias: true },
@@ -647,6 +663,48 @@
         }
       });
     }
+
+    // Vehicle indicator for active drive simulation
+    const vPoint = state.route && state.route.length
+      ? sampleRouteAtDistance(state.route, state.cumulative, state.totalDistanceMeters, state.totalDistanceMeters * (state.progress || 0))
+      : null;
+    const vehicleGeoJSON = {
+      type: 'FeatureCollection',
+      features: vPoint ? [{
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [vPoint.lng, vPoint.lat] },
+        properties: { heading: state.smoothedHeading || 0 }
+      }] : []
+    };
+    if (map.getSource('rockies-vehicle')) map.getSource('rockies-vehicle').setData(vehicleGeoJSON);
+    else map.addSource('rockies-vehicle', { type: 'geojson', data: vehicleGeoJSON });
+
+    if (!map.getLayer('rockies-vehicle-halo')) {
+      map.addLayer({
+        id: 'rockies-vehicle-halo',
+        type: 'circle',
+        source: 'rockies-vehicle',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 6, 12, 10, 16, 16],
+          'circle-color': 'rgba(66, 185, 152, 0.28)',
+          'circle-stroke-color': 'rgba(66, 185, 152, 0.75)',
+          'circle-stroke-width': 2
+        }
+      });
+    }
+    if (!map.getLayer('rockies-vehicle-puck')) {
+      map.addLayer({
+        id: 'rockies-vehicle-puck',
+        type: 'circle',
+        source: 'rockies-vehicle',
+        paint: {
+          'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, 3.5, 12, 5.5, 16, 7],
+          'circle-color': '#f2fbff',
+          'circle-stroke-color': '#07242e',
+          'circle-stroke-width': 2.5
+        }
+      });
+    }
   }
 
   function loadDay(options) {
@@ -699,9 +757,9 @@
   }
 
   function getCameraSettings(mode) {
-    if (mode === 'aerial') return { height: 480, lookAhead: 1200, pitch: 52, headingRate: 4.0, groundRate: 3.5, zoom: 11.8 };
-    if (mode === 'scenic') return { height: 95, lookAhead: 520, pitch: 64, headingRate: 5.0, groundRate: 4.5, zoom: 13.5 };
-    return { height: 16, lookAhead: 260, pitch: 72, headingRate: 6.5, groundRate: 6.0, zoom: 14.8 };
+    if (mode === 'aerial') return { height: 520, lookAhead: 1200, pitch: 50, headingRate: 4.0, groundRate: 3.5, zoom: 11.8 };
+    if (mode === 'scenic') return { height: 110, lookAhead: 500, pitch: 60, headingRate: 4.0, groundRate: 4.0, zoom: 13.5 };
+    return { height: 35, lookAhead: 280, pitch: 60, headingRate: 4.5, groundRate: 4.2, zoom: 14.2 };
   }
 
   function setCameraMode(mode) {
@@ -755,17 +813,13 @@
         intensity: intensity,
         position: [1.5, 0, polar]
       });
-      const skyColor = sun.altitude < 8 ? '#7d91ad' : '#78afd2';
-      const horizonColor = sun.altitude < 8 ? '#f0c49e' : '#dce9e9';
-      map.setSky({
-        'sky-color': skyColor,
-        'horizon-color': horizonColor,
-        'fog-color': '#c6d4d4',
-        'fog-ground-blend': 0.55,
-        'horizon-fog-blend': 0.74,
-        'sky-horizon-blend': 0.62,
-        'atmosphere-blend': 0.84
-      });
+      if (container) {
+        if (sun.altitude < 8) {
+          container.style.background = 'linear-gradient(180deg, #536b8c 0%, #8ca1ba 40%, #e8ba98 75%, #baa596 100%)';
+        } else {
+          container.style.background = 'linear-gradient(180deg, #5a82a6 0%, #9cbcd4 45%, #d6e2e6 75%, #bcc8b8 100%)';
+        }
+      }
     } catch (_) {}
     return sun;
   }
@@ -829,22 +883,24 @@
 
     state.smoothedHeading = smoothHeadingExp(state.smoothedHeading, targetHeading, settings.headingRate, dtSeconds);
 
-    try {
-      const cameraAltitude = (Number.isFinite(state.smoothedGroundElevation) ? state.smoothedGroundElevation : fallbackElevation) + settings.height;
-      const cameraOptions = map.calculateCameraOptionsFromCameraLngLatAltRotation(
-        new ML.LngLat(point.lng, point.lat),
-        cameraAltitude,
-        state.smoothedHeading,
-        settings.pitch,
-        0
-      );
-      map.jumpTo(Object.assign({}, cameraOptions, { freezeElevation: true }));
-    } catch (_) {
-      map.jumpTo({
-        center: [point.lng, point.lat],
-        bearing: state.smoothedHeading,
-        pitch: settings.pitch,
-        zoom: settings.zoom
+    // Target slightly ahead along the road corridor so camera frames the vehicle in the lower foreground while revealing the highway and peaks ahead
+    const camLng = point.lng + (lookPoint.lng - point.lng) * 0.30;
+    const camLat = point.lat + (lookPoint.lat - point.lat) * 0.30;
+    map.jumpTo({
+      center: [camLng, camLat],
+      bearing: state.smoothedHeading,
+      pitch: settings.pitch,
+      zoom: settings.zoom
+    });
+
+    if (map.getSource('rockies-vehicle')) {
+      map.getSource('rockies-vehicle').setData({
+        type: 'FeatureCollection',
+        features: [{
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [point.lng, point.lat] },
+          properties: { heading: state.smoothedHeading || 0 }
+        }]
       });
     }
 
@@ -960,6 +1016,149 @@
     container = null;
   }
 
+  const LANDMARK_CAMERA_PROFILES = {
+    yyc25: { center: [-114.0150, 51.1250], zoom: 11.5, pitch: 40, bearing: 270, viewContext: "Calgary International Airport looking west toward the Rocky Mountain horizon." },
+    yyc30: { center: [-114.0150, 51.1250], zoom: 11.5, pitch: 40, bearing: 270, viewContext: "Calgary International Airport departure terminal looking west." },
+    canmore: { center: [-115.3500, 51.0850], zoom: 12.8, pitch: 42, bearing: 270, viewContext: "Canmore mountain corridor looking west toward the Three Sisters peaks." },
+    cochrane26_dep: { center: [-114.4750, 51.1850], zoom: 12.2, pitch: 40, bearing: 260, viewContext: "Cochrane foothills departure looking west toward Bow Gap." },
+    cochrane26_ret: { center: [-114.4750, 51.1850], zoom: 12.2, pitch: 40, bearing: 260, viewContext: "Super 8 Cochrane hotel at the eastern gateway to the Bow Valley." },
+    cochrane27: { center: [-114.4750, 51.1850], zoom: 12.2, pitch: 40, bearing: 260, viewContext: "Super 8 Cochrane morning departure looking west toward the Rocky Mountain wall." },
+    minnewanka: { center: [-115.4850, 51.2520], zoom: 13.2, pitch: 42, bearing: 68, viewContext: "Looking east-northeast along turquoise Lake Minnewanka flanked by Mount Aylmer (3,162 m)." },
+    twojack: { center: [-115.4940, 51.2290], zoom: 13.6, pitch: 42, bearing: 198, viewContext: "Looking south across calm emerald waters of Two Jack Lake toward Mount Rundle's signature cliff face." },
+    banff: { center: [-115.5708, 51.1730], zoom: 13.8, pitch: 42, bearing: 4, viewContext: "Looking north down Banff Avenue toward the colossal vertical face of Cascade Mountain (2,998 m)." },
+    bowfalls: { center: [-115.5600, 51.1680], zoom: 14.2, pitch: 42, bearing: 250, viewContext: "Bow River rapids perspective beneath the Fairmont Banff Springs Hotel." },
+    surprise: { center: [-115.5590, 51.1670], zoom: 14.2, pitch: 42, bearing: 245, viewContext: "Surprise Corner looking west at the Fairmont 'Castle in the Rockies'." },
+    gondola: { center: [-115.5560, 51.1340], zoom: 13.2, pitch: 42, bearing: 36, viewContext: "Sulphur Mountain summit panorama looking northeast across Bow Valley toward Mount Rundle." },
+    castlejunction26_in: { center: [-115.9010, 51.2650], zoom: 12.8, pitch: 42, bearing: 45, viewContext: "Bow Valley Parkway junction looking northeast at Castle Mountain (2,766 m)." },
+    johnston: { center: [-115.8420, 51.2460], zoom: 13.8, pitch: 42, bearing: 330, viewContext: "Looking northwest up the limestone slot canyon carved by Johnston Creek." },
+    castlejunction26_out: { center: [-115.9010, 51.2650], zoom: 12.8, pitch: 42, bearing: 45, viewContext: "Castle Mountain vantage along the Trans-Canada corridor." },
+    parkride: { center: [-116.1700, 51.4250], zoom: 12.8, pitch: 42, bearing: 225, viewContext: "Bow Valley shuttle hub beneath Whitehorn Mountain looking toward Lake Louise peaks." },
+    parkride_return: { center: [-116.1700, 51.4250], zoom: 12.8, pitch: 42, bearing: 225, viewContext: "Lake Louise Park & Ride transit hub beneath Whitehorn Mountain." },
+    moraine: { center: [-116.1830, 51.3200], zoom: 13.8, pitch: 42, bearing: 215, viewContext: "The iconic 'Twenty Dollar' vista from the Rockpile looking southwest into the Valley of the Ten Peaks." },
+    louise: { center: [-116.2300, 51.4080], zoom: 13.5, pitch: 42, bearing: 232, viewContext: "Looking southwest across Lake Louise toward Mount Victoria (3,464 m) and Victoria Glacier." },
+    bowlake: { center: [-116.4520, 51.6660], zoom: 13.5, pitch: 42, bearing: 268, viewContext: "Icefields Parkway shoreline looking west across Bow Lake toward Crowfoot Mountain." },
+    bowlake29: { center: [-116.4520, 51.6660], zoom: 13.5, pitch: 42, bearing: 268, viewContext: "Southbound Parkway vista across Bow Lake beneath Crowfoot Mountain." },
+    crowfoot: { center: [-116.4380, 51.6580], zoom: 13.4, pitch: 44, bearing: 255, viewContext: "Roadside viewpoint looking west at the hanging ice claws of Crowfoot Glacier." },
+    peyto: { center: [-116.5180, 51.7220], zoom: 13.6, pitch: 44, bearing: 320, viewContext: "Bow Summit cliff (~2,068 m) looking northwest down into Mistaya Valley at turquoise Peyto Lake." },
+    mistaya: { center: [-116.7180, 51.8480], zoom: 14.0, pitch: 42, bearing: 310, viewContext: "Looking northwest into the swirling limestone canyon carved by Mistaya River." },
+    saskcrossing: { center: [-116.7450, 51.9750], zoom: 12.5, pitch: 40, bearing: 315, viewContext: "River confluence crossroads where North Saskatchewan, Howse, and Mistaya valleys meet." },
+    waterfowl: { center: [-116.6200, 51.8400], zoom: 13.2, pitch: 42, bearing: 245, viewContext: "Looking southwest across Waterfowl Lake toward the pyramid face of Mount Chephren." },
+    stutfield: { center: [-117.2750, 52.2850], zoom: 13.2, pitch: 44, bearing: 260, viewContext: "Looking west across Sunwapta canyon at the hanging ice tongues of Stutfield Glacier." },
+    icefield: { center: [-117.2280, 52.2150], zoom: 13.4, pitch: 42, bearing: 235, viewContext: "Looking southwest directly up the colossal tongue of Athabasca Glacier toward Snow Dome." },
+    icefield29: { center: [-117.2280, 52.2150], zoom: 13.4, pitch: 42, bearing: 235, viewContext: "Athabasca Glacier exploration looking up the ice flow toward Mount Kitchener." },
+    sunwapta: { center: [-117.6450, 52.5324], zoom: 14.4, pitch: 42, bearing: 325, viewContext: "Sunwapta Falls rushing around an island into a deep limestone chasm." },
+    athfalls: { center: [-117.8830, 52.6634], zoom: 14.4, pitch: 42, bearing: 340, viewContext: "Athabasca Falls rushing through quartzite canyons with Mount Kerkeslin rising behind." },
+    hinton27: { center: [-117.5800, 53.4050], zoom: 12.4, pitch: 40, bearing: 240, viewContext: "Hinton gateway town looking southwest along Yellowhead Highway into the front ranges." },
+    hinton28a: { center: [-117.5800, 53.4050], zoom: 12.4, pitch: 40, bearing: 240, viewContext: "Hinton morning departure toward Jasper National Park." },
+    jasper: { center: [-118.0810, 52.8730], zoom: 12.8, pitch: 42, bearing: 355, viewContext: "Looking north across Athabasca River valley toward the crest of Pyramid Mountain." },
+    jasper29: { center: [-118.0810, 52.8730], zoom: 12.8, pitch: 42, bearing: 355, viewContext: "Jasper townsite staging point beneath Pyramid Mountain and Whistler Peak." },
+    pyramid: { center: [-118.0980, 52.9200], zoom: 13.5, pitch: 40, bearing: 350, viewContext: "Looking north across Pyramid Lake straight at the 2,766 m Pyramid Mountain face." },
+    patricia: { center: [-118.0950, 52.9050], zoom: 13.6, pitch: 42, bearing: 345, viewContext: "Mirror lake reflecting Pyramid Mountain's reddish quartzite ridges." },
+    medicine: { center: [-117.8000, 52.8640], zoom: 13.2, pitch: 42, bearing: 142, viewContext: "Looking southeast down Maligne Valley along the subterranean basin of Medicine Lake." },
+    maligne: { center: [-117.6350, 52.7150], zoom: 13.2, pitch: 44, bearing: 152, viewContext: "Looking southeast down the 22 km glacial basin toward Spirit Island and glaciated peaks." },
+    annette: { center: [-118.0300, 52.8980], zoom: 13.4, pitch: 42, bearing: 340, viewContext: "Kettle lakes in Athabasca valley looking north toward the Colin Range." },
+    hinton28b: { center: [-117.5800, 53.4050], zoom: 12.4, pitch: 40, bearing: 240, viewContext: "Hinton Lodge evening return after Maligne Lake." },
+    hinton29: { center: [-117.5800, 53.4050], zoom: 12.4, pitch: 40, bearing: 240, viewContext: "Hinton departure for the southbound Icefields Parkway drive." },
+    valley5: { center: [-118.0650, 52.8350], zoom: 13.2, pitch: 42, bearing: 350, viewContext: "Athabasca Valley pine forest looking across the chain of jewel lakes." },
+    naturalbridge: { center: [-116.5380, 51.3960], zoom: 14.2, pitch: 42, bearing: 310, viewContext: "Kicking Horse River carving through ancient rock formations beneath Mount Stephen." },
+    emerald: { center: [-116.5330, 51.4450], zoom: 13.6, pitch: 42, bearing: 320, viewContext: "Yoho National Park masterpiece looking northwest across emerald waters to the President Range." },
+    cochrane29: { center: [-114.0150, 51.1250], zoom: 12.2, pitch: 40, bearing: 270, viewContext: "Holiday Inn Calgary Airport looking west toward the Bow Valley corridor." },
+    cochrane30: { center: [-114.0150, 51.1250], zoom: 12.2, pitch: 40, bearing: 270, viewContext: "Calgary Airport hotel departure." }
+  };
+
+  function getLandmarkCameraProfile(stop) {
+    if (!stop) return { zoom: 13.0, pitch: 42, bearing: 330, viewContext: "Canadian Rockies mountain vista." };
+    if (stop.id && LANDMARK_CAMERA_PROFILES[stop.id]) return LANDMARK_CAMERA_PROFILES[stop.id];
+
+    const lower = String(stop.name || stop.title || stop.id || '').toLowerCase();
+    for (const [key, prof] of Object.entries(LANDMARK_CAMERA_PROFILES)) {
+      if (lower.includes(key.toLowerCase())) return prof;
+    }
+    if (lower.includes('moraine')) return LANDMARK_CAMERA_PROFILES.moraine;
+    if (lower.includes('louise')) return LANDMARK_CAMERA_PROFILES.louise;
+    if (lower.includes('peyto') || lower.includes('bow summit')) return LANDMARK_CAMERA_PROFILES.peyto;
+    if (lower.includes('bow lake') || lower.includes('crowfoot')) return LANDMARK_CAMERA_PROFILES.bowlake;
+    if (lower.includes('park & ride') || lower.includes('park and ride')) return LANDMARK_CAMERA_PROFILES.parkride;
+    if (lower.includes('icefield') || lower.includes('glacier')) return LANDMARK_CAMERA_PROFILES.icefield;
+    if (lower.includes('maligne')) return LANDMARK_CAMERA_PROFILES.maligne;
+    if (lower.includes('sulphur') || lower.includes('gondola')) return LANDMARK_CAMERA_PROFILES.gondola;
+    if (lower.includes('cascade') || lower.includes('banff')) return LANDMARK_CAMERA_PROFILES.banff;
+    if (lower.includes('pyramid')) return LANDMARK_CAMERA_PROFILES.pyramid;
+    if (lower.includes('patricia')) return LANDMARK_CAMERA_PROFILES.patricia;
+    if (lower.includes('sunwapta')) return LANDMARK_CAMERA_PROFILES.sunwapta;
+    if (lower.includes('athabasca falls') || lower.includes('athfalls')) return LANDMARK_CAMERA_PROFILES.athfalls;
+    if (lower.includes('minnewanka')) return LANDMARK_CAMERA_PROFILES.minnewanka;
+    if (lower.includes('two jack')) return LANDMARK_CAMERA_PROFILES.twojack;
+    if (lower.includes('johnston')) return LANDMARK_CAMERA_PROFILES.johnston;
+    if (lower.includes('emerald')) return LANDMARK_CAMERA_PROFILES.emerald;
+    if (lower.includes('natural bridge')) return LANDMARK_CAMERA_PROFILES.naturalbridge;
+    if (lower.includes('hinton')) return LANDMARK_CAMERA_PROFILES.hinton27;
+    if (lower.includes('cochrane')) return LANDMARK_CAMERA_PROFILES.cochrane26_dep;
+    if (lower.includes('calgary') || lower.includes('airport') || lower.includes('yyc')) return LANDMARK_CAMERA_PROFILES.yyc25;
+
+    return { zoom: 13.0, pitch: 42, bearing: 330, viewContext: "Scenic Canadian Rockies vista." };
+  }
+
+  function focusLandmark(stop, profile, arrivalDate, fraction) {
+    if (!map || !stop) return null;
+    const prof = profile || getLandmarkCameraProfile(stop);
+    const stopLng = Number(stop.lng) || Number(stop.lon) || 0;
+    const stopLat = Number(stop.lat) || 0;
+    if (!stopLng && !stopLat && !prof.center) return null;
+
+    if (Number.isFinite(Number(fraction))) {
+      state.progress = clamp(Number(fraction), 0, 1);
+      state.lastDistanceMeters = state.totalDistanceMeters * state.progress;
+    }
+
+    let targetLng = stopLng;
+    let targetLat = stopLat;
+    if (prof.center && Array.isArray(prof.center) && prof.center.length >= 2) {
+      targetLng = prof.center[0];
+      targetLat = prof.center[1];
+    } else {
+      if (prof.targetOffset && prof.targetOffset.lng) targetLng += prof.targetOffset.lng;
+      if (prof.targetOffset && prof.targetOffset.lat) targetLat += prof.targetOffset.lat;
+    }
+
+    const zoom = Number.isFinite(Number(prof.zoom)) ? Number(prof.zoom) : 13.5;
+    const pitch = Math.min(44, Number.isFinite(Number(prof.pitch)) ? Number(prof.pitch) : (Number.isFinite(Number(prof.tilt)) ? Number(prof.tilt) : 42));
+    const bearing = Number.isFinite(Number(prof.bearing)) ? Number(prof.bearing) : (Number.isFinite(Number(prof.heading)) ? Number(prof.heading) : 0);
+
+    const date = arrivalDate || currentTripDate() || (state.startDate || new Date());
+    const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+    updateLighting(date, { lat: targetLat, lng: targetLng }, now);
+
+    map.flyTo({
+      center: [targetLng, targetLat],
+      bearing: bearing,
+      pitch: pitch,
+      zoom: zoom,
+      duration: 1600,
+      essential: true
+    });
+
+    const stopElev = map.queryTerrainElevation ? map.queryTerrainElevation([targetLng, targetLat]) : null;
+    const sun = solarPosition(date, targetLat, targetLng);
+
+    if (state.handlers && typeof state.handlers.onProgress === 'function') {
+      state.handlers.onProgress({
+        progress: state.progress,
+        distanceMeters: state.totalDistanceMeters * state.progress,
+        totalDistanceMeters: state.totalDistanceMeters,
+        point: { lat: targetLat, lng: targetLng },
+        surfaceHeight: stopElev,
+        cameraHeight: 250,
+        heading: bearing,
+        date: date,
+        sun: sun,
+        currentStop: stop,
+        landmarkProfile: prof
+      });
+    }
+    return prof;
+  }
+
   return {
     MAPLIBRE_VERSION: MAPLIBRE_VERSION,
     OPENFREEMAP_STYLE: OPENFREEMAP_STYLE,
@@ -995,6 +1194,9 @@
     computeAdaptiveLookahead: computeAdaptiveLookahead,
     computeScenicYawBias: computeScenicYawBias,
     timeOffsetSecondsAtFraction: timeOffsetSecondsAtFraction,
-    computeBearing: computeBearing
+    computeBearing: computeBearing,
+    LANDMARK_CAMERA_PROFILES: LANDMARK_CAMERA_PROFILES,
+    getLandmarkCameraProfile: getLandmarkCameraProfile,
+    focusLandmark: focusLandmark
   };
 });

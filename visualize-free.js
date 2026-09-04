@@ -417,13 +417,35 @@
     });
     if (idx < 0) return;
     const entry = stopsWithDistances[idx];
+    const stop = entry.stop || entry;
     World.stop(false);
     isPlaying = false;
-    World.setProgress(Number(entry.fraction || 0));
+    let prof = null;
+    if (World.focusLandmark) {
+      prof = World.focusLandmark(stop, null, entry.arrivalDate, Number(entry.fraction || 0));
+    } else {
+      World.setProgress(Number(entry.fraction || 0));
+    }
     updatePlaybackUi();
     document.querySelectorAll('[data-free-stop]').forEach(function (btn) {
-      btn.classList.toggle('selected', btn.dataset.freeStop === String(stopId));
+      const isMatch = btn.dataset.freeStop === String(stopId);
+      btn.classList.toggle('selected', isMatch);
+      if (isMatch && typeof btn.scrollIntoView === 'function') {
+        try { btn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {}
+      }
     });
+    const hud = document.getElementById('freeMapHudText');
+    const live = document.getElementById('freeLiveMain');
+    const detail = document.getElementById('freeLiveDetail');
+    if (hud) {
+      hud.textContent = `${stop.name || 'Stop'} • ${prof && prof.viewContext ? prof.viewContext : 'Landmark Vista'}`;
+    }
+    if (live) {
+      live.textContent = stop.name || 'Stop';
+    }
+    if (detail && prof && prof.viewContext) {
+      detail.textContent = prof.viewContext;
+    }
   }
 
   async function renderCurrentDay(autoPlay) {
