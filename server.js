@@ -43,8 +43,44 @@ const server = http.createServer((req, res) => {
   if (reqPath === '/' || !reqPath) reqPath = '/index.html';
 
   if (reqPath === '/runtime-config.js') {
+    // Google is now strictly optional/legacy. The default Visualize experience is
+    // a keyless MapLibre/OpenFreeMap/AWS Open Terrain world.
     const apiKey = process.env.GOOGLE_MAPS_API_KEY || '';
-    const configBody = `window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.stringify({ googleMapsApiKey: apiKey })});\n`;
+    const config = {
+      googleMapsApiKey: apiKey,
+      freeWorld: true,
+      paidApiRequired: false
+    };
+    const configBody = `
+window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.stringify(config)});
+(function bootstrapFreeWorld(){
+  if (typeof document === 'undefined') return;
+
+  if (!document.getElementById('visualizeFreeCss')) {
+    var link = document.createElement('link');
+    link.id = 'visualizeFreeCss';
+    link.rel = 'stylesheet';
+    link.href = 'visualize-free.css';
+    document.head.appendChild(link);
+  }
+
+  var attempts = 0;
+  function loadController(){
+    if (document.getElementById('visualizeFreeScript')) return;
+    if (window.Visualize3D && window.VisualizeWorld) {
+      var script = document.createElement('script');
+      script.id = 'visualizeFreeScript';
+      script.src = 'visualize-free.js';
+      script.async = false;
+      document.body.appendChild(script);
+      return;
+    }
+    attempts += 1;
+    if (attempts < 240) setTimeout(loadController, 25);
+  }
+  setTimeout(loadController, 0);
+})();
+`;
     res.writeHead(200, {
       'Content-Type': 'application/javascript; charset=utf-8',
       'Cache-Control': 'no-cache, no-store, must-revalidate'
