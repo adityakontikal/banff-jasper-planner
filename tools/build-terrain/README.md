@@ -1,84 +1,93 @@
-# Canadian Rockies Terrain Ingest & Terrarium Pipeline
+# Canadian Rockies Terrain Ingest
 
-This pipeline builds and packages high-resolution bare-earth Canadian terrain for the Banff-Jasper 3D Planner with **$0 recurring API cost** and **zero external billing dependencies**.
+This directory is reserved for building a **genuine, reproducible Canadian terrain dataset** for the Banff–Jasper Visualize experience with $0 recurring API cost.
 
----
+## Runtime status
 
-## Data Sources & Priorities
+The application currently uses the consistent public AWS/Open Data Terrarium DEM by default.
 
-1. **Primary**: [NRCan High-Resolution Digital Elevation Model (HRDEM) Mosaic](https://open.canada.ca/data/en/dataset/957782bf-84d4-48c5-a079-04186595ddb3)
-   - **Product**: Bare-earth Digital Terrain Model (DTM), 1 m to 2 m native resolution.
-   - **Rationale**: DTM removes tree canopy, structural clutter, and noise, leaving crisp mountain rock and valley geology.
-2. **Secondary (Gap-Fill / Wide Area)**: [NRCan Canadian Digital Elevation Model (CDEM)](https://open.canada.ca/data/en/dataset/7f245a4d-76c2-4caa-951a-45d1d2051333)
-   - **Resolution**: 0.75 arc-second (~20 m).
-   - **Rationale**: Seamless regional coverage across British Columbia / Alberta provincial boundaries.
-3. **License**: [Open Government Licence – Canada](https://open.canada.ca/en/open-government-licence-canada) (permissive commercial and personal use).
+A local `terrain/` directory is **not** trusted automatically. Local terrain is enabled only when:
 
----
+1. `ROCKIES_LOCAL_TERRAIN=1` is set, and
+2. `terrain/terrain-manifest.json` exists, and
+3. that manifest explicitly identifies genuine NRCan data, Terrarium encoding, and `"synthetic": false`.
 
-## Area of Interest (AOI)
+This guard exists because an earlier prototype generated procedural mountain relief and incorrectly described it as NRCan/high-resolution DTM. That prototype has been removed. **Do not fabricate terrain geometry.**
 
-Defined in [`aoi.geojson`](./aoi.geojson):
-- **Master Corridor Envelope**: ~35 km buffer along Highway 1 (Trans-Canada), Highway 93N (Icefields Parkway), and Highway 16 (Yellowhead).
-  - Bounds: `[-118.50, 50.95]` to `[-113.80, 53.60]` (~450 km corridor).
-- **Iconic Basins**:
-  - Banff / Sulphur Mountain / Lake Minnewanka
-  - Lake Louise / Moraine Lake / Valley of the Ten Peaks
-  - Bow Lake / Peyto Lake / Bow Summit
-  - Columbia Icefield / Athabasca Glacier (Hero Location)
-  - Jasper / Pyramid Mountain / Maligne Lake Basin
-  - Yoho / Emerald Lake
+## Approved data sources
 
----
+Use official Canadian elevation data only:
 
-## Multi-Resolution Level of Detail (LOD)
+- **NRCan HRDEM Mosaic DTM** where coverage exists. Prefer DTM/bare-earth data over DSM.
+- **NRCan CDEM** for wider-area coverage and legitimate gap fill.
+- Open Government Licence – Canada terms must be preserved in generated metadata/attribution.
 
-| LOD | Target Resolution | Zoom Levels | Purpose | Typical Coverage |
-|---|---|---|---|---|
-| **LOD 0** | 20–30 m | z7–z9 | Whole trip regional context, long-distance vistas | Calgary to Jasper |
-| **LOD 1** | 10–15 m | z10–z11 | Scenic highway corridor, valley approach | 35 km route buffer |
-| **LOD 2** | 2–5 m | z12–z13 | Iconic basins (Louise, Bow, Maligne) | 5–10 km focal areas |
-| **LOD 3** | 1–2 m | z14–z15 | Hero viewpoints (Athabasca Glacier, Ten Peaks) | 2–4 km viewpoints |
+## Area of interest
 
----
+`aoi.geojson` covers the trip corridor and key basins around:
 
-## Asset Size Budget Report
+- Banff / Sulphur Mountain / Minnewanka
+- Lake Louise / Moraine Lake / Ten Peaks
+- Bow Lake / Peyto / Bow Summit
+- Saskatchewan Crossing
+- Columbia Icefield / Athabasca Glacier
+- Jasper / Pyramid / Patricia
+- Medicine Lake / Maligne Lake
+- Hinton
+- Yoho / Emerald Lake
 
-For the corridor seed package (`tools/build-terrain/generate_terrarium_tiles.py`):
+Do not use a razor-thin road buffer; adjacent mountain ranges must remain visible.
 
-- **Format**: MapLibre-compatible PNG raster-dem (Terrarium encoding: `(R*256 + G + B/256) - 32768`).
-- **Tile Dimensions**: 256 × 256 pixels.
-- **Tile Count**: 157 tiles.
-- **Total Compressed Size**: 19.18 MB.
-- **Git Strategy**: Kept out of main git commit tree via `.gitignore` to prevent repository bloat; served directly via `./terrain/{z}/{x}/{y}.png` when present, with seamless fallback to the free AWS Open Data Terrarium DEM if absent.
+## Recommended LOD strategy
 
----
+| LOD | Target | Purpose |
+|---|---:|---|
+| Regional | 10–20 m | whole-trip landscape |
+| Scenic corridor | 5–10 m | major driving valleys |
+| Iconic basins | 2–5 m where source permits | Louise, Moraine, Peyto, Icefield, Jasper, Maligne |
+| Hero areas | 1–2 m only where genuine HRDEM coverage exists | small showcase zones |
 
-## Reproducing the Pipeline
+Do not ship native 1–2 m data over the full Calgary–Jasper region.
 
-### Prerequisites
-- Python 3.10+
-- `numpy`
-- `Pillow` (PIL)
+## Current ingest helper
 
-```bash
-pip install numpy pillow
-```
+`download_nrcan.py` currently performs catalog/STAC discovery and writes metadata about matching NRCan scenes. It does **not** yet download, mosaic, reproject, gap-fill, or tile the actual raster assets.
 
-### 1. Ingest STAC Metadata & Assets
+Run:
+
 ```bash
 python3 tools/build-terrain/download_nrcan.py
 ```
 
-### 2. Generate Local Terrarium Tiles
-```bash
-python3 tools/build-terrain/generate_terrarium_tiles.py
+Treat its output only as discovery metadata.
+
+## Requirements for a future real terrain builder
+
+Before local terrain may be enabled, the builder must:
+
+1. download actual NRCan raster assets;
+2. record exact source URLs / item IDs;
+3. mosaic in a geospatial toolchain such as GDAL/rasterio;
+4. reproject and resample without inventing elevations;
+5. use CDEM only for legitimate source gaps;
+6. generate MapLibre-compatible Terrarium tiles;
+7. preserve tile-edge continuity;
+8. validate decoded elevations at known points;
+9. produce `terrain/terrain-manifest.json` with at least:
+
+```json
+{
+  "source": "NRCan HRDEM DTM + NRCan CDEM gap fill",
+  "encoding": "terrarium",
+  "synthetic": false,
+  "license": "Open Government Licence – Canada",
+  "minzoom": 7,
+  "maxzoom": 15
+}
 ```
 
-### 3. Verification & Server Launch
-When `terrain/` exists, `server.js` automatically enables local terrain tiles at `/terrain/{z}/{x}/{y}.png`.
-Test directly:
-```bash
-curl -I http://localhost:3001/terrain/11/361/679.png
-```
-Output: `HTTP/1.1 200 OK` `Content-Type: image/png`
+10. visually inspect adjacent tile boundaries at multiple zooms before enabling the local source.
+
+## Important
+
+Never generate mountain relief from sine waves, noise, hand-authored peaks, or landmark elevation anchors and call it DEM/NRCan terrain. The Visualize tab is supposed to represent real geography.
