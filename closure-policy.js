@@ -26,7 +26,47 @@
   ];
 
   const BULLETIN = 'https://parks.canada.ca/voyage-travel/securite-safety/bulletins/76ecae58-8a63-480c-8304-dc903837eefd';
+  const VERIFIED_TRIP_ACTUALS = {
+    westJetFare: 966.63,
+    checkedBaggage: 119.90,
+    westJetTotal: 1086.53
+  };
   let enforcing = false;
+
+  function applyVerifiedTripActuals(state) {
+    if (!state) return false;
+    state.costs = state.costs || {};
+    let changed = false;
+
+    const costs = {
+      flight: 'booked-westjet',
+      flightFareActual: VERIFIED_TRIP_ACTUALS.westJetFare,
+      baggageActual: VERIFIED_TRIP_ACTUALS.checkedBaggage,
+      flightActual: VERIFIED_TRIP_ACTUALS.westJetTotal,
+      flightLocked: true
+    };
+    Object.keys(costs).forEach(function (key) {
+      if (state.costs[key] !== costs[key]) {
+        state.costs[key] = costs[key];
+        changed = true;
+      }
+    });
+
+    const outbound = (state.bookings || []).find(function (booking) { return booking.id === 'outbound'; });
+    if (outbound) {
+      const detail = 'Nonstop • 4h 19m • arrives Sat Sep 26 • 2 × 23 kg checked bags added • C$119.90 paid';
+      if (outbound.detail !== detail) { outbound.detail = detail; changed = true; }
+      if (outbound.flightFareActual !== VERIFIED_TRIP_ACTUALS.westJetFare) {
+        outbound.flightFareActual = VERIFIED_TRIP_ACTUALS.westJetFare;
+        changed = true;
+      }
+      if (outbound.baggageActual !== VERIFIED_TRIP_ACTUALS.checkedBaggage) {
+        outbound.baggageActual = VERIFIED_TRIP_ACTUALS.checkedBaggage;
+        changed = true;
+      }
+    }
+    return changed;
+  }
 
   function closureFor(stopOrName) {
     if (!stopOrName) return null;
@@ -76,6 +116,7 @@
 
   function patchBaseData() {
     enforceState(BASE);
+    applyVerifiedTripActuals(BASE);
 
     const canyon = SPOT_INFO.malignecanyon || (SPOT_INFO.malignecanyon = {});
     Object.assign(canyon, {
@@ -241,6 +282,34 @@
       injectBanner(document.getElementById('fieldRoot'));
     };
 
+    const oldRenderBookings = renderBookings;
+    renderBookings = function () {
+      oldRenderBookings();
+      const row = Array.from(document.querySelectorAll('#bookingRows .bookrow')).find(function (item) {
+        return /WestJet.*YYZ.*YYC/i.test(item.textContent || '');
+      });
+      if (!row) return;
+      const cells = row.children;
+      if (cells[3]) {
+        cells[3].innerHTML = '<b>C$1,086.53 total</b><small style="display:block;color:var(--muted)">C$966.63 airfare + C$119.90 checked baggage</small>';
+      }
+      if (cells[4]) cells[4].innerHTML = '<span class="date">fare + 2 checked bags</span>';
+    };
+
+    const oldRenderBudget = renderBudget;
+    renderBudget = function () {
+      oldRenderBudget();
+      const rows = Array.from(document.querySelectorAll('#budgetRows tr'));
+      const flightRow = rows.find(function (row) {
+        const cell = row.querySelector('td:first-child');
+        return cell && cell.textContent.trim() === 'Flights';
+      });
+      if (flightRow && flightRow.cells[0]) flightRow.cells[0].textContent = 'Flights + checked baggage';
+      const hint = document.getElementById('budgetHint');
+      const note = ' WestJet actual now includes C$119.90 paid for 2 outbound checked bags (23 kg each).';
+      if (hint && !hint.textContent.includes('C$119.90 paid for 2 outbound checked bags')) hint.textContent += note;
+    };
+
     const oldRenderMiniMap = renderModalMiniMap;
     renderModalMiniMap = function (stop) {
       const rule = closureFor(stop);
@@ -269,9 +338,10 @@
     renderAll = function () {
       if (!enforcing) {
         enforcing = true;
-        const changed = enforceState(S);
+        const closureChanged = enforceState(S);
+        const actualsChanged = applyVerifiedTripActuals(S);
         enforcing = false;
-        if (changed) persist();
+        if (closureChanged || actualsChanged) persist();
       }
       oldRenderAll();
       if (document.getElementById('planview') && document.getElementById('planview').classList.contains('on')) injectBanner(document.getElementById('planRoot'));
@@ -281,6 +351,7 @@
 
   patchBaseData();
   enforceState(S);
+  applyVerifiedTripActuals(S);
   persist();
   injectCss();
   patchRouting();
@@ -288,6 +359,7 @@
 
   window.isHardClosed2026 = isHardClosed2026;
   window.jasperClosed2026 = CLOSED_2026;
+  window.verifiedTripActuals = VERIFIED_TRIP_ACTUALS;
 
   renderAll();
 })();
