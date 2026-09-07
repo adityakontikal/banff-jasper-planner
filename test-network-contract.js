@@ -93,6 +93,37 @@ class CdpSession {
   }
 }
 
+function pingServer(url) {
+  return new Promise((resolve, reject) => {
+    http.get(url, res => {
+      if (res.statusCode >= 200 && res.statusCode < 400) resolve(true);
+      else reject(new Error('Status ' + res.statusCode));
+      res.resume();
+    }).on('error', reject);
+  });
+}
+
+async function ensureServerRunning() {
+  try {
+    await pingServer(`${TARGET_URL}/`);
+    return null;
+  } catch (_) {}
+
+  const serverProc = spawn(process.execPath, [path.join(__dirname, 'server.js')], {
+    env: Object.assign({}, process.env, { PORT: '3001' }),
+    stdio: 'ignore'
+  });
+
+  for (let i = 0; i < 40; i++) {
+    await sleep(200);
+    try {
+      await pingServer(`${TARGET_URL}/`);
+      return serverProc;
+    } catch (_) {}
+  }
+  throw new Error('Unable to start local server on ' + TARGET_URL);
+}
+
 async function findOrCreateTarget() {
   // Check if Chrome debugging is already running
   try {
@@ -108,7 +139,6 @@ async function findOrCreateTarget() {
   const chrome = spawn(CHROME_PATH, [
     `--remote-debugging-port=${DEBUG_PORT}`,
     '--headless=new',
-    '--disable-gpu',
     '--no-first-run',
     '--no-default-browser-check',
     `--user-data-dir=${tmpDir}`,
@@ -128,6 +158,7 @@ async function findOrCreateTarget() {
 
 async function run() {
   console.log('🔒 Running Automated Zero-Cost Network Contract Verification...');
+  const serverProc = await ensureServerRunning();
   const { target, spawned, chrome, tmpDir } = await findOrCreateTarget();
   const cdp = new CdpSession(target.webSocketDebuggerUrl);
   await cdp.ready;
@@ -148,7 +179,7 @@ async function run() {
     // Switch to Sep 27 and trigger Drive Route
     await cdp.eval(`
       (function() {
-        const dayBtn = document.querySelector('[data-free-day="2026-09-27"]');
+        const dayBtn = document.querySelector('[data-free-day="2026-09-27"], [data-free-iso="2026-09-27"], [data-free-day="Sep 27"]');
         if (dayBtn) dayBtn.click();
       })()
     `);
@@ -203,6 +234,9 @@ async function run() {
     if (spawned && chrome) {
       chrome.kill('SIGKILL');
       try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch (_) {}
+    }
+    if (serverProc) {
+      try { serverProc.kill('SIGKILL'); } catch (_) {}
     }
   }
 }

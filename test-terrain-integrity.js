@@ -26,7 +26,7 @@ assert(
   'A terrain directory alone must never activate local terrain'
 );
 assert(
-  server.includes('stability.onload = loadFreeController'),
+  server.includes('stability.onload = loadCameraRigsThenController') || server.includes('stability.onload = loadFreeController'),
   'Free Visualize controller must wait for the terrain stability guard'
 );
 

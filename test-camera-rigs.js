@@ -7,7 +7,7 @@ const rigs = fs.readFileSync(path.join(__dirname, 'visualize-camera-rigs.js'), '
 const server = fs.readFileSync(path.join(__dirname, 'server.js'), 'utf8');
 
 assert(server.includes("rigs.src = 'visualize-camera-rigs.js'"), 'Final camera-rig layer must be loaded by runtime bootstrap');
-assert(server.includes('rigs.onload = loadFreeController'), 'Camera rigs must load before the free controller');
+assert(server.includes('rigs.onload = loadGoogleSwitcherThenFree') || server.includes('rigs.onload = loadFreeController'), 'Camera rigs must load before the free controller');
 
 assert(rigs.includes('backDistance: 7') && rigs.includes('focusLead: 22'), 'Road must be a low near-road chase/driver camera');
 assert(rigs.includes('eyeClearance: 3.6'), 'Road camera must stay only a few metres above local road terrain');

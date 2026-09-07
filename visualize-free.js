@@ -286,7 +286,9 @@
     if (!switcher) return;
     const current = activeDay || selectedDayLabel();
     switcher.innerHTML = dayList().map(function (day) {
-      return `<button class="vis-daybtn ${day.date === current ? 'on' : ''}" data-free-day="${escapeHtml(day.date)}">${escapeHtml(day.date)}</button>`;
+      const iso = resolveDayIso(day.date);
+      const isSelected = day.date === current || iso === current;
+      return `<button class="vis-daybtn ${isSelected ? 'on' : ''}" data-free-day="${escapeHtml(day.date)}" data-free-iso="${escapeHtml(iso)}" data-iso="${escapeHtml(iso)}">${escapeHtml(day.date)}</button>`;
     }).join('');
     switcher.querySelectorAll('[data-free-day]').forEach(function (btn) {
       btn.onclick = function () { chooseDay(btn.dataset.freeDay); };
@@ -534,6 +536,10 @@
   function chooseDay(date) {
     const previous = activeDay;
     if (!date || date === 'all') date = selectedDayLabel();
+    const matched = dayList().find(function (d) {
+      return d.date === date || resolveDayIso(d.date) === date;
+    });
+    if (matched) date = matched.date;
     activeDay = date;
 
     try {

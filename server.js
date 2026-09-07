@@ -96,15 +96,6 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     document.head.appendChild(link);
   }
 
-  function loadFreeController(){
-    if (document.getElementById('visualizeFreeScript')) return;
-    var script = document.createElement('script');
-    script.id = 'visualizeFreeScript';
-    script.src = 'visualize-free.js';
-    script.async = false;
-    document.body.appendChild(script);
-  }
-
   function loadGoogleSwitcherThenFree(){
     if (document.getElementById('visualizeGoogleSwitcherScript')) {
       loadFreeController();
@@ -117,6 +108,15 @@ window.ROCKIES_CONFIG = Object.assign(window.ROCKIES_CONFIG || {}, ${JSON.string
     switcher.onload = loadFreeController;
     switcher.onerror = loadFreeController;
     document.body.appendChild(switcher);
+  }
+
+  function loadFreeController(){
+    if (document.getElementById('visualizeFreeScript')) return;
+    var script = document.createElement('script');
+    script.id = 'visualizeFreeScript';
+    script.src = 'visualize-free.js';
+    script.async = false;
+    document.body.appendChild(script);
   }
 
   function loadCameraRigsThenController(){
