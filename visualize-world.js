@@ -399,7 +399,18 @@
     } catch (_) {}
   }
 
+  function shouldShowBuildings() {
+    try {
+      const el = document.querySelector('#visualizeview .free-world-workspace');
+      if (el) return false;
+      const main = document.querySelector('#visualizeMain.world-mode');
+      if (main) return false;
+    } catch (_) {}
+    return true;
+  }
+
   function addBuildings3D() {
+    if (!shouldShowBuildings()) return;
     if (!map || map.getLayer('rockies-buildings-3d')) return;
     const vectorSource = firstVectorSourceId();
     if (!vectorSource) return;

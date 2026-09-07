@@ -398,7 +398,7 @@
 
       const script = document.createElement('script');
       script.id = 'googleMaps3dScript';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=alpha&libraries=maps3d,elevation&callback=${callbackName}`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=alpha&libraries=maps3d,elevation,places&callback=${callbackName}`;
       script.async = true;
       script.defer = true;
       script.onerror = () => {

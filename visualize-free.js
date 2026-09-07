@@ -23,14 +23,28 @@
   let renderTimer = null;
   let isPlaying = false;
   let speed = 1;
-  let cameraMode = 'road';
+  let cameraMode = 'scenic';
   let stopsWithDistances = [];
   let currentDayData = null;
+  let daySchedule = [];
+  let currentDriveSeconds = 0;
+  let lastHudStopKey = null;
+  let toastTimer = 0;
+  let currentCardEntry = null;
+  let allMode = false;
+  let playlist = [];
+  let playlistIdx = 0;
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
       return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' })[ch];
     });
+  }
+
+  function clamp01(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(1, n));
   }
 
   function dayColorSafe(date) {
@@ -119,6 +133,70 @@
     return '2026-' + (months[match[1]] || '09') + '-' + String(Number(match[2])).padStart(2, '0');
   }
 
+  function buildStopSchedule(dayData, mappedStops) {
+    const schedule = [];
+    if (!dayData || !dayData.day || typeof computeDayTimeline !== 'function') return schedule;
+    try {
+      const timeline = computeDayTimeline(dayData.day);
+      if (!timeline || !Array.isArray(timeline.items)) return schedule;
+      const byId = new Map();
+      timeline.items.forEach(function (item) {
+        if (item && !item.isCut && item.stop && item.stop.id != null) byId.set(String(item.stop.id), item);
+      });
+      (mappedStops || []).forEach(function (entry) {
+        const stop = entry.stop || entry;
+        const item = byId.get(String(stop.id));
+        if (!item || !Number.isFinite(Number(item.arrMin))) return;
+        schedule.push({
+          entry: entry,
+          stop: stop,
+          fraction: Number(entry.fraction || 0),
+          elapsedSeconds: Math.max(0, (Number(item.arrMin) - Number(timeline.startMin || 0)) * 60),
+          arrDisplay: (item.arrTime && item.arrTime.display) || '',
+          stayMin: Number(item.stayMin || 0)
+        });
+      });
+    } catch (_) {}
+    schedule.sort(function (a, b) { return a.fraction - b.fraction; });
+    return schedule;
+  }
+
+  function stopMetaFor(stopId) {
+    const key = String(stopId);
+    for (let i = 0; i < daySchedule.length; i++) {
+      if (String(daySchedule[i].stop.id) === key) return daySchedule[i];
+    }
+    return null;
+  }
+
+  function elapsedAtProgress(progress) {
+    const sched = daySchedule;
+    const f = clamp01(progress);
+    if (!sched.length) return Math.max(0, Number(currentDriveSeconds || 0) * f);
+    if (f <= sched[0].fraction) return sched[0].elapsedSeconds;
+    for (let i = 1; i < sched.length; i++) {
+      if (f <= sched[i].fraction) {
+        const a = sched[i - 1];
+        const b = sched[i];
+        const span = Math.max(1e-9, b.fraction - a.fraction);
+        const t = Math.max(0, Math.min(1, (f - a.fraction) / span));
+        return a.elapsedSeconds + (b.elapsedSeconds - a.elapsedSeconds) * t;
+      }
+    }
+    return sched[sched.length - 1].elapsedSeconds;
+  }
+
+  function formatEta(mins) {
+    const m = Math.round(Number(mins || 0));
+    if (m < 1) return 'now';
+    if (m < 60) return '+' + m + ' min';
+    return '+' + Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm';
+  }
+
+  function cameraLabel(mode) {
+    return mode.charAt(0).toUpperCase() + mode.slice(1);
+  }
+
   function buildTimeAnchors(dayData, mappedStops) {
     if (!dayData || !dayData.day || typeof computeDayTimeline !== 'function') return [];
     try {
@@ -148,6 +226,13 @@
     const rootEl = document.getElementById('visualizeview');
     if (!rootEl) return false;
 
+    let noteSeen = false;
+    try { noteSeen = !!localStorage.getItem('rockiesFreeNoteSeen'); } catch (_) {}
+
+    const camModes = ['road', 'scenic', 'aerial'].map(function (m) {
+      return `<button class="vis-world-mode ${cameraMode === m ? 'active' : ''}" data-free-camera="${m}">${cameraLabel(m)}</button>`;
+    }).join('');
+
     rootEl.innerHTML = `
       <div class="visualize-workspace free-world-workspace" id="visualizeWorkspace">
         <aside class="visualize-sidebar glass" id="visualizeSidebar">
@@ -163,7 +248,7 @@
           </div>
 
           <div class="vis-sidebody">
-            <div class="vis-free-source-note">
+            <div class="vis-free-source-note ${noteSeen ? 'collapsed' : ''}" id="freeSourceNote" title="Tap to expand/collapse">
               <b>$0 terrain world</b>
               <span>OpenStreetMap/OpenFreeMap + AWS Open Terrain. No API key. No billing account.</span>
             </div>
@@ -176,7 +261,7 @@
             </div>
 
             <div class="vis-free-playback-row">
-              <div class="vis-flight-speed-group" role="group" aria-label="Playback speed">
+              <div class="vis-flight-speed-group" role="group" aria-label="Preview speed">
                 <button class="vis-speed-btn" data-free-speed="0.5">0.5x</button>
                 <button class="vis-speed-btn active" data-free-speed="1">1x</button>
                 <button class="vis-speed-btn" data-free-speed="2">2x</button>
@@ -184,13 +269,13 @@
               <button class="btn small" id="freePauseBtn" disabled>⏸ Pause</button>
               <button class="btn small danger" id="freeStopBtn" disabled>⏹ Stop</button>
             </div>
+            <div class="vis-free-preview-note" id="freePreviewNote">Preview speed (not realtime)</div>
 
             <div class="ey" style="margin:12px 0 6px;">Camera</div>
             <div class="vis-world-camera-modes free-world-camera-modes" role="group" aria-label="World camera height">
-              <button class="vis-world-mode active" data-free-camera="road">Road</button>
-              <button class="vis-world-mode" data-free-camera="scenic">Scenic</button>
-              <button class="vis-world-mode" data-free-camera="aerial">Aerial</button>
+              ${camModes}
             </div>
+            <div class="vis-free-help">Drag = pan • Right-drag = rotate • Scroll = turn + look • Ctrl-scroll = zoom • Shift-scroll = pan</div>
 
             <div class="vis-free-live-card" id="freeLiveCard">
               <div class="vis-free-live-top">
@@ -198,11 +283,16 @@
                 <span id="freeClock">Trip time</span>
               </div>
               <div class="vis-free-live-main" id="freeLiveMain">Real terrain mesh • real route • real sun-aware relief</div>
-              <div class="vis-flight-progress-bar"><div class="vis-flight-progress-fill" id="freeProgress"></div></div>
+              <div class="vis-free-live-detail" id="freeLiveDetail"></div>
+              <div class="vis-flight-progress-bar" id="freeProgressBar" role="slider" tabindex="0" aria-label="Drive progress — click or use arrow keys to seek" title="Click to seek"><div class="vis-flight-progress-fill" id="freeProgress"></div></div>
+              <div class="vis-free-stopnav">
+                <button class="btn small" id="freePrevBtn">‹ Prev stop</button>
+                <button class="btn small" id="freeNextBtn">Next stop ›</button>
+              </div>
             </div>
 
             <div class="ey" style="margin:12px 0 6px;">Stops</div>
-            <div class="vis-stoplist" id="freeStopList"></div>
+            <div class="vis-stoplist" id="freeStopList" aria-label="Day stops"></div>
           </div>
         </aside>
 
@@ -214,6 +304,9 @@
             <span class="vis-world-badge">FREE / OPEN DATA</span>
             <span id="freeMapHudText">Terrain model</span>
           </div>
+          <button class="btn small hidden" id="freeExitMapOnlyBtn">✕ Show panel</button>
+          <div class="vis-stop-toast hidden" id="freeStopToast"></div>
+          <div class="vis-map-stop-card hidden" id="freeStopCard"></div>
         </main>
       </div>
     `;
@@ -239,7 +332,7 @@
       <div class="vis-overlay-card glass">
         ${isError ? '<div class="vis-overlay-icon">⚠️</div>' : '<div class="vis-spinner"></div>'}
         <p style="margin-top:12px;">${escapeHtml(message)}</p>
-        ${isError ? '<button class="btn" id="freeRetryBtn">Retry free terrain</button>' : ''}
+        ${isError ? '<button class="btn" id="freeRetryBtn">Retry free terrain</button><p style="margin-top:10px;font-size:11px;color:#8ba2b5;">You can also pick another day above — the world reloads when its road route is ready.</p>' : ''}
       </div>`;
     if (isError) {
       const retry = document.getElementById('freeRetryBtn');
@@ -252,9 +345,22 @@
     if (overlay) overlay.classList.add('hidden');
   }
 
+  function resetCameraOffsets() {
+    try {
+      if (root.ROCKIES_FINAL_CAMERA_RIGS && typeof root.ROCKIES_FINAL_CAMERA_RIGS.resetControls === 'function') {
+        root.ROCKIES_FINAL_CAMERA_RIGS.resetControls();
+      } else if (root.ROCKIES_CAMERA_GESTURES && typeof root.ROCKIES_CAMERA_GESTURES.resetViewOffsets === 'function') {
+        root.ROCKIES_CAMERA_GESTURES.resetViewOffsets();
+      }
+    } catch (_) {}
+  }
+
   function bindShell() {
     const fit = document.getElementById('freeFitBtn');
-    if (fit) fit.onclick = function () { World.fitRoute(1); };
+    if (fit) fit.onclick = function () {
+      resetCameraOffsets();
+      World.fitRoute(1);
+    };
 
     const drive = document.getElementById('freeDriveBtn');
     if (drive) drive.onclick = function () { startDrive(); };
@@ -268,6 +374,19 @@
     const mapOnly = document.getElementById('freeMapOnlyBtn');
     if (mapOnly) mapOnly.onclick = function () { toggleMapOnly(); };
 
+    const exitMapOnly = document.getElementById('freeExitMapOnlyBtn');
+    if (exitMapOnly) {
+      exitMapOnly.onclick = function () { toggleMapOnly(false); };
+      const workspace = document.getElementById('visualizeWorkspace');
+      if (workspace && workspace.classList.contains('map-only')) exitMapOnly.classList.remove('hidden');
+    }
+
+    const note = document.getElementById('freeSourceNote');
+    if (note) note.onclick = function () {
+      note.classList.toggle('collapsed');
+      try { localStorage.setItem('rockiesFreeNoteSeen', '1'); } catch (_) {}
+    };
+
     document.querySelectorAll('[data-free-speed]').forEach(function (btn) {
       btn.onclick = function () {
         setSpeed(Number(btn.dataset.freeSpeed));
@@ -279,17 +398,42 @@
         setCameraMode(btn.dataset.freeCamera);
       };
     });
+
+    const bar = document.getElementById('freeProgressBar');
+    if (bar && !bar.__freeSeekBound) {
+      bar.__freeSeekBound = true;
+      bar.addEventListener('click', function (ev) {
+        const rect = bar.getBoundingClientRect();
+        if (!rect.width) return;
+        seekToFraction((ev.clientX - rect.left) / rect.width);
+      });
+      bar.addEventListener('keydown', function (ev) {
+        if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') {
+          ev.preventDefault();
+          nudgeProgress(-0.02);
+        } else if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') {
+          ev.preventDefault();
+          nudgeProgress(0.02);
+        }
+      });
+    }
+
+    const prev = document.getElementById('freePrevBtn');
+    if (prev) prev.onclick = function () { stepStop(-1); };
+    const next = document.getElementById('freeNextBtn');
+    if (next) next.onclick = function () { stepStop(1); };
   }
 
-  function renderDayButtons() {
+  function renderDayButtons(loadedDate) {
     const switcher = document.getElementById('freeDaySwitch');
     if (!switcher) return;
-    const current = activeDay || selectedDayLabel();
-    switcher.innerHTML = dayList().map(function (day) {
+    const current = allMode ? loadedDate : (activeDay || selectedDayLabel());
+    const pills = dayList().map(function (day) {
       const iso = resolveDayIso(day.date);
       const isSelected = day.date === current || iso === current;
       return `<button class="vis-daybtn ${isSelected ? 'on' : ''}" data-free-day="${escapeHtml(day.date)}" data-free-iso="${escapeHtml(iso)}" data-iso="${escapeHtml(iso)}">${escapeHtml(day.date)}</button>`;
     }).join('');
+    switcher.innerHTML = `<button class="vis-daybtn ${allMode ? 'on' : ''}" data-free-day="__all" title="Play every day in order">All days</button>` + pills;
     switcher.querySelectorAll('[data-free-day]').forEach(function (btn) {
       btn.onclick = function () { chooseDay(btn.dataset.freeDay); };
     });
@@ -329,12 +473,16 @@
       const isHotel = stop.isHotel || /hotel|sleep/i.test(stop.name || '');
       const badge = isHotel ? 'HOTEL' : (stop.priority === 'must' ? 'MUST' : 'NICE');
       const badgeClass = isHotel ? 'hotel' : (stop.priority === 'must' ? 'must' : 'nice');
+      const meta = stopMetaFor(stop.id);
+      const sub = meta && (meta.arrDisplay || meta.stayMin)
+        ? `<span class="vis-stop-sub">${escapeHtml([meta.arrDisplay, meta.stayMin ? meta.stayMin + ' min' : ''].filter(Boolean).join(' • '))}</span>`
+        : '';
       return `
         <button class="vis-stop-item free-stop-button" data-free-stop="${escapeHtml(String(stop.id))}">
           <span class="vis-stop-num">${index + 1}</span>
           <span class="vis-stop-info">
             <span class="vis-stop-name">${escapeHtml(stop.name)}</span>
-            <span class="vis-stop-meta"><span class="vis-badge ${badgeClass}">${badge}</span></span>
+            <span class="vis-stop-meta"><span class="vis-badge ${badgeClass}">${badge}</span>${sub}</span>
           </span>
         </button>`;
     }).join('');
@@ -358,20 +506,57 @@
     }
   }
 
+  function markVisitedStops(progress) {
+    const key = Math.round(clamp01(progress) * 200);
+    if (key === lastHudStopKey) return;
+    lastHudStopKey = key;
+    document.querySelectorAll('[data-free-stop]').forEach(function (btn) {
+      const idx = stopsWithDistances.findIndex(function (entry) {
+        const stop = entry.stop || entry;
+        return String(stop.id) === btn.dataset.freeStop;
+      });
+      const frac = idx >= 0 ? Number(stopsWithDistances[idx].fraction || 0) : 1;
+      btn.classList.toggle('visited', frac <= progress + 0.001);
+    });
+  }
+
   function updateHud(info) {
     if (!info) return;
     const clock = document.getElementById('freeClock');
     const main = document.getElementById('freeLiveMain');
     const progress = document.getElementById('freeProgress');
     const mapHud = document.getElementById('freeMapHudText');
-    if (clock) clock.textContent = formatClock(info.date);
+    const clockText = formatClock(info.date);
+    if (clock) clock.textContent = clockText;
+
+    const sched = daySchedule;
+    let passed = null;
+    let next = null;
+    for (let i = 0; i < sched.length; i++) {
+      if (sched[i].fraction <= info.progress + 0.001) passed = sched[i];
+      else if (!next) next = sched[i];
+    }
+    const nowElapsed = elapsedAtProgress(info.progress);
     if (main) {
-      main.textContent = `Sun ${Math.round(info.sun.azimuth)}° / ${Math.round(info.sun.altitude)}° • terrain ${Math.round(info.surfaceHeight || 0)} m • camera ${Math.round(info.cameraHeight || 0)} m`;
+      if (passed && next) {
+        main.textContent = `Near ${passed.stop.name} • ${clockText} • next ${next.stop.name} ${formatEta((next.elapsedSeconds - nowElapsed) / 60)}`;
+      } else if (next) {
+        main.textContent = `${clockText} • first up ${next.stop.name} ${formatEta((next.elapsedSeconds - nowElapsed) / 60)}`;
+      } else if (passed) {
+        main.textContent = `Final stop ${passed.stop.name} • ${clockText}`;
+      } else {
+        main.textContent = `${clockText} • ${cameraLabel(info.cameraMode || cameraMode)} camera`;
+      }
     }
     if (progress) progress.style.width = `${Math.round((info.progress || 0) * 100)}%`;
     if (mapHud) {
-      mapHud.textContent = `${formatClock(info.date)} • ${Math.round((info.distanceMeters || 0) / 1000)} / ${Math.round((info.totalDistanceMeters || 0) / 1000)} km • ${info.cameraMode}`;
+      if (next) {
+        mapHud.textContent = `${clockText} • → ${next.stop.name} ${formatEta((next.elapsedSeconds - nowElapsed) / 60)}`;
+      } else {
+        mapHud.textContent = `${clockText} • ${Math.round((info.distanceMeters || 0) / 1000)} / ${Math.round((info.totalDistanceMeters || 0) / 1000)} km • ${cameraLabel(info.cameraMode || cameraMode)}`;
+      }
     }
+    markVisitedStops(info.progress);
   }
 
   function updatePlaybackUi() {
@@ -384,6 +569,24 @@
       pause.textContent = World.isPaused() ? '▶ Resume' : '⏸ Pause';
     }
     if (stop) stop.disabled = !isPlaying;
+  }
+
+  function updatePreviewNote() {
+    const el = document.getElementById('freePreviewNote');
+    if (!el) return;
+    let mins = null;
+    try {
+      const st = World.getStatus ? World.getStatus() : {};
+      const total = Number(st.totalDistanceMeters || 0);
+      if (total > 0) {
+        if (root.ROCKIES_FINAL_CAMERA_RIGS && typeof root.ROCKIES_FINAL_CAMERA_RIGS.cinematicDurationMs === 'function') {
+          mins = Math.round(root.ROCKIES_FINAL_CAMERA_RIGS.cinematicDurationMs(total) / 60000);
+        } else {
+          mins = Math.max(1, Math.round((total / 1000) * 2.5 / 60));
+        }
+      }
+    } catch (_) {}
+    el.textContent = mins ? `Preview speed • ~${mins} min for this day at 1x` : 'Preview speed (not realtime)';
   }
 
   function setSpeed(value) {
@@ -405,11 +608,142 @@
   function toggleMapOnly(force) {
     const workspace = document.getElementById('visualizeWorkspace');
     const btn = document.getElementById('freeMapOnlyBtn');
+    const exitBtn = document.getElementById('freeExitMapOnlyBtn');
     if (!workspace) return;
     const next = force === undefined ? !workspace.classList.contains('map-only') : !!force;
     workspace.classList.toggle('map-only', next);
     if (btn) btn.textContent = next ? 'Show panel' : 'Map only';
+    if (exitBtn) exitBtn.classList.toggle('hidden', !next);
     World.show();
+  }
+
+  function entryIndex(entry) {
+    const id = String((entry.stop || entry).id);
+    return stopsWithDistances.findIndex(function (e) {
+      return String((e.stop || e).id) === id;
+    });
+  }
+
+  function sortedStops() {
+    return stopsWithDistances.slice().sort(function (a, b) {
+      return Number(a.fraction || 0) - Number(b.fraction || 0);
+    });
+  }
+
+  function showStopToast(title, sub) {
+    const toast = document.getElementById('freeStopToast');
+    if (!toast) return;
+    toast.innerHTML = `<div class="vis-stop-toast-title">${escapeHtml(title)}</div>${sub ? `<div class="vis-stop-toast-sub">${escapeHtml(sub)}</div>` : ''}`;
+    toast.classList.remove('hidden');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, 2600);
+  }
+
+  function hideStopCard() {
+    const card = document.getElementById('freeStopCard');
+    if (card) card.classList.add('hidden');
+    currentCardEntry = null;
+    const detail = document.getElementById('freeLiveDetail');
+    if (detail) detail.textContent = '';
+  }
+
+  function showStopCard(entry) {
+    const card = document.getElementById('freeStopCard');
+    if (!card || !entry) return;
+    const stop = entry.stop || entry;
+    const idx = entryIndex(entry);
+    const total = stopsWithDistances.length;
+    const meta = stopMetaFor(stop.id);
+    const isHotel = stop.isHotel || /hotel|sleep/i.test(stop.name || '');
+    const badge = isHotel ? 'HOTEL' : (stop.priority === 'must' ? 'MUST' : 'NICE');
+    const badgeClass = isHotel ? 'hotel' : (stop.priority === 'must' ? 'must' : 'nice');
+    let context = '';
+    try {
+      if (legacy && typeof legacy.getLandmarkCameraProfile === 'function') {
+        const prof = legacy.getLandmarkCameraProfile(stop);
+        if (prof && prof.viewContext) context = prof.viewContext;
+      }
+    } catch (_) {}
+    const when = meta && (meta.arrDisplay || meta.stayMin)
+      ? [meta.arrDisplay, meta.stayMin ? 'stay ' + meta.stayMin + ' min' : ''].filter(Boolean).join(' • ')
+      : '';
+    currentCardEntry = entry;
+    card.innerHTML = `
+      <div class="vis-stop-card-step">Stop ${idx + 1} of ${total}${allMode ? ' • ' + escapeHtml(activeDayLabel()) : ''}</div>
+      <div class="vis-stop-card-title">${escapeHtml(stop.name || 'Stop')}</div>
+      <div class="vis-stop-card-tags"><span class="vis-badge ${badgeClass}">${badge}</span>${when ? `<span class="vis-pill">${escapeHtml(when)}</span>` : ''}</div>
+      ${context ? `<div class="vis-stop-card-context"><span class="vis-context-icon">🏔️</span><span class="vis-context-text">${escapeHtml(context)}</span></div>` : ''}
+      <div class="vis-stop-card-actions">
+        <button class="btn small" id="freeCardPrevBtn">‹ Prev</button>
+        <button class="btn small" id="freeCardNextBtn">Next ›</button>
+        <button class="btn small primary" id="freeCardDriveBtn">▶ Drive here</button>
+        <button class="btn small" id="freeCardCloseBtn">Close</button>
+      </div>`;
+    card.classList.remove('hidden');
+    const prev = document.getElementById('freeCardPrevBtn');
+    const nextBtn = document.getElementById('freeCardNextBtn');
+    const driveBtn = document.getElementById('freeCardDriveBtn');
+    const close = document.getElementById('freeCardCloseBtn');
+    if (prev) prev.onclick = function () { stepStop(-1); };
+    if (nextBtn) nextBtn.onclick = function () { stepStop(1); };
+    if (driveBtn) driveBtn.onclick = function () {
+      hideStopCard();
+      seekToFraction(Number(entry.fraction || 0));
+      startDrive();
+    };
+    if (close) close.onclick = function () { hideStopCard(); };
+    const detail = document.getElementById('freeLiveDetail');
+    if (detail) detail.textContent = context || (stop.name || '');
+    document.querySelectorAll('[data-free-stop]').forEach(function (btn) {
+      btn.classList.toggle('selected', btn.dataset.freeStop === String(stop.id));
+    });
+  }
+
+  function activeDayLabel() {
+    if (allMode) {
+      const day = playlist[playlistIdx];
+      return day ? day.date : '';
+    }
+    return activeDay || '';
+  }
+
+  function seekToFraction(fraction) {
+    if (!currentDayData || worldReadyDay !== currentDayData.date) return;
+    World.setProgress(clamp01(fraction));
+    try { if (World.getMap) { const map = World.getMap(); if (map) map.triggerRepaint(); } } catch (_) {}
+  }
+
+  function nudgeProgress(delta) {
+    let current = 0;
+    try {
+      const st = World.getStatus ? World.getStatus() : {};
+      current = Number(st.progress || 0);
+    } catch (_) {}
+    seekToFraction(current + delta);
+  }
+
+  function stepStop(delta) {
+    const ordered = sortedStops();
+    if (!ordered.length) return;
+    let anchor = null;
+    if (currentCardEntry) anchor = Number(currentCardEntry.fraction || 0);
+    else {
+      try {
+        const st = World.getStatus ? World.getStatus() : {};
+        anchor = Number(st.progress || 0);
+      } catch (_) { anchor = 0; }
+    }
+    let target = null;
+    if (delta > 0) {
+      target = ordered.find(function (e) { return Number(e.fraction || 0) > anchor + 0.005; }) || ordered[ordered.length - 1];
+    } else {
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        if (Number(ordered[i].fraction || 0) < anchor - 0.005) { target = ordered[i]; break; }
+      }
+      target = target || ordered[0];
+    }
+    seekToFraction(Number(target.fraction || 0));
+    showStopCard(target);
   }
 
   function focusStop(stopId) {
@@ -422,53 +756,62 @@
     const stop = entry.stop || entry;
     World.stop(false);
     isPlaying = false;
-    let prof = null;
     if (World.focusLandmark) {
-      prof = World.focusLandmark(stop, null, entry.arrivalDate, Number(entry.fraction || 0));
+      World.focusLandmark(stop, null, entry.arrivalDate, Number(entry.fraction || 0));
     } else {
       World.setProgress(Number(entry.fraction || 0));
     }
     updatePlaybackUi();
+    showStopCard(entry);
     document.querySelectorAll('[data-free-stop]').forEach(function (btn) {
       const isMatch = btn.dataset.freeStop === String(stopId);
-      btn.classList.toggle('selected', isMatch);
       if (isMatch && typeof btn.scrollIntoView === 'function') {
         try { btn.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) {}
       }
     });
-    const hud = document.getElementById('freeMapHudText');
-    const live = document.getElementById('freeLiveMain');
-    const detail = document.getElementById('freeLiveDetail');
-    if (hud) {
-      hud.textContent = `${stop.name || 'Stop'} • ${prof && prof.viewContext ? prof.viewContext : 'Landmark Vista'}`;
-    }
-    if (live) {
-      live.textContent = stop.name || 'Stop';
-    }
-    if (detail && prof && prof.viewContext) {
-      detail.textContent = prof.viewContext;
-    }
   }
 
   async function renderCurrentDay(autoPlay) {
     if (!ensureShell()) return;
     const token = ++renderToken;
-    const date = activeDay || selectedDayLabel();
+    let date = activeDay || selectedDayLabel();
+    if (allMode) {
+      if (!playlist.length) {
+        showOverlay('All-days tour needs at least one day with stops.', true);
+        return;
+      }
+      playlistIdx = Math.max(0, Math.min(playlistIdx, playlist.length - 1));
+      date = playlist[playlistIdx].date;
+    }
     const dayData = getDayData(date);
     if (!dayData) return;
 
-    activeDay = date;
-    currentDayData = dayData;
     activeRouteStatus = dayData.routeStatus;
-    renderDayButtons();
+
+    stopsWithDistances = Elevation && typeof Elevation.mapStopsToDistances === 'function'
+      ? Elevation.mapStopsToDistances(dayData.activeStops, dayData.routeCoordinates)
+      : [];
+    daySchedule = buildStopSchedule(dayData, stopsWithDistances);
+    currentDriveSeconds = Math.max(60, Number(dayData.driveDurationMin || 0) * 60);
+    lastHudStopKey = null;
+
+    activeDay = allMode ? '__all' : date;
+    currentDayData = dayData;
+    renderDayButtons(date);
 
     const title = document.getElementById('freeVisTitle');
-    if (title) title.textContent = `${date}: ${dayData.label || ''}`;
+    if (title) {
+      title.textContent = allMode
+        ? `All days ${playlistIdx + 1}/${playlist.length} • ${date}: ${dayData.label || ''}`
+        : `${date}: ${dayData.label || ''}`;
+    }
     renderMetrics(dayData);
     renderStops(dayData);
+    hideStopCard();
 
     if (!dayData.routeCoordinates || dayData.routeCoordinates.length < 2) {
-      showOverlay('Route geometry is still loading. The free terrain world will update when the road route is ready.', false);
+      worldReadyDay = null;
+      showOverlay(`Road route for ${date} is still loading. Retry, or pick another day — this view updates automatically when directions finish.`, true);
       return;
     }
 
@@ -477,12 +820,10 @@
       await World.initialize(document.getElementById('visualizeWorldContainer'));
       if (token !== renderToken) return;
 
-      stopsWithDistances = Elevation && typeof Elevation.mapStopsToDistances === 'function'
-        ? Elevation.mapStopsToDistances(dayData.activeStops, dayData.routeCoordinates)
-        : [];
-
       const fallbackProfile = buildFallbackProfile(dayData, stopsWithDistances);
-      const timeAnchors = buildTimeAnchors(dayData, stopsWithDistances);
+      const timeAnchors = daySchedule.map(function (s) {
+        return { fraction: s.fraction, elapsedSeconds: s.elapsedSeconds };
+      });
 
       World.loadDay({
         routeCoordinates: dayData.routeCoordinates,
@@ -490,17 +831,31 @@
         stopsWithDistances: stopsWithDistances,
         dateISO: resolveDayIso(dayData.date),
         startTime: dayData.start || '08:00',
-        driveDurationSeconds: Math.max(60, Number(dayData.driveDurationMin || 0) * 60),
+        driveDurationSeconds: currentDriveSeconds,
         timeAnchors: timeAnchors,
         handlers: {
           onProgress: updateHud,
-          onStop: function (stop) {
+          onStop: function (stop, i) {
             if (!stop) return;
             document.querySelectorAll('[data-free-stop]').forEach(function (btn) {
               btn.classList.toggle('selected', btn.dataset.freeStop === String(stop.id));
             });
+            const total = stopsWithDistances.length;
+            const meta = stopMetaFor(stop.id);
+            showStopToast(
+              `Stop ${(Number(i) || 0) + 1} of ${total} • ${stop.name || ''}`,
+              meta && meta.arrDisplay ? `Planned arrival ${meta.arrDisplay}` : ''
+            );
           },
           onEnd: function () {
+            if (allMode && playlistIdx < playlist.length - 1) {
+              playlistIdx += 1;
+              const nextDay = playlist[playlistIdx];
+              showStopToast(`Day complete • next: ${nextDay.date}`, nextDay.label || '');
+              renderCurrentDay(true);
+              return;
+            }
+            if (allMode) showStopToast('All-days tour complete', 'Pick a day to replay it.');
             isPlaying = false;
             updatePlaybackUi();
           }
@@ -509,6 +864,7 @@
       World.setCameraMode(cameraMode);
       World.setSpeed(speed);
       worldReadyDay = dayData.date;
+      updatePreviewNote();
       hideOverlay();
 
       if (autoPlay) {
@@ -534,12 +890,24 @@
   }
 
   function chooseDay(date) {
-    const previous = activeDay;
     if (!date || date === 'all') date = selectedDayLabel();
+    if (date === '__all') {
+      const previous = activeDay;
+      allMode = true;
+      playlist = dayList().filter(function (d) { return d.stops && d.stops.length; });
+      playlistIdx = 0;
+      if (isPlaying && previous !== '__all') stopDrive(false);
+      renderCurrentDay(false);
+      return;
+    }
+    const previous = activeDay;
     const matched = dayList().find(function (d) {
       return d.date === date || resolveDayIso(d.date) === date;
     });
     if (matched) date = matched.date;
+    allMode = false;
+    playlist = [];
+    playlistIdx = 0;
     activeDay = date;
 
     try {
@@ -556,8 +924,10 @@
 
   function onActivate() {
     ensureShell();
-    const desired = selectedDayLabel();
-    if (!activeDay) activeDay = desired;
+    if (!allMode) {
+      const desired = selectedDayLabel();
+      if (!activeDay) activeDay = desired;
+    }
     renderCurrentDay(false);
   }
 
@@ -589,6 +959,17 @@
   function publicChooseDay(date) {
     // app.js calls this when OSRM legs finish. Avoid a camera reset for every
     // partial leg; only rebuild when the same day's final route becomes ready.
+    if (allMode) {
+      const loaded = playlist[playlistIdx];
+      if (!loaded || String(date) !== String(loaded.date)) return;
+      const latest = getDayData(date);
+      if (!latest) return;
+      if (!isPlaying && latest.routeStatus === 'ready' && activeRouteStatus !== 'ready') {
+        activeRouteStatus = 'ready';
+        scheduleRender(false);
+      }
+      return;
+    }
     const sameDay = String(date) === String(activeDay);
     if (!sameDay) {
       chooseDay(date);
@@ -602,9 +983,36 @@
     }
   }
 
+  function findDayWithStop(stopId) {
+    const days = dayList();
+    for (let i = 0; i < days.length; i++) {
+      const stops = days[i].stops || [];
+      for (let j = 0; j < stops.length; j++) {
+        if (String(stops[j].id) === String(stopId)) return days[i].date;
+      }
+    }
+    return null;
+  }
+
   function selectStopById(stopId) {
     if (!shellReady) onActivate();
-    setTimeout(function () { focusStop(stopId); }, 0);
+    const ownerDay = findDayWithStop(stopId);
+    if (ownerDay && !allMode && String(activeDay) !== String(ownerDay)) {
+      chooseDay(ownerDay);
+    }
+    let tries = 0;
+    (function attempt() {
+      const idx = stopsWithDistances.findIndex(function (entry) {
+        const stop = entry.stop || entry;
+        return String(stop.id) === String(stopId);
+      });
+      if (idx >= 0 && worldReadyDay) {
+        focusStop(stopId);
+        return;
+      }
+      tries += 1;
+      if (tries < 32) setTimeout(attempt, 250);
+    })();
   }
 
   // Replace only public entry points used by app.js/hash navigation. The old
@@ -627,6 +1035,7 @@
       playing: isPlaying,
       speed: speed,
       cameraMode: cameraMode,
+      allMode: allMode,
       renderer: World.getStatus(),
       paidApiRequired: false
     };
@@ -649,5 +1058,26 @@
       setTimeout(maybeActivateFromHash, 0);
     }
     root.addEventListener('hashchange', function () { setTimeout(maybeActivateFromHash, 0); });
+    document.addEventListener('keydown', function (ev) {
+      const vis = document.getElementById('visualizeview');
+      if (!vis || !vis.classList.contains('on')) return;
+      const target = ev.target;
+      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
+      if (ev.code === 'Space') {
+        if (isPlaying) {
+          ev.preventDefault();
+          togglePause();
+        }
+      } else if (ev.key === 'Escape') {
+        const workspace = document.getElementById('visualizeWorkspace');
+        if (workspace && workspace.classList.contains('map-only')) {
+          toggleMapOnly(false);
+        } else if (root.ROCKIES_CAMERA_GESTURES && typeof root.ROCKIES_CAMERA_GESTURES.isOrbiting === 'function') {
+          try {
+            if (root.ROCKIES_CAMERA_GESTURES.isOrbiting()) root.ROCKIES_CAMERA_GESTURES.stopOrbit();
+          } catch (_) {}
+        }
+      }
+    });
   }
 })(typeof window !== 'undefined' ? window : null);

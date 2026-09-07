@@ -28,6 +28,14 @@
   let routeOverlay = null;
   let routeOverlayDay = null;
   let vehicleMarker = null;
+  let googleBasemapMode = 'HYBRID';
+  let placeCache = {};
+  let placePending = {};
+  let placesLibPromise = null;
+  try {
+    const storedMode = (typeof localStorage !== 'undefined' && localStorage.getItem('bj-google-basemap-mode')) || '';
+    if (storedMode === 'SATELLITE' || storedMode === 'HYBRID' || storedMode === 'ROADMAP') googleBasemapMode = storedMode;
+  } catch (_) {}
 
   const GOOGLE_RIGS = {
     road: {
@@ -92,7 +100,9 @@
     autoBearing: null,
     dayData: null,
     elevationAnchors: [],
-    stopFractions: []
+    stopFractions: [],
+    focusToken: 0,
+    focusEntry: null
   };
 
   const controls = {
@@ -163,9 +173,86 @@
       map.style.height = '100%';
       try { map.defaultUIHidden = false; } catch (_) {}
       try { map.maxTilt = 88; } catch (_) {}
+      try {
+        if (googleBasemapMode && map.mode !== googleBasemapMode) map.mode = googleBasemapMode;
+      } catch (_) {}
       installGoogleDriveInteractions(container || map);
+      installPlaceClick(map);
     }
     return map;
+  }
+
+  function escapeGoogleHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[ch];
+    });
+  }
+
+  function dayScheduleFor(dayData) {
+    const schedule = {};
+    try {
+      if (dayData && dayData.day && typeof computeDayTimeline === 'function') {
+        const timeline = computeDayTimeline(dayData.day);
+        (timeline.items || []).forEach(function (item) {
+          if (item && !item.isCut && item.stop && item.stop.id != null && Number.isFinite(Number(item.arrMin))) {
+            schedule[String(item.stop.id)] = {
+              arrDisplay: (item.arrTime && item.arrTime.display) || '',
+              stayMin: Number(item.stayMin || 0)
+            };
+          }
+        });
+      }
+    } catch (_) {}
+    return schedule;
+  }
+
+  function formatClockGoogle(date) {
+    if (!(date instanceof Date) || !Number.isFinite(date.getTime())) return '% route';
+    try {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Edmonton',
+        weekday: 'short',
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(date);
+    } catch (_) {
+      return date.toLocaleTimeString();
+    }
+  }
+
+  function tripDateAtProgress() {
+    try {
+      const dd = googleDrive.dayData;
+      if (dd && dd.date && dd.start) {
+        const iso = (typeof DATE_ISO !== 'undefined' && DATE_ISO[dd.date]) || null;
+        if (iso) {
+          const parts = String(dd.start).match(/(\d{1,2}):(\d{2})/);
+          const hh = String(parts ? Number(parts[1]) : 8).padStart(2, '0');
+          const mm = String(parts ? parts[2] : '00').padStart(2, '0');
+          const stops = (googleDrive.stopFractions || []).slice().sort(function (a, b) { return a.fraction - b.fraction; });
+          let elapsedMin = (Number(dd.driveDurationMin || 0) || 0) * googleDrive.progress;
+          if (stops.length) {
+            for (let i = 0; i < stops.length; i++) {
+              if (stops[i].fraction > googleDrive.progress + 0.001) break;
+              elapsedMin = stops[i].elapsedMin != null ? stops[i].elapsedMin : elapsedMin;
+            }
+          }
+          return new Date(iso + 'T' + hh + ':' + mm + ':00-06:00').getTime() + elapsedMin * 60000;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function nearestStopsGoogle() {
+    const list = (googleDrive.stopFractions || []).slice().sort(function (a, b) { return a.fraction - b.fraction; });
+    let passed = null;
+    let next = null;
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].fraction <= googleDrive.progress + 0.001) passed = list[i];
+      else if (!next) next = list[i];
+    }
+    return { passed: passed, next: next };
   }
 
   function haversineMeters(a, b) {
@@ -262,6 +349,20 @@
   function buildElevationAndStopAnchors(dayData) {
     const anchors = [];
     const stops = [];
+    let schedule = {};
+    try { schedule = dayScheduleFor(dayData); } catch (_) {}
+    try {
+      if (dayData && dayData.day && typeof computeDayTimeline === 'function') {
+        const timeline = computeDayTimeline(dayData.day);
+        (timeline.items || []).forEach(function (item) {
+          if (item && !item.isCut && Number.isFinite(Number(item.arrMin))) {
+            const key = String(item.stop && item.stop.id);
+            schedule[key] = schedule[key] || {};
+            schedule[key].elapsedMin = Math.max(0, (Number(item.arrMin) - Number(timeline.startMin || 0)));
+          }
+        });
+      }
+    } catch (_) {}
     (dayData.activeStops || []).forEach(function (stop) {
       const distance = nearestRouteDistance(stop.lng, stop.lat);
       let elevation = 1500;
@@ -272,7 +373,14 @@
         }
       } catch (_) {}
       anchors.push({ distance: distance, elevation: elevation });
-      stops.push({ distance: distance, fraction: googleDrive.totalMeters ? distance / googleDrive.totalMeters : 0, stop: stop });
+      const meta = schedule[String(stop.id)] || {};
+      stops.push({
+        distance: distance,
+        fraction: googleDrive.totalMeters ? distance / googleDrive.totalMeters : 0,
+        stop: stop,
+        arrDisplay: meta.arrDisplay || '',
+        elapsedMin: Number.isFinite(Number(meta.elapsedMin)) ? Number(meta.elapsedMin) : null
+      });
     });
     anchors.sort(function (a, b) { return a.distance - b.distance; });
     stops.sort(function (a, b) { return a.distance - b.distance; });
@@ -431,6 +539,22 @@
     try { return googleObject.getVisualizeDayData(day); } catch (_) { return null; }
   }
 
+  function stopLegacyMovie() {
+    // Open-world parity: one owner of the Google camera at a time. A pending
+    // legacy flyCameraTo movie (stop orbit / dollhouse flight / selectStop
+    // animation) keeps firing its own setTimeout frames and fighting the
+    // drive loop, so kill it before the drive writes camera state.
+    try {
+      if (googleObject.cancelRouteFlyThrough && googleObject.cancelRouteFlyThrough !== stopGoogleDrive) {
+        googleObject.cancelRouteFlyThrough(false);
+      }
+    } catch (_) {}
+    try {
+      const map = captureCurrentMap();
+      if (map && typeof map.stopCameraAnimation === 'function') map.stopCameraAnimation();
+    } catch (_) {}
+  }
+
   function startGoogleDrive() {
     if (renderer !== 'google') return;
     if (googleDrive.active) {
@@ -456,13 +580,15 @@
     googleDrive.dayData = dayData;
     googleDrive.progress = 0;
     googleDrive.autoBearing = null;
+    googleDrive.focusToken = (googleDrive.focusToken || 0) + 1;
+    googleDrive.focusEntry = null;
     googleDrive.active = true;
     googleDrive.paused = false;
     googleDrive.lastAt = 0;
     resetManualControls();
     buildElevationAndStopAnchors(dayData);
 
-    try { if (typeof map.stopCameraAnimation === 'function') map.stopCameraAnimation(); } catch (_) {}
+    stopLegacyMovie();
     ensureGoogleRouteOverlay(map, dayData);
     ensureGoogleVehicleMarker(map);
     showGoogleStatus(true);
@@ -476,8 +602,11 @@
     googleDrive.active = false;
     googleDrive.paused = false;
     googleDrive.lastAt = 0;
+    googleDrive.focusToken = (googleDrive.focusToken || 0) + 1;
+    googleDrive.focusEntry = null;
     if (googleDrive.frame) cancelAnimationFrame(googleDrive.frame);
     googleDrive.frame = 0;
+    hideFocusCard();
     const map = ensureGoogleMapAttached();
     try { if (map && typeof map.stopCameraAnimation === 'function') map.stopCameraAnimation(); } catch (_) {}
     if (vehicleMarker && vehicleMarker.parentNode) {
@@ -509,27 +638,350 @@
   function setGoogleMode(mode) {
     googleDrive.mode = ['road', 'scenic', 'aerial'].includes(mode) ? mode : 'road';
     googleDrive.autoBearing = null;
+    googleDrive.focusToken = (googleDrive.focusToken || 0) + 1;
     resetManualControls();
     updateGoogleButtons();
     if (renderer === 'google' && googleDrive.route.length) applyGoogleDriveFrame(true);
   }
 
+  function setGoogleBasemap(mode) {
+    const next = ['ROADMAP', 'SATELLITE', 'HYBRID'].includes(mode) ? mode : 'HYBRID';
+    googleBasemapMode = next;
+    try { if (typeof localStorage !== 'undefined') localStorage.setItem('bj-google-basemap-mode', next); } catch (_) {}
+    const map = ensureGoogleMapAttached();
+    if (map) {
+      try { map.mode = next; } catch (_) {}
+    }
+    syncBasemapButtons();
+    try {
+      if (googleObject.refreshCameraReadout) googleObject.refreshCameraReadout();
+      else if (typeof googleObject.fitActiveRoute === 'function') { /* camera untouched */ }
+    } catch (_) {}
+  }
+
+  function syncBasemapButtons() {
+    document.querySelectorAll('[data-google-basemap]').forEach(function (button) {
+      const isOn = button.dataset.googleBasemap === googleBasemapMode;
+      button.classList.toggle('on', isOn);
+      button.classList.toggle('active', isOn);
+      button.setAttribute('aria-pressed', isOn ? 'true' : 'false');
+    });
+    ['visModeHybridBtn', 'visModeSatBtn'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const want = id === 'visModeHybridBtn' ? 'HYBRID' : 'SATELLITE';
+      el.classList.toggle('on', googleBasemapMode === want);
+    });
+  }
+
+  function loadPlacesLibrary() {
+    if (placesLibPromise) return placesLibPromise;
+    placesLibPromise = new Promise(function (resolve) {
+      try {
+        if (root.google && root.google.maps && root.google.maps.importLibrary) {
+          root.google.maps.importLibrary('places').then(function (lib) { resolve(lib || null); }).catch(function () { resolve(null); });
+          return;
+        }
+      } catch (_) {}
+      resolve(null);
+    });
+    return placesLibPromise;
+  }
+
+  function formatPlaceHours(place) {
+    try {
+      if (place && place.regularOpeningHours && Array.isArray(place.regularOpeningHours.weekdayDescriptions)) {
+        const day = (new Date().getDay() + 6) % 7;
+        const line = place.regularOpeningHours.weekdayDescriptions[day];
+        if (line) return line.replace(/^[A-Za-z]+:\s*/, '');
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  function openPlaceCard(placeId) {
+    const card = document.getElementById('visMapStopCard');
+    if (!card || !placeId) return;
+    const cached = placeCache[placeId];
+    if (cached) {
+      renderPlaceCard(card, cached);
+      return;
+    }
+    if (placePending[placeId]) return;
+    placePending[placeId] = true;
+    card.classList.remove('hidden');
+    card.innerHTML = '<div class="vis-stop-card-step">Google Maps place</div><div class="vis-stop-card-title">Loading details…</div>';
+    loadPlacesLibrary().then(function (lib) {
+      placePending[placeId] = false;
+      if (!lib || !lib.Place) {
+        card.innerHTML = '<div class="vis-stop-card-step">Google Maps place</div><div class="vis-stop-card-title">Details unavailable in this session.</div>';
+        return;
+      }
+      try {
+        const place = new lib.Place({ id: placeId });
+        place.fetchFields({ fields: ['displayName', 'formattedAddress', 'rating', 'userRatingCount', 'photos', 'regularOpeningHours', 'location', 'googleMapsURI'] }).then(function () {
+          const name = (place.displayName && (place.displayName.text || place.displayName)) || 'Place';
+          let photoUrl = '';
+          try {
+            if (place.photos && place.photos.length && typeof place.photos[0].getURI === 'function') {
+              photoUrl = place.photos[0].getURI({ maxWidth: 640, maxHeight: 360 });
+            }
+          } catch (_) {}
+          const info = {
+            id: placeId,
+            name: String(name),
+            address: place.formattedAddress || '',
+            rating: Number.isFinite(Number(place.rating)) ? Number(place.rating) : null,
+            ratingCount: Number.isFinite(Number(place.userRatingCount)) ? Number(place.userRatingCount) : null,
+            hours: formatPlaceHours(place),
+            photoUrl: photoUrl,
+            mapsUrl: place.googleMapsURI || ('https://www.google.com/maps/search/?api=1&query_place_id=' + encodeURIComponent(placeId))
+          };
+          placeCache[placeId] = info;
+          renderPlaceCard(card, info);
+        }).catch(function () {
+          card.innerHTML = '<div class="vis-stop-card-step">Google Maps place</div><div class="vis-stop-card-title">Details unavailable in this session.</div>';
+        });
+      } catch (_) {
+        card.innerHTML = '<div class="vis-stop-card-step">Google Maps place</div><div class="vis-stop-card-title">Details unavailable in this session.</div>';
+      }
+    });
+  }
+
+  function renderPlaceCard(card, info) {
+    const stars = info.rating != null ? `★ ${info.rating.toFixed(1)}${info.ratingCount != null ? ` (${info.ratingCount})` : ''}` : '';
+    card.innerHTML = `
+      <div class="vis-stop-card-head">
+        <div class="vis-stop-card-title-wrap">
+          <div class="vis-stop-card-step">Google Maps • photos, ratings & hours</div>
+          <div class="vis-stop-card-title">${escapeGoogleHtml(info.name)}</div>
+        </div>
+        <button class="vis-stop-card-close" title="Close" aria-label="Close place card">✕</button>
+      </div>
+      <div class="vis-stop-card-tags">
+        ${stars ? `<span class="vis-pill">${escapeGoogleHtml(stars)}</span>` : ''}
+        ${info.hours ? `<span class="vis-pill">🕘 ${escapeGoogleHtml(info.hours)}</span>` : ''}
+      </div>
+      ${info.photoUrl ? `<img class="vis-place-photo" src="${escapeGoogleHtml(info.photoUrl)}" alt="${escapeGoogleHtml(info.name)} photo" loading="lazy" />` : ''}
+      ${info.address ? `<div class="vis-place-address">${escapeGoogleHtml(info.address)}</div>` : ''}
+      <div class="vis-stop-card-actions">
+        <button class="btn small" data-gplace="close">Close</button>
+        <a class="btn small primary" data-gplace="maps" href="${escapeGoogleHtml(info.mapsUrl)}" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+      </div>`;
+    const close = card.querySelector('.vis-stop-card-close');
+    if (close) close.onclick = function () { card.classList.add('hidden'); };
+    const closeBtn = card.querySelector('[data-gplace="close"]');
+    if (closeBtn) closeBtn.onclick = function () { card.classList.add('hidden'); };
+  }
+
+  function installPlaceClick(map) {
+    if (!map || map.__rockiesPlaceClickInstalled) return;
+    map.__rockiesPlaceClickInstalled = true;
+    try {
+      map.addEventListener('gmp-click', function (event) {
+        if (renderer !== 'google' || googleDrive.active) return;
+        const placeId = event && event.placeId ? event.placeId : null;
+        if (placeId) {
+          if (event.stopPropagation) { try { event.stopPropagation(); } catch (_) {} }
+          openPlaceCard(placeId);
+        }
+      });
+    } catch (_) {}
+  }
+
+  function seekGoogleProgress(fraction) {
+    if (!googleDrive.route.length || !googleDrive.dayData) return;
+    stopLegacyMovie();
+    googleDrive.progress = clamp(fraction, 0, 1);
+    googleDrive.autoBearing = null;
+    googleDrive.focusToken = (googleDrive.focusToken || 0) + 1;
+    applyGoogleDriveFrame(true);
+  }
+
+  function hideFocusCard() {
+    try {
+      const card = document.getElementById('visMapStopCard');
+      if (card) card.classList.add('hidden');
+    } catch (_) {}
+  }
+
+  function showOpenWorldCard(entry, capturedToken) {
+    try {
+      const card = document.getElementById('visMapStopCard');
+      if (!card) return;
+      if (!entry) {
+        card.classList.add('hidden');
+        return;
+      }
+      // Open-world parity: a stop focus only wins if it is still the latest
+      // request. While driving, the frame loop owns the camera, so a click
+      // must first stop the drive before its delayed profile/fly can run.
+      const token = capturedToken != null ? capturedToken : googleDrive.focusToken;
+      if (token !== googleDrive.focusToken) return;
+      if (googleDrive.active) {
+        stopGoogleDrive(false);
+        if (token !== googleDrive.focusToken) return;
+      }
+      const stop = entry.stop || entry;
+      const stops = (googleDrive.stopFractions || []).slice().sort(function (a, b) { return a.fraction - b.fraction; });
+      let idx = stops.indexOf(entry);
+      if (idx < 0) {
+        idx = stops.findIndex(function (e) { return String((e.stop || e).id) === String(stop.id); });
+      }
+      const isHotel = stop.isHotel || /hotel|sleep/i.test(stop.name || '');
+      const badge = isHotel ? 'HOTEL' : (stop.priority === 'must' ? 'MUST' : 'NICE');
+      const badgeClass = isHotel ? 'hotel' : (stop.priority === 'must' ? 'must' : 'nice');
+      let context = '';
+      try {
+        if (googleObject.getLandmarkCameraProfile) {
+          const prof = googleObject.getLandmarkCameraProfile(stop);
+          if (prof && prof.viewContext) context = prof.viewContext;
+        }
+      } catch (_) {}
+      const when = entry.arrDisplay ? `<span class="vis-pill">🕘 ${escapeGoogleHtml(entry.arrDisplay)}</span>` : '';
+      const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(stop.lat + ',' + stop.lng);
+      card.innerHTML = `
+        <div class="vis-stop-card-head">
+          <div class="vis-stop-card-title-wrap">
+            <div class="vis-stop-card-step">Stop ${idx + 1} of ${stops.length}</div>
+            <div class="vis-stop-card-title">${escapeGoogleHtml(stop.name || 'Stop')}</div>
+          </div>
+          <button class="vis-stop-card-close" title="Close" aria-label="Close stop card">✕</button>
+        </div>
+        <div class="vis-stop-card-tags"><span class="vis-badge ${badgeClass}">${badge}</span>${when}</div>
+        ${context ? `<div class="vis-stop-card-context"><span class="vis-context-icon">🏔️</span><span class="vis-context-text">${escapeGoogleHtml(context)}</span></div>` : ''}
+        <div class="vis-stop-card-actions">
+          <button class="btn small" data-gcard="prev">‹ Prev</button>
+          <button class="btn small" data-gcard="next">Next ›</button>
+          <button class="btn small primary" data-gcard="drive">▶ Drive here</button>
+          <button class="btn small" data-gcard="close">Close</button>
+          <a class="btn small" data-gcard="maps" href="${mapsUrl}" target="_blank" rel="noopener">Google Maps ↗</a>
+        </div>`;
+      card.classList.remove('hidden');
+      card.querySelectorAll('[data-gcard]').forEach(function (btn) {
+        const action = btn.dataset.gcard;
+        if (action === 'maps') return;
+        btn.onclick = function () {
+          if (action === 'prev') focusGoogleStopByDelta(-1);
+          else if (action === 'next') focusGoogleStopByDelta(1);
+          else if (action === 'drive') {
+            const tk = (googleDrive.focusToken || 0) + 1;
+            googleDrive.focusToken = tk;
+            driveToStopFraction(Number(entry.fraction || 0), tk);
+          } else if (action === 'close') {
+            card.classList.add('hidden');
+            googleDrive.focusEntry = null;
+          }
+        };
+      });
+      const close = card.querySelector('.vis-stop-card-close');
+      if (close) close.onclick = function () { card.classList.add('hidden'); googleDrive.focusEntry = null; };
+      if (token !== googleDrive.focusToken) return;
+      googleDrive.focusEntry = entry;
+      flyToGoogleFocus(entry, token);
+    } catch (_) {}
+  }
+
+  function flyToGoogleFocus(entry, token) {
+    try {
+      const map = ensureGoogleMapAttached();
+      const stop = entry.stop || entry;
+      if (!map || !stop) return;
+      const tk = token != null ? token : googleDrive.focusToken;
+      let profile = null;
+      try {
+        if (googleObject.getLandmarkCameraProfile) profile = googleObject.getLandmarkCameraProfile(stop);
+      } catch (_) {}
+      const target = {
+        lat: Number(stop.lat) + (profile && profile.targetOffset ? Number(profile.targetOffset.lat || 0) : 0),
+        lng: Number(stop.lng) + (profile && profile.targetOffset ? Number(profile.targetOffset.lng || 0) : 0)
+      };
+      const heading = Number.isFinite(Number(profile && profile.heading)) ? Number(profile.heading) : (map.heading || 0);
+      const apply = function () {
+        if (tk !== googleDrive.focusToken || renderer !== 'google') return;
+        if (googleDrive.active) return;
+        try {
+          if (typeof map.stopCameraAnimation === 'function') map.stopCameraAnimation();
+          if (typeof map.flyCameraTo === 'function') {
+            map.flyCameraTo({
+              endCamera: {
+                center: { lat: target.lat, lng: target.lng, altitude: Number(profile && profile.elevation) || 1500 },
+                range: Number(profile && profile.range) || 4500,
+                tilt: Number(profile && profile.tilt) || 55,
+                heading: heading
+              },
+              durationMillis: 1800
+            });
+          } else {
+            map.center = { lat: target.lat, lng: target.lng, altitude: Number(profile && profile.elevation) || 1500 };
+            map.heading = heading;
+          }
+        } catch (_) {}
+      };
+      if (typeof googleDrive.focusDelay === 'function') googleDrive.focusDelay(apply);
+      else setTimeout(apply, 60);
+    } catch (_) {}
+  }
+
+  function focusGoogleStop(entry) {
+    if (!entry) return;
+    const token = (googleDrive.focusToken || 0) + 1;
+    googleDrive.focusToken = token;
+    stopLegacyMovie();
+    showOpenWorldCard(entry, token);
+  }
+
+  function focusGoogleStopByDelta(delta) {
+    const ordered = (googleDrive.stopFractions || []).slice().sort(function (a, b) { return a.fraction - b.fraction; });
+    if (!ordered.length) return;
+    let anchor = googleDrive.progress;
+    if (googleDrive.focusEntry) anchor = Number(googleDrive.focusEntry.fraction || anchor);
+    let target = null;
+    if (delta > 0) {
+      target = ordered.find(function (e) { return Number(e.fraction || 0) > anchor + 0.005; }) || ordered[ordered.length - 1];
+    } else {
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        if (Number(ordered[i].fraction || 0) < anchor - 0.005) { target = ordered[i]; break; }
+      }
+      target = target || ordered[0];
+    }
+    googleDrive.progress = clamp(Number(target.fraction || 0), 0, 1);
+    googleDrive.autoBearing = null;
+    focusGoogleStop(target);
+  }
+
+  function driveToStopFraction(fraction, token) {
+    seekGoogleProgress(fraction);
+    const tk = token != null ? token : googleDrive.focusToken;
+    setTimeout(function () {
+      if (tk !== googleDrive.focusToken || renderer !== 'google') return;
+      if (!googleDrive.active) startGoogleDrive();
+    }, 60);
+  }
+
   function skipGoogleStop(delta) {
-    if (!googleDrive.active || !googleDrive.stopFractions.length) return;
+    // Open-world parity: stop jumps are focus moves, not drive-frame writes.
+    // The drive loop is stopped first and only the latest focus token may
+    // show its card and fly the camera, so parallel jumps cannot interleave.
+    const token = (googleDrive.focusToken || 0) + 1;
+    googleDrive.focusToken = token;
+    const ordered = (googleDrive.stopFractions || []).slice().sort(function (a, b) { return a.fraction - b.fraction; });
+    if (!ordered.length) return;
     const current = googleDrive.progress;
     let target = null;
     if (delta > 0) {
-      target = googleDrive.stopFractions.find(function (entry) { return entry.fraction > current + 0.01; });
-      if (!target) target = googleDrive.stopFractions[googleDrive.stopFractions.length - 1];
+      target = ordered.find(function (entry) { return entry.fraction > current + 0.01; });
+      if (!target) target = ordered[ordered.length - 1];
     } else {
-      for (let i = googleDrive.stopFractions.length - 1; i >= 0; i--) {
-        if (googleDrive.stopFractions[i].fraction < current - 0.01) { target = googleDrive.stopFractions[i]; break; }
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        if (ordered[i].fraction < current - 0.01) { target = ordered[i]; break; }
       }
-      if (!target) target = googleDrive.stopFractions[0];
+      if (!target) target = ordered[0];
     }
+    stopLegacyMovie();
     googleDrive.progress = clamp(target.fraction, 0, 1);
     googleDrive.autoBearing = null;
-    applyGoogleDriveFrame(true);
+    showOpenWorldCard(target, token);
   }
 
   function updateGoogleButtons() {
@@ -577,14 +1029,23 @@
     const km = Math.round(distance / 1000);
     document.querySelectorAll('.vis-flight-progress-fill').forEach(function (el) { el.style.width = pct + '%'; });
     document.querySelectorAll('.vis-flight-badge').forEach(function (el) { el.textContent = 'GOOGLE 3D DRIVE'; });
-    document.querySelectorAll('.vis-flight-hud-title').forEach(function (el) { el.textContent = 'Driving the real route • ' + pct + '%'; });
-    document.querySelectorAll('.vis-flight-hud-sub').forEach(function (el) { el.textContent = rigName + ' camera • ' + km + ' / ' + totalKm + ' km'; });
+    const stops = nearestStopsGoogle();
+    const title = stops.passed && stops.next
+      ? `Near ${stops.passed.stop.name} • next ${stops.next.stop.name}`
+      : (stops.next ? `Next ${stops.next.stop.name}` : (stops.passed ? `Final stop ${stops.passed.stop.name}` : 'Driving the real route'));
+    document.querySelectorAll('.vis-flight-hud-title').forEach(function (el) { el.textContent = title; });
+    const subText = stops.next
+      ? `${rigName} camera • ${km} / ${totalKm} km • → ${stops.next.stop.name}`
+      : `${rigName} camera • ${km} / ${totalKm} km`;
+    document.querySelectorAll('.vis-flight-hud-sub').forEach(function (el) { el.textContent = subText; });
+    const clockMs = tripDateAtProgress();
+    const clockText = clockMs ? formatClockGoogle(new Date(clockMs)) : pct + '% route';
     const clock = document.getElementById('visWorldClock');
-    if (clock) clock.textContent = pct + '% route';
+    if (clock) clock.textContent = clockText;
     const sun = document.getElementById('visWorldSun');
-    if (sun) sun.textContent = googleDrive.speed + 'x';
+    if (sun) sun.textContent = googleDrive.speed + 'x preview';
     const sub = document.getElementById('visWorldStatusSub');
-    if (sub) sub.textContent = rigName + ' • ' + km + ' / ' + totalKm + ' km • pinch / rotate / look / pan';
+    if (sub) sub.textContent = subText + ' • pinch / rotate / look / pan';
   }
 
   async function ensureGoogleRouteOverlay(map, dayData) {
@@ -742,11 +1203,40 @@
     };
   }
 
+  function ensureGoogleToolbar() {
+    try {
+      const bar = document.querySelector('#visualizeview .vis-map-toolbar');
+      if (!bar || bar.querySelector('[data-google-basemap]')) return;
+      const group = document.createElement('div');
+      group.className = 'vis-pill-group';
+      group.setAttribute('role', 'group');
+      group.setAttribute('aria-label', 'Google 3D imagery');
+      group.innerHTML = `
+        <button class="vis-tool-btn" type="button" data-google-basemap="ROADMAP" title="Vector streets over 3D terrain">Map</button>
+        <button class="vis-tool-btn" type="button" data-google-basemap="SATELLITE" title="Aerial imagery without labels">Satellite</button>
+        <button class="vis-tool-btn" type="button" data-google-basemap="HYBRID" title="Aerial imagery with labels">Hybrid</button>
+      `;
+      group.querySelectorAll('[data-google-basemap]').forEach(function (button) {
+        button.onclick = function () { setGoogleBasemap(button.dataset.googleBasemap); };
+      });
+      const styleSwitch = bar.querySelector('.vis-map-style-switch');
+      if (styleSwitch && styleSwitch.parentNode === bar) {
+        bar.insertBefore(group, styleSwitch.nextSibling);
+        styleSwitch.style.display = 'none';
+      } else {
+        bar.appendChild(group);
+      }
+      syncBasemapButtons();
+    } catch (_) {}
+  }
+
   function wireGoogleShell() {
     if (renderer !== 'google') return;
     ensureGoogleMapAttached();
     const internalRenderer = document.querySelector('#visualizeview .vis-renderer-switch');
     if (internalRenderer) internalRenderer.style.display = 'none';
+    ensureGoogleToolbar();
+    syncBasemapButtons();
     const help = document.getElementById('visControlHelp');
     if (help) {
       help.innerHTML = '<b>Google 3D drive controls</b><span>Pinch = zoom • two-finger left/right = 360° rotate • two-finger up/down = look • drag = pan • Ctrl/⌘/right-drag = rotate + look.</span>';
@@ -855,7 +1345,13 @@
   }
 
   function patchedGoogleChooseDay(day) {
+    // Open-world parity: choosing a day while driving stops the drive first,
+    // bumps the focus token so any in-flight focus fly is cancelled, and only
+    // then lets the legacy day switch rebuild the scene.
+    googleDrive.focusToken = (googleDrive.focusToken || 0) + 1;
+    googleDrive.focusEntry = null;
     if (googleDrive.active) stopGoogleDrive(false);
+    hideFocusCard();
     const result = typeof rawGoogleChooseDay === 'function'
       ? rawGoogleChooseDay.call(googleObject, day)
       : undefined;
@@ -874,6 +1370,10 @@
   googleObject.setFlightSpeed = setGoogleSpeed;
   googleObject.setWorldCameraMode = setGoogleMode;
   googleObject.skipFlightLeg = skipGoogleStop;
+  googleObject.setGoogleBasemap = setGoogleBasemap;
+  googleObject.getGoogleBasemap = function () { return googleBasemapMode; };
+  googleObject.focusGoogleStop = focusGoogleStop;
+  googleObject.openGooglePlace = openPlaceCard;
 
   const googlePatchedOnActivate = googleObject.onVisualizeTabActivated;
   const googlePatchedChooseDay = googleObject.chooseVisualizeDay;
@@ -1033,7 +1533,17 @@
     stop: stopGoogleDrive,
     setMode: setGoogleMode,
     setSpeed: setGoogleSpeed,
+    setBasemap: setGoogleBasemap,
+    getBasemap: function () { return googleBasemapMode; },
+    focusStop: focusGoogleStop,
+    openPlace: openPlaceCard,
     resetView: resetManualControls
+  };
+
+  root.ROCKIES_GOOGLE_BASEMAP = {
+    get: function () { return googleBasemapMode; },
+    set: setGoogleBasemap,
+    MODES: ['ROADMAP', 'SATELLITE', 'HYBRID']
   };
 
   root.ROCKIES_RENDERER_SWITCHER = {

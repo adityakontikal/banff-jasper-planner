@@ -45,7 +45,26 @@ assert(switcher.includes('googleObject.togglePauseFlyThrough = toggleGooglePause
 assert(switcher.includes('googleObject.setFlightSpeed = setGoogleSpeed'), 'Google speed controls must affect Google drive playback');
 assert(switcher.includes('googleObject.setWorldCameraMode = setGoogleMode'), 'Road/Scenic/Aerial buttons must control Google camera rigs');
 
+assert(switcher.includes('stopLegacyMovie()'), 'Google Drive must kill the legacy flyCameraTo movie before owning the camera');
+assert(switcher.includes('focusToken'), 'Stop focus must use a token so only the latest focus fly wins');
+assert(switcher.includes('if (googleDrive.active) return;'), 'A delayed focus fly must never steal the camera while driving');
+assert(switcher.includes('hideFocusCard()'), 'Ending or switching the drive must dismiss the Google stop card');
+
+assert(switcher.includes('setGoogleBasemap'), 'Google must expose a basemap switcher');
+assert(switcher.includes('ROADMAP') && switcher.includes('SATELLITE') && switcher.includes('HYBRID'), 'Google basemap switch must cover Map / Satellite / Hybrid imagery');
+assert(switcher.includes('bj-google-basemap-mode'), 'Google basemap choice must persist across sessions');
+assert(switcher.includes('data-google-basemap'), 'Google toolbar must offer Map / Satellite / Hybrid buttons');
+
+assert(switcher.includes('importLibrary(\'places\')'), 'Google must load the Places library for POI data');
+assert(switcher.includes('openPlaceCard'), 'Clicking Google POI labels must open a real place card');
+assert(switcher.includes('fetchFields'), 'Place card must fetch real Google Maps details');
+assert(switcher.includes('rating') && switcher.includes('photos') && switcher.includes('regularOpeningHours'), 'Place card must include photos, ratings and opening hours');
+assert(switcher.includes('googleMapsURI'), 'Place card must deep-link back to Google Maps');
+
 console.log('✓ Renderer switch: Open World stays default and Google 3D is explicit/optional');
+console.log('✓ Drive vs focus: single camera owner, token-gated focus, card dismissed on stop');
+console.log('✓ Basemap: Map / Satellite / Hybrid switch with persisted choice');
+console.log('✓ POI: Google place cards with photos, ratings, hours and Maps link');
 console.log('✓ Google lifecycle: detached gmp-map-3d is retained and reattached after switching');
 console.log('✓ Google Drive: Road / Scenic / Aerial are physically distinct and cinematic-paced');
 console.log('✓ Google controls: pinch, 360° yaw, look, pan, pause, speed and stop stay active while driving');
