@@ -1,0 +1,152 @@
+{
+  "type": "FeatureCollection",
+  "name": "banff_jasper_trip_corridor_aoi",
+  "crs": {
+    "type": "name",
+    "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Trip Master Scenic Corridor (Calgary to Jasper/Hinton + Yoho)",
+        "type": "corridor_envelope",
+        "buffer_km": 35,
+        "description": "35km envelope around Trans-Canada Highway 1, Icefields Parkway 93N, and Yellowhead Highway 16"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-113.80, 50.95],
+            [-114.60, 51.10],
+            [-115.10, 51.05],
+            [-115.65, 51.10],
+            [-116.30, 51.20],
+            [-116.85, 51.35],
+            [-117.20, 51.65],
+            [-117.65, 52.05],
+            [-118.30, 52.55],
+            [-118.50, 53.00],
+            [-118.10, 53.45],
+            [-117.40, 53.60],
+            [-116.70, 53.50],
+            [-117.10, 52.90],
+            [-116.90, 52.40],
+            [-116.30, 51.85],
+            [-115.80, 51.55],
+            [-115.30, 51.35],
+            [-114.70, 51.25],
+            [-113.80, 51.15],
+            [-113.80, 50.95]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Banff / Sulphur / Minnewanka Basin",
+        "type": "iconic_basin",
+        "target_lod": 2,
+        "target_resolution_m": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-115.68, 51.12],
+            [-115.42, 51.12],
+            [-115.42, 51.28],
+            [-115.68, 51.28],
+            [-115.68, 51.12]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lake Louise / Moraine / Ten Peaks Basin",
+        "type": "iconic_basin",
+        "target_lod": 2,
+        "target_resolution_m": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-116.35, 51.30],
+            [-116.10, 51.30],
+            [-116.10, 51.48],
+            [-116.35, 51.48],
+            [-116.35, 51.30]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bow Lake / Peyto Lake / Bow Summit",
+        "type": "iconic_basin",
+        "target_lod": 2,
+        "target_resolution_m": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-116.58, 51.62],
+            [-116.38, 51.62],
+            [-116.38, 51.78],
+            [-116.58, 51.78],
+            [-116.58, 51.62]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Columbia Icefield / Athabasca Glacier Hero Basin",
+        "type": "hero_basin",
+        "target_lod": 3,
+        "target_resolution_m": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-117.32, 52.14],
+            [-117.12, 52.14],
+            [-117.12, 52.28],
+            [-117.32, 52.28],
+            [-117.32, 52.14]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Jasper / Pyramid / Maligne Lake Basin",
+        "type": "iconic_basin",
+        "target_lod": 2,
+        "target_resolution_m": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-118.18, 52.68],
+            [-117.50, 52.68],
+            [-117.50, 52.95],
+            [-118.18, 52.95],
+            [-118.18, 52.68]
+          ]
+        ]
+      }
+    }
+  ]
+}

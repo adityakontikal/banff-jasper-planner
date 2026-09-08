@@ -69,8 +69,9 @@
           padding-right: 6px;
         }
 
-        /* Map is viewport-contained; sidebar owns its editor scroll. */
-        #mapview.view.on {
+        /* Map and 3D Visualize are viewport-contained; sidebars own internal scrolls. */
+        #mapview.view.on,
+        #visualizeview.view.on {
           display: flex !important;
           flex-direction: column !important;
           height: 100% !important;
@@ -78,19 +79,23 @@
           overflow: hidden !important;
         }
 
-        #mapview .workspace {
+        #mapview .workspace,
+        #visualizeview .visualize-workspace {
           min-height: 0 !important;
           height: 100% !important;
           overflow: hidden !important;
         }
 
         #mapview .sidebar,
-        #mapview .mapwrap {
+        #mapview .mapwrap,
+        #visualizeview .visualize-sidebar,
+        #visualizeview .visualize-main {
           min-height: 0 !important;
           height: 100% !important;
         }
 
-        #mapview .sidebody {
+        #mapview .sidebody,
+        #visualizeview .vis-sidebody {
           min-height: 0 !important;
           overflow-x: hidden !important;
           overflow-y: auto !important;
@@ -173,6 +178,7 @@
         #planview.view.on,
         #overview.view.on,
         #mapview.view.on,
+        #visualizeview.view.on,
         #bookings.view.on,
         #hotels.view.on,
         #attractions.view.on,
