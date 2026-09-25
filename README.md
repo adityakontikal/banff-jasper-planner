@@ -74,7 +74,7 @@ The app now ships with a **Verified budget-first** recovery preset updated throu
 
 Open **Data → Presets** at any time:
 
-- **Verified budget-first** — the agreed plan: Maligne Cruise protected; Banff Gondola is a weather-gated MUST; Icefield Adventure remains optional; MUST / NICE / CUT priorities restored.
+- **Verified budget-first** — the agreed plan: Maligne Classic Cruise is booked and protected; Banff Gondola is a Sep 29 clear-weather option with Yoho as the fallback; Icefield Adventure stays off by default.
 - **Core scenery only** — strips paid attractions while retaining the major natural sights.
 - **Pursuit-aware** — only use if you later decide to buy the Pursuit bundle; it intentionally makes the schedule more attraction-heavy.
 
@@ -89,9 +89,9 @@ The new **Lock** tab turns the remaining choices into time-ordered MCQs:
 1. Sep 26 Lake Louise/Moraine transport: **locked** — Parks Canada shuttle, 8:00–9:00 AM, Lake Louise first.
 2. Lake Louise: lakeshore only; do not add Lake Agnes on the Parkway day.
 3. Maligne Lake Cruise: protected paid highlight.
-4. Banff Gondola: weather / Pursuit decision.
-5. Icefield Adventure: NICE, mostly skipped without the pass.
-6. Sep 29: choose **one** large optional bonus — Valley of Five Lakes, paid Icefield Adventure, or Emerald Lake / Natural Bridge — after weather, fatigue and Sep 27 completion are known.
+4. Sep 29 weather choice: **clear summit → Banff Gondola; cloud/fog → Natural Bridge + Emerald Lake**.
+5. Icefield Adventure: not part of the selected default plan; deliberate substitution only.
+6. Sep 29: choose **one** weather bonus — Gondola if the summit is clear, otherwise Emerald Lake / Natural Bridge. Valley of Five Lakes is only reconsidered if significantly ahead.
 
 The tab also shows booking readiness, unresolved decisions, budget position, and a final-lock checklist.
 
@@ -214,7 +214,7 @@ Each day card shows:
 - each NICE option's approximate incremental route-time cost
 - a route-ordered ON/OFF switch
 
-Sep 29's Valley of Five Lakes / Icefield Adventure / Emerald Lake group remains mutually exclusive when experimenting: enabling one NICE option turns the sibling NICE options off, but does not lock the final MCQ decision until the user explicitly does so.
+Sep 29's normal choice is mutually exclusive: **Gondola OR Natural Bridge + Emerald Lake**. Valley of Five Lakes and the paid Icefield Adventure remain CUT by default and are only deliberate substitutions.
 
 
 ## Locked flights — booked Sep. 1, 2026
@@ -287,9 +287,9 @@ The SpotHero rental/confirmation ID and vehicle plate are intentionally **not co
 
 ## Paid-cruise budget rule
 
-The current plan reserves budget for **one paid cruise only: Maligne Lake / Spirit Island**. The exact **Classic vs Premium** product is intentionally left open until the Sep 28 sailing is booked from live inventory. Lake Minnewanka Cruise remains off by default.
+The **Maligne Lake Classic Cruise is booked for Sep 28 at 12:00 PM** for 3 adults and paid in full. It is the protected paid anchor. Lake Minnewanka Cruise remains off by default.
 
-The planner now keeps the two paid-cruise toggles mutually exclusive and shows every selected paid attraction as its own Budget row. Choosing **Book best Classic/Premium sailing** in Plan and toggling the Maligne cruise on in Attractions both update the same underlying budget selection.
+The Plan surface treats the booked 12:00 PM Classic cruise as locked rather than an unresolved Classic-vs-Premium decision.
 
 Hotels and the Parks Canada pass are resolved; the remaining trip lock-ins are the shuttle and attraction decisions.
 
@@ -304,7 +304,7 @@ The email receipt confirms:
 - **Status:** **PAID • LOCKED**
 - The official receipt must be **printed and displayed on the left-hand side of the vehicle dashboard with the date visible**.
 - No receipt link, personal contact details or other sensitive purchase data are committed to source.
-- Parks Canada states Banff/Jasper daily passes are valid until **4:00 PM the following day**. Keep a coverage check visible for Sep 29 if the route remains inside Banff/Jasper/Yoho after 4:00 PM.
+- Parks Canada states Banff/Jasper daily passes are valid until **4:00 PM the following day**. The selected Sep 29 timing aims to leave Banff by ~3:15 PM or Yoho by ~2:30 PM. Keep an extension only as a contingency if delays push park travel past the printed pass expiry.
 
 The planner uses the receipt amount instead of the previous C$98 four-day estimate and preserves this paid booking across reset, presets and imported older saves.
 
