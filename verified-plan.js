@@ -100,7 +100,7 @@
     maligne: 'book',
     pyramid: 'pyramid',
     icefield: 'nice-no-pass',
-    gondola: 'yes',
+    gondola: 'weather',
     sep29bonus: 'pending',
     shuttle: 'booked'
   };
@@ -209,7 +209,9 @@
         });
       }
 
+      const gondolaOn = !!(state.decisions && state.decisions.sep29bonus === 'gondola');
       const yohoOn = !!(state.decisions && state.decisions.sep29bonus === 'yoho');
+      if (gondola29) gondola29.enabled = gondolaOn;
       if (emerald) emerald.enabled = yohoOn;
       if (bridge) bridge.enabled = yohoOn;
     }
@@ -217,19 +219,21 @@
     state.decisions = state.decisions || deepClone(VERIFIED_DECISIONS);
     const gondolaAtt = (state.attractions || []).find(function (a) { return a.id === 'banffGondola'; });
     if (state.activePreset !== 'core') {
-      state.decisions.gondola = state.decisions.gondola === 'pass' ? 'pass' : 'yes';
+      if (!state.decisions.gondola || state.decisions.gondola === 'yes') state.decisions.gondola = state.decisions.sep29bonus === 'gondola' ? 'yes' : 'weather';
       if (gondolaAtt) {
-        gondolaAtt.selected = true;
+        gondolaAtt.day = 'Sep 29';
+        gondolaAtt.selected = state.decisions.sep29bonus === 'gondola';
         gondolaAtt.rating = '9/10';
-        gondolaAtt.rec = 'MUST — IF VISIBILITY IS GOOD';
-        gondolaAtt.desc = 'Strong yes in clear weather: Sulphur Mountain summit + boardwalk. Keep budget reserved until the 24–48h weather check.';
-        gondolaAtt.skip = 'Skip only if cloud/fog ruins summit visibility.';
+        gondolaAtt.rec = 'SEP 29 WEATHER OPTION';
+        gondolaAtt.desc = 'Option A on Sep 29 if summit visibility is good; otherwise choose Natural Bridge + Emerald Lake.';
+        gondolaAtt.skip = 'Skip for cloud/fog or when Yoho is the better weather choice.';
       }
     } else {
       state.decisions.gondola = 'no';
+      state.decisions.sep29bonus = 'core';
       if (d29) {
         const coreGondolaStop = d29.stops.find(function (s) { return s.id === 'gondola'; });
-        if (coreGondolaStop) coreGondolaStop.priority = 'cut';
+        if (coreGondolaStop) { coreGondolaStop.priority = 'nice'; coreGondolaStop.enabled = false; }
       }
       if (gondolaAtt) gondolaAtt.selected = false;
     }
@@ -248,7 +252,7 @@
   }
 
   function patchBase() {
-    BASE.presetVersion = 'verified-2026-09-25-v5';
+    BASE.presetVersion = 'verified-2026-09-25-v6';
     BASE.activePreset = 'verified';
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
     BASE.settings.globalNote = 'Final route pass Sep 25, 2026: fixed bookings protected and non-booked stops redistributed around the latest forecast. Sep 26 stays focused on Louise/Moraine + Johnston; Sep 27 protects the best scenic-weather window; Sep 28 protects the 12 PM Maligne cruise; Sep 29 uses one weather-based bonus only.';
@@ -477,7 +481,7 @@
   }
 
   function isVerifiedState(state) {
-    return !!state && state.presetVersion === 'verified-2026-09-25-v4';
+    return !!state && state.presetVersion === 'verified-2026-09-25-v6';
   }
 
   function preserveProgress(next, old) {
@@ -505,7 +509,7 @@
   }
 
   function configurePreset(next, name) {
-    next.presetVersion = 'verified-2026-09-25-v4';
+    next.presetVersion = 'verified-2026-09-25-v6';
     next.activePreset = name;
     next.decisions = deepClone(VERIFIED_DECISIONS);
     const maligne = next.attractions.find(function (a) { return a.id === 'maligneCruise'; });
@@ -515,7 +519,7 @@
     if (name === 'core') {
       if (maligne) maligne.selected = false;
       if (gondola) gondola.selected = false;
-      const coreGondolaStop = next.days.find(function (d) { return d.date === 'Sep 26'; }).stops.find(function (s) { return s.id === 'gondola'; });
+      const coreGondolaStop = next.days.find(function (d) { return d.date === 'Sep 29'; }).stops.find(function (s) { return s.id === 'gondola'; });
       if (coreGondolaStop) coreGondolaStop.priority = 'cut';
       next.decisions.gondola = 'no';
       if (ice) ice.selected = false;
@@ -544,7 +548,7 @@
     next = preserveProgress(next, S);
     applyRoutePlaceIntegrity(next);
     if (name === 'core') {
-      const coreGondolaStop = next.days.find(function (d) { return d.date === 'Sep 26'; }).stops.find(function (s) { return s.id === 'gondola'; });
+      const coreGondolaStop = next.days.find(function (d) { return d.date === 'Sep 29'; }).stops.find(function (s) { return s.id === 'gondola'; });
       const coreGondolaAtt = next.attractions.find(function (a) { return a.id === 'banffGondola'; });
       if (coreGondolaStop) coreGondolaStop.priority = 'cut';
       if (coreGondolaAtt) coreGondolaAtt.selected = false;
@@ -586,13 +590,19 @@
     }
     if (id === 'gondola') {
       const a = S.attractions.find(function (x) { return x.id === 'banffGondola'; });
-      const d26 = S.days.find(function (d) { return d.date === 'Sep 26'; });
-      const st = d26 && d26.stops.find(function (x) { return x.id === 'gondola'; });
-      const on = value !== 'no';
-      if (a) a.selected = on;
-      if (st) {
-        st.priority = on ? 'must' : 'cut';
-        if (on) delete st.enabled;
+      const d29 = S.days.find(function (d) { return d.date === 'Sep 29'; });
+      const st = d29 && d29.stops.find(function (x) { return x.id === 'gondola'; });
+      const on = value === 'yes' || value === 'pass';
+      if (a) { a.day = 'Sep 29'; a.selected = on; }
+      if (st) { st.priority = 'nice'; st.enabled = on; }
+      if (on) {
+        S.decisions.sep29bonus = 'gondola';
+        ['naturalbridge','emerald'].forEach(function (sid) {
+          const other = d29.stops.find(function (x) { return x.id === sid; });
+          if (other) other.enabled = false;
+        });
+      } else if (S.decisions.sep29bonus === 'gondola') {
+        S.decisions.sep29bonus = 'pending';
       }
     }
     if (id === 'icefield') {
@@ -614,47 +624,21 @@
     }
     if (id === 'sep29bonus') {
       const d = S.days.find(function (x) { return x.date === 'Sep 29'; });
+      const gondola = d.stops.find(function (x) { return x.id === 'gondola'; });
       const valley = d.stops.find(function (x) { return x.id === 'valley5'; });
       const ice = d.stops.find(function (x) { return x.id === 'icefield29'; });
       const bridge = d.stops.find(function (x) { return x.id === 'naturalbridge'; });
       const emerald = d.stops.find(function (x) { return x.id === 'emerald'; });
+      const gondolaAtt = S.attractions.find(function (x) { return x.id === 'banffGondola'; });
       const iceAtt = S.attractions.find(function (x) { return x.id === 'icefieldAdventure'; });
-
-      [valley, ice, bridge, emerald].forEach(function (st) {
-        if (st) st.priority = 'nice';
-      });
-
-      if (value === 'pending') {
-        if (valley) valley.enabled = false;
-        if (ice) { ice.enabled = false; ice.stayMin = 45; }
-        if (bridge) bridge.enabled = false;
-        if (emerald) emerald.enabled = false;
-        if (iceAtt) iceAtt.selected = false;
-      } else if (value === 'valley') {
-        if (valley) valley.enabled = true;
-        if (ice) ice.enabled = false;
-        if (bridge) bridge.enabled = false;
-        if (emerald) emerald.enabled = false;
-        if (iceAtt) iceAtt.selected = false;
-      } else if (value === 'icefield') {
-        if (valley) valley.enabled = false;
-        if (ice) { ice.enabled = true; ice.stayMin = 165; }
-        if (bridge) bridge.enabled = false;
-        if (emerald) emerald.enabled = false;
-        if (iceAtt) iceAtt.selected = true;
-      } else if (value === 'yoho') {
-        if (valley) valley.enabled = false;
-        if (ice) ice.enabled = false;
-        if (bridge) bridge.enabled = true;
-        if (emerald) emerald.enabled = true;
-        if (iceAtt) iceAtt.selected = false;
-      } else if (value === 'core') {
-        if (valley) valley.enabled = false;
-        if (ice) ice.enabled = false;
-        if (bridge) bridge.enabled = false;
-        if (emerald) emerald.enabled = false;
-        if (iceAtt) iceAtt.selected = false;
-      }
+      if (gondola) { gondola.priority = 'nice'; gondola.enabled = value === 'gondola'; }
+      if (bridge) { bridge.priority = 'nice'; bridge.enabled = value === 'yoho'; }
+      if (emerald) { emerald.priority = 'nice'; emerald.enabled = value === 'yoho'; }
+      if (valley) { valley.priority = 'cut'; valley.enabled = false; }
+      if (ice) { ice.priority = 'cut'; ice.enabled = false; ice.stayMin = 165; }
+      if (gondolaAtt) { gondolaAtt.day = 'Sep 29'; gondolaAtt.selected = value === 'gondola'; }
+      if (iceAtt) iceAtt.selected = false;
+      S.decisions.gondola = value === 'gondola' ? 'yes' : (value === 'pending' ? 'weather' : 'no');
     }
     save();
   }
@@ -687,34 +671,33 @@
       ]
     },
     {
-      id: 'gondola', when: 'SEP 26 • WEATHER GATE', title: 'Banff Gondola — strong yes if visibility is good',
-      detail: 'MUST in the working route and budget. Check the summit forecast/webcam 24–48h before; skip only if cloud/fog would erase the view.',
+      id: 'gondola', when: 'SEP 29 • WEATHER GATE', title: 'Banff Gondola — Option A if visibility is good',
+      detail: 'The Gondola is no longer on Sep 26. On Sep 29, choose it only when summit visibility is good; otherwise use the Yoho fallback.',
       options: [
-        ['yes', 'Strong yes — buy if visibility is good', 'Current plan • ~2h'],
-        ['weather', 'Hold budget while waiting for forecast', 'Still stays in route'],
-        ['pass', 'Use because Pursuit Pass was bought', 'Bundle case'],
-        ['no', 'Skip only for poor visibility', 'Weather fallback']
+        ['weather', 'Wait for Sep 29 visibility', 'Default'],
+        ['yes', 'Use Gondola if clear', 'Sep 29 Option A'],
+        ['pass', 'Use Gondola with Pursuit Pass', 'Sep 29 Option A'],
+        ['no', 'Skip Gondola', 'Use Yoho/core']
       ]
     },
     {
-      id: 'icefield', when: 'SEP 29 • OPTIONAL', title: 'Icefield Adventure?',
-      detail: 'Paid Ice Explorer + glacier walk + Skywalk is 2.5–3h. Free glacier view remains protected on Sep 27.',
+      id: 'icefield', when: 'SEP 29 • EXCEPTION ONLY', title: 'Icefield Adventure?',
+      detail: 'Not part of the selected default plan. The free glacier stop is already protected on Sep 27; only substitute the paid Adventure deliberately.',
       options: [
-        ['nice-no-pass', 'Keep NICE; mostly skip without pass', 'Current plan'],
-        ['buy', 'Buy à la carte', 'Expensive + 2.5–3h'],
-        ['pass', 'Use because Pursuit Pass was bought', 'Bundle case'],
-        ['skip', 'Free glacier view only', 'Best budget']
+        ['nice-no-pass', 'Keep off by default', 'Selected plan'],
+        ['buy', 'Substitute à la carte', 'Only if deliberately changing plan'],
+        ['pass', 'Substitute with Pursuit Pass', 'Only if deliberately changing plan'],
+        ['skip', 'Free glacier only', 'Selected plan']
       ]
     },
     {
-      id: 'sep29bonus', when: 'SEP 29 • CHOOSE ONE BIG BONUS', title: 'What gets the extra time southbound?',
-      detail: 'Do not stack every nice item. Athabasca Falls stays MUST. Pick one bonus after weather, fatigue and Sep 27 completion are known.',
+      id: 'sep29bonus', when: 'SEP 29 • ~11:30 WEATHER CHOICE', title: 'Choose ONE: Gondola or Yoho',
+      detail: 'After Waterfowl, use summit visibility: clear → Banff Gondola; cloud/fog → Natural Bridge + Emerald Lake. Valley of Five Lakes is not part of the default plan and is only an exception if significantly ahead.',
       options: [
-        ['pending', 'Leave all three NICE until the trip', 'Default'],
-        ['valley', 'Valley of Five Lakes — 5.4 km Emerald Loop', '~1h50 planning'],
-        ['icefield', 'Paid Icefield Adventure', '2.5–3h'],
-        ['yoho', 'Emerald Lake + Natural Bridge', 'Best if parking is easy late day'],
-        ['core', 'No big bonus — just core Parkway', 'Most relaxed / cheapest']
+        ['pending', 'Decide from visibility that morning', 'Default'],
+        ['gondola', 'Banff Gondola', 'Option A • clear summit'],
+        ['yoho', 'Natural Bridge + Emerald Lake', 'Option B • poor summit visibility'],
+        ['core', 'No bonus — continue to Calgary', 'Most relaxed']
       ]
     }
   ];
