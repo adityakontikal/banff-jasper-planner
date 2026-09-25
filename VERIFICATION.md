@@ -19,9 +19,9 @@ The verified preset is budget-first: 3 adults, 3 drivers, long/night driving acc
 | Shuttle inventory | 40% of seats are released at season launch; remaining 60% at **8:00 AM Mountain Time two days before departure**. | The trip now has a confirmed Sep 26, 8:00–9:00 AM Parks Canada shuttle for 3 adults; Lake Louise is the booked first destination. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise/faq |
 | Regular shuttle hours | Regular Lake Louise / Moraine service begins at **06:30**; last return is **19:30**. Lake Connector runs during the day. | Sep 26 uses the confirmed 8:00–9:00 AM check-in window: Lake Louise first, then Moraine via Lake Connector, then return to Park & Ride. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise |
 | Shuttle waiting | Parks Canada warns visitors to expect at least ~30 min waiting at busy times and potentially longer during high ridership. | Adds explicit Park & Ride check-in/wait and larger lake dwell blocks rather than pretending transfers are instantaneous. | https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise |
-| Maligne Classic Cruise | **1.5 h**, including **15 min** near Spirit Island. Pre-purchase recommended; arrive onsite at least **30 min early** and be at the dock at least **15 min before departure**. Sep 7–Oct 3: **09:00–17:30**. | Classic remains the baseline timing until an exact ticket is booked. | https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/location-hours/ |
+| Maligne Classic Cruise | **1.5 h**, including **15 min** near Spirit Island. Pre-purchase recommended; arrive onsite at least **30 min early** and be at the dock at least **15 min before departure**. Sep 7–Oct 3: **09:00–17:30**. | BOOKED: Classic 1.5h cruise on Sep 28 at 12:00 PM for 3 adults; selected plan targets Maligne Lake around 10:45–11:00 AM and dock by 11:45 AM. | https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/location-hours/ |
 | Maligne Premium Cruise | **2 h**, adults 16+, includes Pincushion Bay and **30 min** near Spirit Island. | Popup/checklist now distinguishes Classic vs Premium instead of treating every booking-widget fare as the same experience. | https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/experience/ |
-| Banff Gondola | Sep 8–Oct 12: **09:00–21:00**, last ride up **19:30**. Purchased tickets are nonrefundable. Online tickets are non-transferable and require the purchasing credit card. | Weather-gated **MUST**. Buy only after visibility check; checklist includes card, arrival and transport/parking prep. | https://www.banffjaspercollection.com/attractions/banff-gondola/hours-location/ |
+| Banff Gondola | Sep 8–Oct 12: **09:00–21:00**, last ride up **19:30**. Purchased tickets are nonrefundable. Online tickets are non-transferable and require the purchasing credit card. | Sep 29 **weather option A** only. Clear summit → Gondola; poor visibility → Natural Bridge + Emerald Lake. It is not scheduled on Sep 26. | https://www.banffjaspercollection.com/attractions/banff-gondola/hours-location/ |
 | Maligne drive risk | Operator advises allowing substantial extra time on Maligne Road for wildlife, traffic and parking; missed cruises are non-refundable. | Jasper is only a fuel/fast-food stop and Medicine is kept short; Patricia/Annette are sacrificed before the cruise. | https://prod.banffjaspercollection.com/attractions/maligne-lake-cruise/ |
 | Icefield Adventure | Ice Explorer + walk on Athabasca Glacier + Skywalk. Operator advertises **2.5–3 h**; Sep 7–30 hours are **09:00–17:00**, weather dependent. | NICE, off by default. If selected, the preset allocates **165 min (~2h45)**. | https://prod.banffjaspercollection.com/attractions/columbia-icefield-adventure/ |
 | Pursuit Pass | Does not replace park entry or Moraine/Louise transport. | SKIP by default; separate Pursuit-aware recovery preset exists if this decision changes. | https://www.banffjaspercollection.com/attractions/pursuit-pass/ |
@@ -34,7 +34,7 @@ The verified preset is budget-first: 3 adults, 3 drivers, long/night driving acc
 | Johnston Canyon Lower Falls | 1.1 km one way, about **1 h round trip** | Fallback if day is badly delayed |
 | Johnston Canyon Upper Falls | 2.4 km one way, 215 m gain, about **2 h round trip** | **MUST, 120 min** |
 | Lake Louise Lakeshore | 2.3 km one way, minimal gain, about **1 h round trip** | **MUST; lakeshore only** |
-| Lake Agnes | 3.9 km one way, 495 m gain, **2.5–3 h** | Retained as an option in place info, but not part of Sep 27 |
+| Lake Agnes | 3.9 km one way, 495 m gain, **2.5–3 h** | Retained as an option in place info, but not part of the selected Sep 26 lake block |
 | Plain of Six Glaciers | ~5.8–5.9 km one way, ~**4 h** | Not scheduled |
 | Moraine Lake Rockpile Loop | Parks Canada lists the Rockpile loop at about **30 min** | Protected within the Moraine visit |
 | Moraine Lakeshore | 1.3 km, about **45 min** | Optional inside the lake dwell; Rockpile has priority |
@@ -113,7 +113,7 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 
 - Lake Minnewanka
 - Two Jack Lake
-- Banff Gondola **when summit visibility is good** (weather-gated MUST)
+- Banff Gondola **on Sep 29 only when summit visibility is good** (weather option A)
 - Johnston Canyon to Upper Falls **via Castle Junction vehicle access**
 - Moraine Lake + Rockpile
 - Lake Louise lakeshore
@@ -122,7 +122,7 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 - Free Athabasca Glacier / Columbia Icefield stop
 - Pyramid Lake / Pyramid Island
 - Medicine Lake
-- Maligne Lake + protected Spirit Island cruise (Classic vs Premium chosen when exact sailing is booked)
+- Maligne Lake + **BOOKED Sep 28 12:00 PM Classic Spirit Island cruise**
 - Athabasca Falls
 - Required fuel / shuttle / hotel / airport operational stops
 
@@ -152,29 +152,21 @@ Nothing needs to be deleted from the planner simply because it is CUT.
 
 ## Sep 29 choice rule
 
-The verified preset intentionally leaves three large bonus options visible:
+The selected plan makes the decision at roughly **11:30 AM after Waterfowl Lakes**:
 
-1. Valley of Five Lakes — Emerald Loop (~110 min planning)
-2. Paid Icefield Adventure (~165 min planning)
-3. Emerald Lake + Natural Bridge (~75 min planning, parking dependent)
+1. **Clear summit visibility → Banff Gondola** (~13:00–15:15)
+2. **Cloud/fog on Sulphur Mountain → Natural Bridge + Emerald Lake** (~12:50–14:30)
+3. If neither is attractive or the day is late, continue directly toward Calgary.
 
-**Normally choose one**, after checking:
+Do **not** add Valley of Five Lakes by default; reconsider it only if significantly ahead. The paid Icefield Adventure is also off by default because the free Athabasca Glacier stop is already protected on Sep 27.
 
-- Sep 27 completion
-- weather / visibility
-- fatigue
-- parking
-- whether Pursuit was bought
-- whether the group wants another hike vs another paid experience
-
-Athabasca Falls remains MUST regardless.
 
 ## Current 2026 closures / restrictions / recheck requirement
 
 Dynamic restrictions matter to this exact late-September trip:
 
 - **Bow Valley Parkway east → Johnston Canyon:** personal vehicle restriction Sep 1–Oct 6, 2026. Use Castle Junction.
-- **Lake Minnewanka Trail:** Parks Canada lists a current bear warning on Sep 1; recheck before Sep 26.
+- **Lake Minnewanka Trail:** Parks Canada lists a current bear warning on Sep 1; recheck before the Sep 27 visit.
 - **Jasper Highway 93A:** Parks Canada anticipates mid-Sep to mid-Nov roadwork with no through travel / access from the south entrance only. Check 511 before relying on 93A.
 - **Maligne Canyon:** closed / not permitted for the 2026 season.
 - **Cavell Road / Cavell area:** closed / not permitted for the 2026 season.
@@ -263,7 +255,7 @@ https://parks.canada.ca/pn-np/ab/jasper/visit/ouvert-fermee-open-closed
 The Sep. 1 update centralizes completion state in **Checklist**:
 
 - booking-derived rows (flights, rental, YYZ parking, booked hotels, paid park admission) are checked automatically and cannot be manually falsified
-- unfinished preparation stays manual: park-pass printing/display, shuttle, Maligne ticket, Gondola weather/ticket, rental follow-up, offline maps, fuel, documents, gear and final condition checks
+- unfinished preparation stays manual: park-pass printing/display, offline shuttle/Maligne confirmations, Sep 29 Gondola weather/ticket choice, rental follow-up, offline maps, fuel, documents, gear and final condition checks
 - every one of the 46 verified route stop IDs resolves to a place-specific official/booking audit and a prerequisite list
 - popup prerequisites reuse the same checklist IDs as the master list, so checking “offline maps” or “print park pass” in one place updates it everywhere
 - the **Every place** category groups all 46 route stops by day and opens the same popup checklist
