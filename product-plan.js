@@ -8,74 +8,24 @@
 
   const DECISIONS = [
     {
-      id: 'shuttle',
-      when: 'Sep 25 • 8:00 AM MT',
-      title: 'Moraine + Lake Louise shuttle',
-      detail: 'Book Moraine first. This is the one reservation that can break Sep 27 if left unresolved.',
-      options: [
-        ['pending', 'Waiting to book'],
-        ['booked', 'Parks Canada booked'],
-        ['backup', 'Licensed backup booked']
-      ]
+      id: 'shuttle', when: 'Sep 26 • 8:00–9:00 AM', title: 'Lake Louise + Moraine shuttle — BOOKED',
+      detail: 'Paid for 3 adults. Check in at Park & Ride during the booked window, go to Lake Louise first, then use the Lake Connector to Moraine.',
+      options: [['booked', 'Parks Canada booked'], ['backup', 'Licensed backup booked']]
     },
     {
-      id: 'lakeLouise',
-      when: 'Sep 27',
-      title: 'Lake Louise depth',
-      detail: 'Keep the lake visit compatible with the Icefields Parkway day.',
-      options: [
-        ['shoreline', 'Lakeshore only'],
-        ['quick', 'Quick lake look'],
-        ['agnes', 'Lake Agnes hike']
-      ]
+      id: 'lakeLouise', when: 'Sep 26', title: 'Lake Louise depth',
+      detail: 'Keep the booked lake block compatible with Johnston Canyon later that afternoon.',
+      options: [['shoreline', 'Lakeshore only'], ['quick', 'Quick lake look'], ['agnes', 'Lake Agnes hike — not recommended']]
     },
     {
-      id: 'maligne',
-      when: 'Sep 28',
-      title: 'Maligne Lake Cruise',
-      detail: 'Protected paid anchor. Choose the exact Sep 28 Classic vs Premium product and sailing from the live booking inventory.',
-      options: [
-        ['book', 'Book best Classic/Premium sailing'],
-        ['hold', 'Hold for price/time'],
-        ['skip', 'Shoreline only']
-      ]
+      id: 'maligne', when: 'Sep 28 • 12:00 PM', title: 'Maligne Lake Classic Cruise — BOOKED',
+      detail: 'Classic 1.5-hour cruise is paid and locked. Target Maligne Lake around 10:45–11:00 AM and the dock by 11:45 AM.',
+      options: [['book', 'Booked • 12:00 PM Classic'], ['skip', 'Change/cancel booking']]
     },
     {
-      id: 'gondola',
-      when: '1–2 days before Sep 26',
-      title: 'Banff Gondola — weather-gated MUST',
-      detail: 'Strong yes when summit visibility is good. It is in the route and budget now; skip only if cloud/fog makes the view poor.',
-      options: [
-        ['yes', 'Strong yes — buy if clear'],
-        ['weather', 'Hold while checking forecast'],
-        ['pass', 'Use with Pursuit Pass'],
-        ['no', 'Skip for poor visibility']
-      ]
-    },
-    {
-      id: 'icefield',
-      when: 'Sep 29',
-      title: 'Icefield Adventure',
-      detail: 'Free glacier viewing stays in the core plan. The paid Explorer + Skywalk remains optional.',
-      options: [
-        ['nice-no-pass', 'Nice, mostly skip'],
-        ['buy', 'Buy à la carte'],
-        ['pass', 'Use with Pursuit Pass'],
-        ['skip', 'Free glacier only']
-      ]
-    },
-    {
-      id: 'sep29bonus',
-      when: 'Sep 29 morning',
-      title: 'Choose the big bonus',
-      detail: 'Pick one based on weather, fatigue and what you completed northbound.',
-      options: [
-        ['pending', 'Decide on the trip'],
-        ['valley', 'Valley of Five Lakes'],
-        ['icefield', 'Icefield Adventure'],
-        ['yoho', 'Emerald Lake + Natural Bridge'],
-        ['core', 'No big bonus']
-      ]
+      id: 'sep29bonus', when: 'Sep 29 • ~11:30', title: 'Weather choice: Gondola or Yoho',
+      detail: 'Clear summit → Banff Gondola. Cloud/fog → Natural Bridge + Emerald Lake. Choose only one; Valley of Five Lakes is only an exception if significantly ahead.',
+      options: [['pending', 'Decide from visibility that morning'], ['gondola', 'Banff Gondola — clear summit'], ['yoho', 'Natural Bridge + Emerald Lake — poor summit visibility'], ['core', 'No bonus — continue to Calgary']]
     }
   ];
 
@@ -180,7 +130,7 @@
     });
   }
 
-  const DEFAULT_NICE_ON = new Set(['banff', 'jasper', 'jasper29']);
+  const DEFAULT_NICE_ON = new Set(['bowfalls', 'surprise', 'banff', 'jasper', 'jasper29', 'stutfield', 'waterfowl', 'canmore']);
 
   function normalizeNiceOptions() {
     let changed = false;
