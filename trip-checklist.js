@@ -493,7 +493,7 @@
     { cat: 'bookings', id: 'hotel_deposit_capacity', title: 'Leave card room for hotel deposits / holds', detail: 'Planner booking data: Super 8 C$100 property deposit; Holiday Inn C$50 stay deposit + C$50/night breakage deposit.' },
     { cat: 'bookings', id: 'auto_h29', title: 'Sep 29 Holiday Inn Calgary-Airport paid / locked', detail: 'Final trip-night hotel.', auto: function () { return bookingDone('h29'); } },
     { cat: 'bookings', id: 'auto_park', title: 'Parks Canada 3-day Family/Group pass paid', detail: 'C$73.50 paid; printing/display is a separate task.', auto: function () { return bookingDone('park'); } },
-    { cat: 'bookings', id: 'shuttle_booked', title: 'Book Sep 27 Moraine + Lake Louise shuttle', detail: '60% release Sep 25 at 8 AM Mountain / 10 AM Toronto. Choose Moraine as initial destination.', due: 'Sep 25 • 10:00 AM Toronto', auto: function () { return bookingDone('shuttle'); }, link: 'https://reservation.pc.gc.ca/' },
+    { cat: 'bookings', id: 'shuttle_booked', title: 'Sep 26 Lake Louise + Moraine shuttle paid / locked', detail: '8:00–9:00 AM Park & Ride check-in • 3 adults • Lake Louise first, then Lake Connector to Moraine.', auto: function () { return bookingDone('shuttle'); }, link: 'https://reservation.pc.gc.ca/' },
     { cat: 'bookings', id: 'maligne_ticket', title: 'Book Maligne Lake cruise for Sep 28', detail: 'Choose Classic vs Premium and lock an exact departure time; save the confirmation offline.', due: 'Before availability tightens', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/tickets/' },
     { cat: 'bookings', id: 'gondola_ticket', title: 'Buy Banff Gondola only after visibility check', detail: 'Strong YES if visibility is good. Tickets are nonrefundable, so make the weather call 24–48h before.', due: 'Sep 24–25', link: 'https://www.banffjaspercollection.com/attractions/banff-gondola/' },
 
@@ -505,8 +505,8 @@
     { cat: 'documents', id: 'yyz-parking-pass', title: 'Save SpotHero parking pass / entry instructions offline', detail: 'Paid booking is done; this task is only the offline copy and entry instructions.' },
     { cat: 'documents', id: 'id_cards_ready', title: 'Driver licence + payment cards + photo ID ready', detail: 'Keep the rental payment card and driver documents accessible, not buried in luggage.' },
 
-    { cat: 'transport', id: 'shuttle_alarm', title: 'Set alarm for the 48-hour Parks Canada shuttle release', detail: 'Sep 25 at 10:00 AM Toronto = 8:00 AM Mountain.', due: 'Sep 25 • 10:00 AM Toronto' },
-    { cat: 'transport', id: 'shuttle_moraine_first', title: 'Choose Moraine Lake as first shuttle destination', detail: 'The reservation’s initial destination must be travelled to first; then use the Lake Connector.' },
+    { cat: 'transport', id: 'shuttle_alarm', title: 'Parks Canada shuttle booking completed', detail: 'Sep 26 • 8:00–9:00 AM • 3 adults • paid C$41.75.' },
+    { cat: 'transport', id: 'shuttle_moraine_first', title: 'Go to Lake Louise first on the booked shuttle', detail: 'The reservation requires Lake Louise as the initial destination; use the Lake Connector to Moraine afterward.' },
     { cat: 'transport', id: 'rental_file', title: 'Send/confirm rental file: licence + payment card + flight number', detail: 'Required by the locked rental voucher; verify supplier has everything.' },
     { cat: 'transport', id: 'rental_insurance', title: 'Confirm rental insurance / own-coverage proof', detail: 'Know what is covered before pickup.' },
     { cat: 'transport', id: 'rental_drivers', title: 'Decide any additional rental drivers', detail: 'All added drivers should be present with required documents at pickup.' },
@@ -665,7 +665,7 @@
       globalTask('shuttle_booked'),
       globalTask('screen'),
       task('place:louise:connector', 'Keep shuttle boarding pass for Lake Connector / return'),
-      task('place:louise:returntime', 'Protect enough time for return to Park & Ride before starting Parkway')
+      task('place:louise:returntime', 'Protect enough time for the Lake Connector to Moraine and the eventual return to Park & Ride')
     ],
     bowlake: [globalTask('pass'), globalTask('offline_maps'), globalTask('road_check'), task('place:bowlake:safeparking', 'Use only designated parking / pullout')],
     bowlake29: [globalTask('pass'), globalTask('offline_maps'), task('place:bowlake29:need', 'Only repeat if Sep 27 Bow Lake visibility was poor')],

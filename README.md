@@ -18,7 +18,7 @@ You can also open `index.html` directly, but a local server is more reliable for
 ## What to do first
 
 1. Open **Checklist**. It is now the single source of truth for bookings, documents, shuttle/rental prep, road access, offline readiness, gear, final 48-hour checks and every-place prerequisites.
-2. **Set an alarm for Sep 25, 8:00 AM Mountain (10:00 AM Toronto).** Remaining Parks Canada seats drop 48 hours before departure. Book **Moraine Lake as first destination** and save the ticket offline.
+2. **Parks Canada shuttle is booked and paid for Sep 26, 8:00–9:00 AM, for 3 adults.** Check in at Lake Louise Park & Ride during that window, travel to **Lake Louise first**, then use the Lake Connector to Moraine Lake. Save the ticket offline.
 3. **All hotel nights are resolved.** Sep 25 intentionally has no hotel; Sep 26 Cochrane, Sep 27–28 Hinton, and Sep 29 Calgary Airport are locked.
 4. Flights, YYC rental and YYZ parking are already locked and therefore appear automatically checked in the master checklist.
 5. Parks Canada Family/Group Day Pass is **paid and locked: C$73.50 for 3 days**. The receipt requires you to **PRINT and DISPLAY** it on the **left-hand side of the vehicle dashboard with the date visible**. Because daily passes expire at 4:00 PM the following day, verify the printed dates cover any Sep 29 park time after 4:00 PM.
@@ -86,7 +86,7 @@ Existing browser saves are **not silently overwritten**. If your saved itinerary
 
 The new **Lock** tab turns the remaining choices into time-ordered MCQs:
 
-1. Sep 27 Moraine/Louise transport: lock the 48-hour shuttle release or a licensed backup.
+1. Sep 26 Lake Louise/Moraine transport: **locked** — Parks Canada shuttle, 8:00–9:00 AM, Lake Louise first.
 2. Lake Louise: lakeshore only; do not add Lake Agnes on the Parkway day.
 3. Maligne Lake Cruise: protected paid highlight.
 4. Banff Gondola: weather / Pursuit decision.
@@ -98,10 +98,10 @@ The tab also shows booking readiness, unresolved decisions, budget position, and
 ## Key schedule corrections in the verified preset
 
 - **Sep 25 arrival night has no hotel by choice.** WestJet lands 12:44 AM Sep 26 and the Ascent rental pickup is 1:30 AM.
-- **Sep 26** keeps the Banff-first day but now explicitly routes **Gondola → Castle Junction → Johnston Canyon → Castle Junction → Cochrane** so turn-by-turn routing cannot use the east Bow Valley Parkway while the Sep 1–Oct 6 personal-vehicle restriction is active.
-- Johnston Canyon is **120 min** for Lower + Upper Falls rather than the old 90-minute assumption.
-- **Sep 27** starts at 06:00, not 04:30. The plan explicitly models Park & Ride check-in, shuttle/connector waiting and return to the car.
-- Sep 27 protects Moraine + Rockpile, Lake Louise lakeshore, Bow Lake, Peyto and the free Athabasca Glacier stop. Mistaya and Sunwapta are NICE.
+- **Sep 26** now starts with the fixed **8:00–9:00 AM Parks Canada shuttle block: Park & Ride → Lake Louise first → Moraine Lake → Park & Ride**. The rest of the Sep 26 sightseeing order is intentionally not re-optimized yet.
+- Johnston Canyon is still modeled as **120 min** for Lower + Upper Falls; its final day/order will be decided in the next planning pass.
+- **Sep 27** no longer contains Lake Louise or Moraine Lake. Its remaining Cochrane → Icefields Parkway → Hinton stops are intentionally left as a starting point for the next re-plan.
+- Bow Lake, Peyto and the free Athabasca Glacier stop remain in the Sep 27 draft; Mistaya and Sunwapta remain NICE.
 - Athabasca Falls is moved to **Sep 29 MUST**, reducing the fiction that every Parkway highlight fits after the lake-shuttle morning.
 - Maligne Cruise gets a **150-minute protected block** (cruise + early arrival / operational buffer).
 - Valley of Five Lakes is **NICE** with ~110 minutes planned for the 5.4 km Emerald Loop.

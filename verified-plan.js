@@ -14,11 +14,15 @@
       ]
     },
     {
-      date: 'Sep 26', label: 'YYC → Banff First-Timer Highlights → Cochrane', start: '05:45', drive: 'Via Castle Junction • live road route', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
-      note: 'No arrival-night hotel. Keep the Banff-first route. IMPORTANT 2026: reach Johnston Canyon by personal vehicle via Castle Junction because the east Bow Valley Parkway is restricted Sep 1–Oct 6. Protect Minnewanka + Two Jack + weather-clear Gondola + Johnston Upper Falls.',
+      date: 'Sep 26', label: 'YYC → Lake Louise / Moraine → Banff Highlights → Cochrane', start: '05:45', drive: 'Shuttle booking fixed • rest of day to re-plan', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      note: 'LOCKED FIRST: Parks Canada shuttle is booked for 8:00–9:00 AM. Check in at Lake Louise Park & Ride, travel to Lake Louise first, then use the Lake Connector to Moraine Lake and return to Park & Ride. Other Sep 26 stops are intentionally left in their prior order until the day is re-planned around this fixed block.',
       hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
-        { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45 for Banff', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
+        { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
+        { id: 'parkride', name: 'Lake Louise Park & Ride — 8–9 AM booked check-in', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
+        { id: 'louise', name: 'Lake Louise Lakeshore — FIRST destination (includes connector wait)', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 90 },
+        { id: 'moraine', name: 'Moraine Lake + Rockpile (includes return-shuttle wait)', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 105 },
+        { id: 'parkride_return', name: 'Park & Ride — Back to Car / Gear Reset', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 10 },
         { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
         { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
         { id: 'banff', name: 'Banff Town (Fast Lunch + Short Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 45 },
@@ -32,15 +36,11 @@
       ]
     },
     {
-      date: 'Sep 27', label: 'Cochrane → Moraine/Louise → Icefields Parkway → Hinton', start: '06:00', drive: '~500 km', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
-      note: 'Hardest day. Budget-first Cochrane start means no true sunrise at Moraine without sacrificing sleep. Reserve Moraine as first destination. Model at least 30 min shuttle waits. After the lakes, protect Bow Lake, Peyto and the free Athabasca Glacier stop; Sunwapta and Mistaya are optional if daylight slips.',
+      date: 'Sep 27', label: 'Cochrane → Icefields Parkway → Hinton', start: '06:00', drive: 'Route to re-plan after Sep 26 lake move', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
+      note: 'Lake Louise and Moraine Lake are now locked on Sep 26 and removed from this day. The remaining Sep 27 stops are intentionally not re-optimized yet; use this as the starting point for the next planning pass.',
       hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
         { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart 06:00)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'parkride', name: 'Lake Louise Park & Ride — Check-in / Wait', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
-        { id: 'moraine', name: 'Moraine Lake + Rockpile (includes connector wait)', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 105 },
-        { id: 'louise', name: 'Lake Louise Lakeshore (includes return-shuttle wait)', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 90 },
-        { id: 'parkride_return', name: 'Park & Ride — Back to Car / Gear Reset', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 10 },
         { id: 'bowlake', name: 'Bow Lake & Crowfoot Glacier', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 20 },
         { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 40 },
         { id: 'mistaya', name: 'Mistaya Canyon', lat: 51.9460, lng: -116.7200, priority: 'nice', stayMin: 30 },
@@ -102,7 +102,7 @@
     icefield: 'nice-no-pass',
     gondola: 'yes',
     sep29bonus: 'pending',
-    shuttle: 'pending'
+    shuttle: 'booked'
   };
 
   function replaceStopPriority(day, id, priority) {
@@ -246,7 +246,7 @@
   }
 
   function patchBase() {
-    BASE.presetVersion = 'verified-2026-09-01-v3';
+    BASE.presetVersion = 'verified-2026-09-25-v4';
     BASE.activePreset = 'verified';
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
     BASE.settings.globalNote = 'Verified Sep 1, 2026. Official-source audit active. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Protect sleep and first-timer core; follow current Parks Canada access/closure rules. Must = core; Nice = consider/choose; Cut = sacrifice first.';
@@ -324,7 +324,7 @@
       time: '30–60+ min check-in / wait',
       parking: 'Free parking for reservation holders at Lake Louise Park & Ride, 1 Whitehorn Road. The trip must begin and end here for regular Parks Canada shuttles.',
       desc: 'Mandatory transit node for the budget-first Moraine + Louise plan. Reservation holders check in here during their 1-hour departure window.',
-      todo: 'Arrive inside the booked window, check in, screenshot tickets on every phone, use washroom, then board toward Moraine first.',
+      todo: 'Arrive during the booked 8:00–9:00 AM window, check in, screenshot tickets on every phone, use washroom, then board toward Lake Louise first.',
       cut: 'Never compress this below the time you actually need to check in. Parks Canada warns waits of at least 30 min and up to 1h during high ridership.',
       reviews: 'Verified 2026: 60% of seats release at 8:00 AM MDT two days before departure; regular shuttles run 6:30 AM–5 PM; last return 7:30 PM.',
       official: 'https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise'
@@ -475,7 +475,7 @@
   }
 
   function isVerifiedState(state) {
-    return !!state && state.presetVersion === 'verified-2026-09-01-v3';
+    return !!state && state.presetVersion === 'verified-2026-09-25-v4';
   }
 
   function preserveProgress(next, old) {
@@ -503,7 +503,7 @@
   }
 
   function configurePreset(next, name) {
-    next.presetVersion = 'verified-2026-09-01-v3';
+    next.presetVersion = 'verified-2026-09-25-v4';
     next.activePreset = name;
     next.decisions = deepClone(VERIFIED_DECISIONS);
     const maligne = next.attractions.find(function (a) { return a.id === 'maligneCruise'; });
@@ -570,7 +570,7 @@
       if (b && value === 'pending' && ['Not started','Waiting window'].includes(b.status)) b.status = 'Waiting window';
     }
     if (id === 'lakeLouise') {
-      const st = S.days.find(function (d) { return d.date === 'Sep 27'; }).stops.find(function (x) { return x.id === 'louise'; });
+      const st = S.days.find(function (d) { return d.date === 'Sep 26'; }).stops.find(function (x) { return x.id === 'louise'; });
       // Includes a modeled ~30 min return-shuttle wait in addition to the lake visit.
       if (st) st.stayMin = value === 'quick' ? 70 : (value === 'agnes' ? 195 : 90);
     }
@@ -659,16 +659,15 @@
 
   const DECISION_FLOW = [
     {
-      id: 'shuttle', when: 'SEP 25 • 8:00 AM MDT RELEASE', title: 'How are Moraine + Lake Louise locked?',
-      detail: '60% of seats release at 8:00 AM MDT two days before Sep 27. Choose Moraine as first destination. Regular shuttles start 6:30 AM; plan at least 30 min waits.',
+      id: 'shuttle', when: 'SEP 26 • 8:00–9:00 AM BOOKED', title: 'How are Lake Louise + Moraine locked?',
+      detail: 'Parks Canada shuttle is paid for 3 adults. Check in at Lake Louise Park & Ride during 8:00–9:00 AM, travel to Lake Louise first, then use the Lake Connector to Moraine Lake.',
       options: [
-        ['pending', 'Need the 48-hour release', 'Current'],
-        ['booked', 'Parks Canada shuttle booked', 'Best'],
-        ['backup', 'Licensed commercial backup booked', 'Acceptable']
+        ['booked', 'Parks Canada shuttle booked', 'Current'],
+        ['backup', 'Licensed commercial backup booked', 'Backup only']
       ]
     },
     {
-      id: 'lakeLouise', when: 'SEP 27 • LAKES', title: 'How deep do you go at Lake Louise?',
+      id: 'lakeLouise', when: 'SEP 26 • LAKES', title: 'How deep do you go at Lake Louise?',
       detail: 'The full Lakeshore Trail is ~1h. Lake Agnes is 2.5–3h and would damage the Parkway day.',
       options: [
         ['shoreline', 'Lakeshore only (~60 min)', 'Locked recommendation'],
