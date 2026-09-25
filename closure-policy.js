@@ -25,7 +25,7 @@
   const VERIFIED_TRIP_ACTUALS = { westJetFare: 966.63, checkedBaggage: 119.90, westJetTotal: 1086.53 };
   const VERIFIED_MALIGNE_CRUISE = {
     reservation: '4184612', date: 'Sep 28', dateIso: '2026-09-28', sailTime: '12:00 PM', cruiseMinutes: 90,
-    travellers: 3, total: 321.42, balanceDue: 0, arriveLake: '11:00 AM', dockBy: '11:45 AM',
+    travellers: 3, total: 321.42, balanceDue: 0, arriveLake: '10:45 AM', dockBy: '11:45 AM',
     product: 'Classic Cruise (1.5 hours)', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/'
   };
   const PARK_EXTENSION = 24.50;
@@ -90,8 +90,8 @@
     if (day) {
       const stop = stopFor(day, 'maligne');
       if (stop) changed = assignChanged(stop, {
-        name: 'Maligne Lake — Classic Cruise BOOKED 12:00 PM', priority: 'must', stayMin: 150, notBefore: '11:00', bookingLocked: true,
-        note: 'Reservation 4184612 • 3 adults • C$321.42 paid • target lake arrival 11:00 AM • dock by 11:45 AM • sailing 12:00 PM • allow up to 15 min extra cruise time.'
+        name: 'Maligne Lake — Classic Cruise BOOKED 12:00 PM', priority: 'must', stayMin: 195, notBefore: '10:45', bookingLocked: true,
+        note: 'Reservation 4184612 • 3 adults • C$321.42 paid • target lake arrival 10:45–11:00 AM • dock by 11:45 AM • sailing 12:00 PM • allow up to 15 min extra cruise time.'
       }) || changed;
     }
 
@@ -106,7 +106,7 @@
     changed = assignChanged(booking, {
       item: 'Maligne Lake Classic Cruise • Sep 28 • 12:00 PM • 3 adults', estimate: 321.42, status: 'Paid', actual: 321.42,
       confirm: 'Reservation 4184612', locked: true, bookingGroup: 'pursuit-maligne-cruise',
-      detail: 'Classic Cruise • 1.5 hours • arrive at Maligne Lake ~11:00 AM • dock by 11:45 AM • C$321.42 paid • balance C$0.00',
+      detail: 'Classic Cruise • 1.5 hours • arrive at Maligne Lake ~10:45–11:00 AM • dock by 11:45 AM • C$321.42 paid • balance C$0.00',
       link: VERIFIED_MALIGNE_CRUISE.link
     }) || changed;
     return changed;
@@ -115,142 +115,82 @@
   function applyOperationalPlan(state) {
     if (!state || !state.days) return false;
     let changed = false;
+    const FINAL_PLAN_VERSION = 'verified-2026-09-25-v6';
+
+    if (state !== BASE && state.presetVersion !== FINAL_PLAN_VERSION) {
+      state.days = deepClone(BASE.days);
+      state.decisions = deepClone(BASE.decisions || state.decisions || {});
+      state.presetVersion = FINAL_PLAN_VERSION;
+      changed = true;
+    }
+
     state.settings = state.settings || {};
-    if (Number(state.settings.bufferMin || 0) < 10) { state.settings.bufferMin = 10; changed = true; }
+    if (state.settings.bufferMin !== 8) { state.settings.bufferMin = 8; changed = true; }
 
     const d26 = state.days.find(function (d) { return d.date === 'Sep 26'; });
     if (d26) {
-      changed = assignChanged(d26, {
-        note: 'Arrival-night fatigue is the main risk. 5:45 AM is the target, not a hard requirement; if the group needs more rest, leave later and cut Bow Falls / Surprise Corner first. Protect Minnewanka, Two Jack, clear-weather Gondola, Johnston Canyon and the booked Cochrane hotel.'
-      }) || changed;
-      const gondola = stopFor(d26, 'gondola');
-      if (gondola) changed = assignChanged(gondola, {
-        stayMin: 165,
-        note: 'Budget ~2h45 door-to-door for parking/transit, boarding queue, ride and summit. Parking at Sulphur Mountain is paid and very limited; no parking reservation. If booked, prefer the included downtown/Roam shuttle. Book the Gondola only after the 24–48h visibility check.'
-      }) || changed;
-      const johnston = stopFor(d26, 'johnston');
-      if (johnston) changed = assignChanged(johnston, {
-        stayMin: 120,
-        note: 'Use Castle Junction for legal 2026 vehicle access. P1/P2 parking is first-come and can fill; roadside parking is prohibited. No parking reservation is available. If both lots are full, do not burn time circling.'
-      }) || changed;
-      ['bowfalls', 'surprise'].forEach(function (id) {
-        const s = stopFor(d26, id);
-        if (s && s.priority !== 'nice') { s.priority = 'nice'; changed = true; }
-        if (s && !s.note) { s.note = 'CUT FIRST if the fatigue start, Banff parking, Gondola or Johnston Canyon runs late.'; changed = true; }
-      });
+      changed = assignChanged(d26, { start: '05:45', note: 'FINAL: booked 8:00–9:00 AM shuttle → Lake Louise → Moraine → Johnston Canyon → Bow Falls / Surprise Corner / Banff → Cochrane. Do not add Gondola, Minnewanka or Two Jack on Sep 26.' }) || changed;
+      const johnston = stopFor(d26, 'johnston'); if (johnston) changed = assignChanged(johnston, { stayMin: 120, note: 'Target roughly 2:15–4:15 PM. Use Castle Junction for legal 2026 vehicle access; if the shuttle block runs very late, downgrade to Lower Falls before cutting the stop.' }) || changed;
+      const bow = stopFor(d26, 'bowfalls'); if (bow) changed = assignChanged(bow, { priority: 'nice', stayMin: 20, enabled: true }) || changed;
+      const surprise = stopFor(d26, 'surprise'); if (surprise) changed = assignChanged(surprise, { priority: 'nice', stayMin: 15, enabled: true }) || changed;
+      const banff = stopFor(d26, 'banff'); if (banff) changed = assignChanged(banff, { priority: 'nice', stayMin: 45, enabled: true }) || changed;
     }
 
     const d27 = state.days.find(function (d) { return d.date === 'Sep 27'; });
     if (d27) {
-      changed = assignChanged(d27, {
-        start: '05:45',
-        note: 'Most logistics-sensitive day. Target an 8:00–9:00 AM Parks Canada shuttle window with Moraine Lake FIRST. Free parking is included at the Lake Louise Park & Ride. Model 30–60 min shuttle waits. Protect Moraine + Louise + Peyto + Saskatchewan Crossing fuel + Columbia Icefield; move Bow Lake/Athabasca Falls to Sep 29 and cut Mistaya/Sunwapta if behind.'
-      }) || changed;
-      const dep = stopFor(d27, 'cochrane27');
-      if (dep) changed = assignChanged(dep, { name: 'Super 8 Cochrane — Depart 05:45 for Lake Louise Park & Ride' }) || changed;
-      const pr = stopFor(d27, 'parkride');
-      if (pr) changed = assignChanged(pr, {
-        name: 'Lake Louise Park & Ride — Check-in + Shuttle Queue', stayMin: 45, priority: 'must',
-        note: 'SHUTTLE RESERVATION REQUIRED. Check in only within the booked one-hour window. Parking here is free with the shuttle reservation; no separate parking reservation is needed. Plan 30–60 min queue margin.'
-      }) || changed;
-      const moraine = stopFor(d27, 'moraine');
-      if (moraine) changed = assignChanged(moraine, {
-        name: 'Moraine Lake + Rockpile (includes connector queue)', stayMin: 105, priority: 'must',
-        note: '75 min at Moraine + ~30 min allowance for the first-come Lake Connector queue. Personal vehicles are not permitted.'
-      }) || changed;
-      const louise = stopFor(d27, 'louise');
-      if (louise) changed = assignChanged(louise, {
-        name: 'Lake Louise Lakeshore (includes return-shuttle queue)', stayMin: 90, priority: 'must',
-        note: '60 min lakeshore + ~30 min allowance for return shuttle queue. Do not drive to lakeshore parking; return to Park & Ride by shuttle.'
-      }) || changed;
-      if (!stopFor(d27, 'parkride_return')) {
-        const louiseIndex = d27.stops.findIndex(function (s) { return s.id === 'louise'; });
-        d27.stops.splice(louiseIndex + 1, 0, {
-          id: 'parkride_return', name: 'Park & Ride — Back to Car / Gear Reset', lat: 51.4403, lng: -116.1626,
-          priority: 'must', stayMin: 10, note: 'Return shuttle complete; load up, use washroom if needed, then start the Parkway.'
-        });
-        changed = true;
-      }
-      const bow = stopFor(d27, 'bowlake');
-      if (bow) changed = assignChanged(bow, {
-        priority: 'cut', stayMin: 15,
-        note: 'Primary Bow Lake visit is shifted to Sep 29. Stop northbound only if at least ~30 min ahead of the protected schedule.'
-      }) || changed;
-      const peyto = stopFor(d27, 'peyto');
-      if (peyto) changed = assignChanged(peyto, { priority: 'must', stayMin: 45 }) || changed;
-      const mistaya = stopFor(d27, 'mistaya');
-      if (mistaya) changed = assignChanged(mistaya, { priority: 'cut', note: 'Optional only if shuttle timing was unusually fast.' }) || changed;
-      const sask = stopFor(d27, 'saskcrossing');
-      if (sask) changed = assignChanged(sask, {
-        stayMin: 20, priority: 'must', name: 'Saskatchewan Crossing — Fuel + Rest + Snack',
-        note: 'Operational fuel stop. Do not skip if tank is not comfortably sufficient for Jasper/Hinton.'
-      }) || changed;
-      const icefield = stopFor(d27, 'icefield');
-      if (icefield) changed = assignChanged(icefield, {
-        priority: 'must', stayMin: 45,
-        note: 'Free viewpoint/Discovery Centre stop only. Paid Icefield Adventure remains unbooked and is not required for this itinerary.'
-      }) || changed;
-      const sunwapta = stopFor(d27, 'sunwapta');
-      if (sunwapta) changed = assignChanged(sunwapta, { priority: 'nice', stayMin: 25, note: 'Cut if daylight or hotel arrival buffer is slipping.' }) || changed;
-      const ath = stopFor(d27, 'athfalls');
-      if (ath) changed = assignChanged(ath, { priority: 'cut', note: 'Primary Athabasca Falls visit is protected on Sep 29 southbound.' }) || changed;
+      changed = assignChanged(d27, { start: '06:00', note: 'FINAL: Cochrane → Two Jack → Minnewanka → Bow Lake → Peyto → Mistaya optional → Saskatchewan Crossing → free Athabasca Glacier stop → Sunwapta → Hinton. If >30 min late, cut Mistaya first.' }) || changed;
+      const mistaya = stopFor(d27, 'mistaya'); if (mistaya) changed = assignChanged(mistaya, { priority: 'nice', stayMin: 25, enabled: false, note: 'OPTIONAL / FIRST CUT if running more than ~30 min late.' }) || changed;
+      const sask = stopFor(d27, 'saskcrossing'); if (sask) changed = assignChanged(sask, { stayMin: 30, priority: 'must', name: 'Saskatchewan Crossing (Fuel / Rest / Snack)' }) || changed;
+      const sun = stopFor(d27, 'sunwapta'); if (sun) changed = assignChanged(sun, { priority: 'nice', stayMin: 30, enabled: false }) || changed;
+      const ice = stopFor(d27, 'icefield'); if (ice) changed = assignChanged(ice, { priority: 'must', stayMin: 45, note: 'Free Athabasca Glacier / Columbia Icefield stop; paid Adventure is not part of the selected default plan.' }) || changed;
     }
 
     const d28 = state.days.find(function (d) { return d.date === 'Sep 28'; });
     if (d28) {
-      changed = assignChanged(d28, {
-        start: '06:45',
-        note: 'Fixed-booking day. Leave Hinton at 6:45 AM. Pyramid is the main pre-cruise photo stop; Patricia is cut. Jasper is fuel/coffee + grab-and-go only. Be LEAVING Jasper by 9:00 AM, keep Medicine Lake short, reach Maligne Lake around 11:00 AM and dock by 11:45 AM for the 12:00 PM booked cruise.'
-      }) || changed;
-      const dep = stopFor(d28, 'hinton28a'); if (dep) changed = assignChanged(dep, { name: 'Hinton Lodge — Depart 06:45' }) || changed;
-      const pyramid = stopFor(d28, 'pyramid'); if (pyramid) changed = assignChanged(pyramid, { stayMin: 35, note: 'Main pre-cruise Jasper lake stop. Shorten to ~20 min if Jasper departure would slip past 9:00 AM.' }) || changed;
-      const patricia = stopFor(d28, 'patricia'); if (patricia) changed = assignChanged(patricia, { priority: 'cut', stayMin: 15, note: 'Cut before risking the cruise.' }) || changed;
-      const jasper = stopFor(d28, 'jasper'); if (jasper) changed = assignChanged(jasper, {
-        name: 'Jasper — Fuel + Coffee + Grab-and-Go', stayMin: 20, priority: 'nice',
-        note: 'Hard operational rule: leave Jasper by 9:00 AM. Buy lunch/snacks to take with you; no sit-down lunch before the cruise.'
-      }) || changed;
-      const medicine = stopFor(d28, 'medicine'); if (medicine) changed = assignChanged(medicine, { stayMin: 15, note: 'On-route photo stop; cap at 15 min before the fixed cruise.' }) || changed;
-      const annette = stopFor(d28, 'annette'); if (annette) changed = assignChanged(annette, { priority: 'nice', stayMin: 30, note: 'Post-cruise bonus only. Skip if wildlife/traffic delayed Maligne Road.' }) || changed;
+      changed = assignChanged(d28, { start: '07:00', note: 'FINAL fixed-booking day: 7:00 AM Hinton → Pyramid → Jasper fuel/breakfast → Medicine → Maligne Lake about 10:45 AM → booked 12:00 PM Classic Cruise → Hinton.' }) || changed;
+      const dep = stopFor(d28, 'hinton28a'); if (dep) changed = assignChanged(dep, { name: 'Hinton Lodge (Depart 07:00)' }) || changed;
+      const pyramid = stopFor(d28, 'pyramid'); if (pyramid) changed = assignChanged(pyramid, { stayMin: 40 }) || changed;
+      const jasper = stopFor(d28, 'jasper'); if (jasper) changed = assignChanged(jasper, { name: 'Jasper Town — fuel / breakfast', stayMin: 20, priority: 'nice', enabled: true }) || changed;
+      const medicine = stopFor(d28, 'medicine'); if (medicine) changed = assignChanged(medicine, { stayMin: 20 }) || changed;
+      const annette = stopFor(d28, 'annette'); if (annette) changed = assignChanged(annette, { priority: 'cut', stayMin: 25, enabled: false }) || changed;
+      const patricia = stopFor(d28, 'patricia'); if (patricia) changed = assignChanged(patricia, { priority: 'cut', stayMin: 15, enabled: false }) || changed;
     }
 
     const d29 = state.days.find(function (d) { return d.date === 'Sep 29'; });
     if (d29) {
-      changed = assignChanged(d29, {
-        note: 'Long southbound repositioning day. Athabasca Falls is protected; Valley of the Five Lakes and repeat Icefield stops are conditional. Bow Lake is the primary visit if skipped northbound. Yoho remains a true bonus only. Budget an additional C$24.50 Family/Group park day because the existing Sep 28 daily pass expires at 4:00 PM Sep 29.'
-      }) || changed;
-      const valley = stopFor(d29, 'valley5'); if (valley) changed = assignChanged(valley, { priority: 'nice', stayMin: 80, note: 'Do only if departure/road conditions are on time; cut before jeopardizing the Calgary hotel arrival.' }) || changed;
-      const ath = stopFor(d29, 'athfalls'); if (ath) changed = assignChanged(ath, { priority: 'must', stayMin: 35, note: 'Primary Athabasca Falls visit.' }) || changed;
-      const ice = stopFor(d29, 'icefield29'); if (ice) changed = assignChanged(ice, { priority: 'cut', stayMin: 45, note: 'Second chance only if Sep 27 weather blocked the Icefield view; do not repeat by default.' }) || changed;
-      const bow = stopFor(d29, 'bowlake29'); if (bow) changed = assignChanged(bow, { priority: 'nice', stayMin: 20, name: 'Bow Lake — Primary Visit if Skipped Sep 27', note: 'Use this as the planned Bow Lake stop after shifting it off the shuttle-heavy Sep 27 day.' }) || changed;
+      changed = assignChanged(d29, { start: '06:30', note: 'FINAL: Hinton → Jasper fuel → Athabasca Falls → Stutfield → Waterfowl → ONE weather choice only: clear summit = Banff Gondola; poor summit visibility = Natural Bridge + Emerald Lake → Calgary Airport hotel.' }) || changed;
+      const jasper29 = stopFor(d29, 'jasper29'); if (jasper29) changed = assignChanged(jasper29, { priority: 'nice', stayMin: 20, enabled: true }) || changed;
+      const ath = stopFor(d29, 'athfalls'); if (ath) changed = assignChanged(ath, { priority: 'must', stayMin: 40, note: 'Target roughly 8:20–9:00 AM.' }) || changed;
+      const stut = stopFor(d29, 'stutfield'); if (stut) changed = assignChanged(stut, { priority: 'nice', stayMin: 15, enabled: true }) || changed;
+      const water = stopFor(d29, 'waterfowl'); if (water) changed = assignChanged(water, { priority: 'nice', stayMin: 15, enabled: true }) || changed;
+      const gondola = stopFor(d29, 'gondola'); if (gondola) changed = assignChanged(gondola, { priority: 'nice', stayMin: 135 }) || changed;
+      const bridge = stopFor(d29, 'naturalbridge'); if (bridge) changed = assignChanged(bridge, { priority: 'nice', stayMin: 25 }) || changed;
+      const emerald = stopFor(d29, 'emerald'); if (emerald) changed = assignChanged(emerald, { priority: 'nice', stayMin: 60 }) || changed;
+      const valley = stopFor(d29, 'valley5'); if (valley) changed = assignChanged(valley, { priority: 'cut', enabled: false, stayMin: 110, note: 'Do not add by default; only reconsider if significantly ahead.' }) || changed;
+      const ice = stopFor(d29, 'icefield29'); if (ice) changed = assignChanged(ice, { priority: 'cut', enabled: false, stayMin: 165, note: 'Not part of the selected default plan; deliberate substitution only.' }) || changed;
+      const bow = stopFor(d29, 'bowlake29'); if (bow) changed = assignChanged(bow, { priority: 'cut', enabled: false, stayMin: 15, note: 'Repeat only if Sep 27 Bow Lake visibility was poor.' }) || changed;
+      const bonus = state.decisions && state.decisions.sep29bonus;
+      if (gondola) gondola.enabled = bonus === 'gondola';
+      if (bridge) bridge.enabled = bonus === 'yoho';
+      if (emerald) emerald.enabled = bonus === 'yoho';
     }
 
     const d30 = state.days.find(function (d) { return d.date === 'Sep 30'; });
     if (d30) {
-      changed = assignChanged(d30, {
-        note: 'Easy flight day. Calgary sightseeing is optional. Target the Ascent YYC Economy Parking Lot at 4:15 PM, not the voucher\'s 6:00 PM scheduled return, to protect the 7:10 PM WestJet flight. Confirm the early-return procedure with Ascent before the trip.'
-      }) || changed;
-      const city = stopFor(d30, 'canmore'); if (city) changed = assignChanged(city, { priority: 'cut', enabled: false, note: 'Enable only if everyone wants Calgary and you can still leave downtown by about 3:30 PM.' }) || changed;
-      const yyc = stopFor(d30, 'yyc30'); if (yyc) changed = assignChanged(yyc, {
-        name: 'YYC — Ascent Return TARGET 4:15 PM + WestJet 7:10 PM', notBefore: '16:15', stayMin: 175,
-        note: 'Return is outside the terminal at YYC Economy Parking Lot. Refuel first, photograph car/fuel level, complete handoff and walk to terminal. Voucher says 6:00 PM; confirm early-return process in advance.'
-      }) || changed;
+      changed = assignChanged(d30, { start: '10:00', note: 'FINAL easy day: Calgary is flexible; protect the 4:45 PM rental-return target for the booked 7:10 PM WestJet flight.' }) || changed;
+      const city = stopFor(d30, 'canmore'); if (city) changed = assignChanged(city, { priority: 'nice', enabled: true, stayMin: 150 }) || changed;
+      const yyc = stopFor(d30, 'yyc30'); if (yyc) changed = assignChanged(yyc, { name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', notBefore: '16:45', stayMin: 145, note: 'Operational target is 4:45 PM. Voucher says 6:00 PM; confirm early-return procedure at pickup.' }) || changed;
     }
 
     state.costs = state.costs || {};
-    if (state.costs.park !== 98.00) { state.costs.park = 98.00; changed = true; }
-    if (state.costs.parkExtensionPlanned !== PARK_EXTENSION) { state.costs.parkExtensionPlanned = PARK_EXTENSION; changed = true; }
-
-    state.bookings = state.bookings || [];
-    let extension = state.bookings.find(function (b) { return b.id === 'parkExtension'; });
-    if (!extension) { extension = { id: 'parkExtension' }; state.bookings.push(extension); changed = true; }
-    changed = assignChanged(extension, {
-      item: 'Parks Canada • Sep 29 Family/Group entry extension', estimate: 24.50, status: 'Need to buy', actual: '',
-      confirm: '', locked: false, bookingGroup: 'parks-canada-extension',
-      detail: 'Existing 3-day pass plan covers through Sep 29 at 4:00 PM. Add one C$24.50 Family/Group day pass for the expected late-afternoon/evening park time on Sep 29.',
-      link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes'
-    }) || changed;
-
-    state.bookings.forEach(function (b, index) { if (b.p !== index + 1) { b.p = index + 1; changed = true; } });
+    if (state.costs.park !== 73.50) { state.costs.park = 73.50; changed = true; }
+    if (state.costs.parkExtensionPlanned !== 0) { state.costs.parkExtensionPlanned = 0; changed = true; }
+    if (state.bookings) {
+      const before = state.bookings.length;
+      state.bookings = state.bookings.filter(function (b) { return b.id !== 'parkExtension'; });
+      if (state.bookings.length !== before) changed = true;
+      state.bookings.forEach(function (b, index) { if (b.p !== index + 1) { b.p = index + 1; changed = true; } });
+    }
     return changed;
   }
 
@@ -299,9 +239,9 @@
     Object.assign(maligne, {
       title: 'Maligne Lake & Spirit Island — BOOKED 12:00 PM', time: 'Booked block • ~2.5 hr including arrival buffer',
       parking: 'Main Maligne Lake visitor parking; no separate parking reservation required. Arrive early because wildlife/traffic and parking can consume the buffer.',
-      parkingRating: 'No reservation • Arrive around 11:00 AM', bestWindow: 'Sep 28 • 12:00 PM sailing • BOOKED',
+      parkingRating: 'No reservation • Arrive around 10:45–11:00 AM', bestWindow: 'Sep 28 • 12:00 PM sailing • BOOKED',
       desc: 'Classic 1.5-hour Maligne Lake cruise to the Spirit Island area is booked for 3 adults on Sep 28 at 12:00 PM. Total C$321.42 is paid in full.',
-      todo: 'Reach the lake around 11:00 AM. Have tickets downloaded/printed and be at the boarding dock by 11:45 AM.',
+      todo: 'Reach the lake around 10:45–11:00 AM. Have tickets downloaded/printed and be at the boarding dock by 11:45 AM.',
       cut: 'Do not cut or move this stop without intentionally changing reservation 4184612.', official: VERIFIED_MALIGNE_CRUISE.link,
       tag: 'BOOKED • Sep 28 • 12:00 PM'
     });
@@ -310,7 +250,7 @@
     Object.assign(gondola, {
       parking: 'Sulphur Mountain general parking is paid (C$17.50 in 2026), very limited and not reservable. Prefer the included Downtown Banff / Roam Route 1 ride after pre-purchasing the Gondola ticket.',
       parkingRating: 'Paid • Limited • No reservation',
-      todo: 'Check summit visibility 24–48h before. If clear, pre-book the Gondola ticket and use the included downtown/Roam shuttle if practical; budget ~2h45 door-to-door.'
+      todo: 'This is Sep 29 Option A only. Check summit visibility Sep 28 evening / Sep 29 morning; if clear, use the Gondola. If cloud/fog blocks the summit, use Natural Bridge + Emerald Lake instead.'
     });
 
     const johnston = SPOT_INFO.johnston || (SPOT_INFO.johnston = {});
@@ -323,7 +263,7 @@
     Object.assign(parkride, {
       parking: 'Free parking at Lake Louise Park & Ride (1 Whitehorn Rd) is included with a valid Parks Canada shuttle reservation. No separate parking reservation is needed.',
       parkingRating: 'FREE with shuttle reservation',
-      todo: 'Book an 8:00–9:00 AM Sep 27 shuttle window with Moraine Lake FIRST. Check in during that one-hour window; carry screenshots because service is limited.'
+      todo: 'Use the BOOKED Sep 26 8:00–9:00 AM window. Check in at Park & Ride, go to Lake Louise FIRST, then use the Lake Connector to Moraine; carry screenshots because service is limited.'
     });
 
     const canyon = SPOT_INFO.malignecanyon || (SPOT_INFO.malignecanyon = {});
@@ -352,23 +292,23 @@
     for (let i = CATALOG.length - 1; i >= 0; i--) if (isHardClosed2026(CATALOG[i])) CATALOG.splice(i, 1);
 
     ensureTask('shuttle-alarm', {
-      title: 'BOOK Moraine + Lake Louise shuttle — REQUIRED', due: '2026-09-25T08:00:00-06:00',
-      detail: 'At 8:00 AM Mountain / 10:00 AM Toronto on Sep 25, book the Sep 27 Parks Canada shuttle. Target the 8:00–9:00 AM window and choose Moraine Lake FIRST. Reservation includes both lakes, connector, return trip and free Park & Ride parking. Model 30–60 min waits.',
+      title: 'Lake Louise + Moraine shuttle — BOOKED', due: '2026-09-26T08:00:00-06:00',
+      detail: 'Sep 26 • 8:00–9:00 AM • 3 adults • paid. Check in at Park & Ride, go to Lake Louise FIRST, then use the Lake Connector to Moraine.',
       link: 'https://reservation.pc.gc.ca/', bookId: 'shuttle'
     });
     ensureTask('gondola-weather-book', {
-      title: 'Weather-check + book Banff Gondola if clear', due: '2026-09-24T20:00:00-04:00',
-      detail: 'Check the Sep 26 summit forecast/webcam 24–48h before. If visibility looks good, pre-purchase the Gondola ticket. No parking reservation exists; Sulphur Mountain parking is paid/limited, while the Downtown Banff/Roam shuttle is included for pre-booked guests.',
+      title: 'Sep 29 weather choice — book Gondola only if clear', due: '2026-09-28T20:00:00-06:00',
+      detail: 'The Gondola moved off Sep 26. Check Sep 29 summit visibility; clear = Gondola, cloud/fog = Natural Bridge + Emerald Lake. Buy only after making that call.',
       link: 'https://www.banffjaspercollection.com/attractions/banff-gondola/', bookId: 'gondola'
     });
     ensureTask('park-extension', {
-      title: 'Buy Sep 29 park-pass extension', due: '2026-09-29T09:00:00-06:00',
-      detail: 'Add one C$24.50 Family/Group daily pass because the existing Sep 28 pass expires at 4:00 PM Sep 29 and the southbound itinerary is expected to remain in Banff/Yoho after that time.',
-      link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes', bookId: 'parkExtension'
+      title: 'Sep 29 park-pass contingency only', due: '2026-09-29T12:00:00-06:00',
+      detail: 'The selected Sep 29 plan leaves Banff around 3:15 PM or Yoho around 2:30 PM. No extension is planned. Buy another day only if delays keep you inside the national parks after the printed pass expires.',
+      link: 'https://parks.canada.ca/pn-np/ab/banff/visit/passer-passes', bookId: 'park'
     });
     ensureTask('rental-early-return', {
-      title: 'Confirm 4:15 PM early rental return', due: '2026-09-20T18:00:00-04:00',
-      detail: 'Ascent voucher lists Sep 30 at 6:00 PM, but the WestJet flight is 7:10 PM. Confirm that returning around 4:15–4:30 PM at the YYC Economy Parking Lot is accepted and ask for the exact handoff procedure.',
+      title: 'Confirm 4:45 PM early rental return', due: '2026-09-26T01:30:00-06:00',
+      detail: 'Ascent voucher lists Sep 30 at 6:00 PM, but the selected plan targets 4:45 PM for the 7:10 PM WestJet flight. Confirm the early-return handoff procedure at pickup.',
       link: 'tel:+16044164600', bookId: 'rental'
     });
   }
