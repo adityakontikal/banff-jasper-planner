@@ -95,21 +95,17 @@ The new **Lock** tab turns the remaining choices into time-ordered MCQs:
 
 The tab also shows booking readiness, unresolved decisions, budget position, and a final-lock checklist.
 
-## Key schedule corrections in the verified preset
+## Final weather-aware schedule (locked Sep. 25, 2026)
 
-- **Sep 25 arrival night has no hotel by choice.** WestJet lands 12:44 AM Sep 26 and the Ascent rental pickup is 1:30 AM.
-- **Sep 26** now starts with the fixed **8:00–9:00 AM Parks Canada shuttle block: Park & Ride → Lake Louise first → Moraine Lake → Park & Ride**. The rest of the Sep 26 sightseeing order is intentionally not re-optimized yet.
-- Johnston Canyon is still modeled as **120 min** for Lower + Upper Falls; its final day/order will be decided in the next planning pass.
-- **Sep 27** no longer contains Lake Louise or Moraine Lake. Its remaining Cochrane → Icefields Parkway → Hinton stops are intentionally left as a starting point for the next re-plan.
-- Bow Lake, Peyto and the free Athabasca Glacier stop remain in the Sep 27 draft; Mistaya and Sunwapta remain NICE.
-- Athabasca Falls is moved to **Sep 29 MUST**, reducing the fiction that every Parkway highlight fits after the lake-shuttle morning.
-- Maligne Cruise gets a **150-minute protected block** (cruise + early arrival / operational buffer).
-- Valley of Five Lakes is **NICE** with ~110 minutes planned for the 5.4 km Emerald Loop.
-- Paid Icefield Adventure is **NICE**, unselected by default, and plans **165 minutes** when chosen.
-- Emerald Lake / Natural Bridge is promoted to **NICE** and competes with the other Sep 29 bonus options instead of being automatically crammed in.
-- Calgary sightseeing on Sep 30 is **CUT** until the return flight is actually booked.
+- **Sep 26:** 5:45 AM YYC departure → 8–9 AM booked Park & Ride window → Lake Louise → Moraine Lake → Johnston Canyon → Bow Falls / Surprise Corner / Banff dinner → Cochrane. **Minnewanka, Two Jack and Gondola are removed from this day.**
+- **Sep 27:** 6:00 AM Cochrane → Two Jack → Minnewanka → Bow Lake → Peyto → Mistaya optional → Saskatchewan Crossing → free Athabasca Glacier stop → Sunwapta → Hinton. This is the protected scenery day; cut Mistaya first if late.
+- **Sep 28:** 7:00 AM Hinton → Pyramid → Jasper fuel → Medicine Lake → **Maligne Lake by about 10:45–11:00 AM → BOOKED 12:00 PM Classic Cruise** → Hinton.
+- **Sep 29:** 6:30 AM Hinton → Jasper fuel → Athabasca Falls → Stutfield → Waterfowl → **ONE bonus only**: Banff Gondola if summit visibility is good, otherwise Natural Bridge + Emerald Lake → Calgary Airport hotel.
+- **Sep 30:** Calgary-only flexible morning/afternoon → **4:45 PM rental return target** → 7:10 PM WestJet.
 
-See [VERIFICATION.md](VERIFICATION.md) for official 2026 sources, exact published durations/access rules, and which numbers are planner estimates rather than official timings.
+Weather snapshot used for this route pass: Sep 26 is the weaker Banff/Louise weather day, while Sep 27 is the scenery-priority day; later non-booked choices remain weather-gated. Recheck conditions the morning of each flexible stop.
+
+See [FINAL-ITINERARY.md](FINAL-ITINERARY.md) for the hour-by-hour field plan and [VERIFICATION.md](VERIFICATION.md) for official 2026 access/source notes.
 
 
 ## Mobile quick mode
