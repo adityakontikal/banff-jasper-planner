@@ -36,8 +36,8 @@
     if (d.maligne === 'book') out.push('Maligne cruise');
     if (d.lakeLouise === 'shoreline') out.push('Louise lakeshore');
     if (d.icefield === 'nice-no-pass' || d.icefield === 'skip') out.push('Icefield free view');
-    if (d.gondola === 'weather') out.push('Gondola weather-call');
-    if (d.sep29bonus === 'pending') out.push('Sep 29 bonus pending');
+    if (d.sep29bonus === 'pending') out.push('Sep 29 Gondola/Yoho weather-call');
+    
     return out;
   }
 
@@ -49,10 +49,10 @@
     }
     const d = S.decisions || {};
     if (d.shuttle === 'pending') {
-      return '<div class="mobile-next-card"><div><small>NEXT DECISION</small><b>Moraine / Lake Louise shuttle</b><span>Book the Sep 27 transport window.</span></div><button class="btn primary" onclick="setView(\'lockview\')">Lock</button></div>';
+      return '<div class="mobile-next-card"><div><small>NEXT DECISION</small><b>Moraine / Lake Louise shuttle</b><span>Use the booked Sep 26 8:00–9:00 AM window.</span></div><button class="btn primary" onclick="setView(\'lockview\')">Lock</button></div>';
     }
     if (d.sep29bonus === 'pending') {
-      return '<div class="mobile-next-card"><div><small>LATER DECISION</small><b>Choose Sep 29 bonus</b><span>Valley hike, Icefield Adventure, Yoho, or just core route.</span></div><button class="btn primary" onclick="setView(\'lockview\')">Choose</button></div>';
+      return '<div class="mobile-next-card"><div><small>LATER DECISION</small><b>Choose Sep 29 bonus</b><span>Clear summit: Gondola. Poor visibility: Natural Bridge + Emerald Lake. Or continue to Calgary.</span></div><button class="btn primary" onclick="setView(\'lockview\')">Choose</button></div>';
     }
     return '<div class="mobile-next-card done"><div><small>PLAN STATUS</small><b>Core plan is locked</b><span>Use the checklist and weather calls closer to departure.</span></div><button class="btn" onclick="setView(\'lockview\')">Review</button></div>';
   }
