@@ -518,7 +518,7 @@
     { cat: 'road', id: 'road_check', title: 'Check 511 + Banff/Jasper/Yoho bulletins immediately before each long drive', detail: 'Conditions can change by hour; late-September rain can become snow.' },
     { cat: 'road', id: 'jasper93a_check', title: 'Do not assume Highway 93A is a through-route in late September', detail: 'Parks Canada anticipates mid-Sep to mid-Nov 2026 roadwork with 93A accessible from the south entrance only / no through travel. Check 511 before relying on 93A.' },
     { cat: 'road', id: 'fuelplan', title: 'Start Parkway days with a full tank', detail: 'Services are sparse and there is one gas station along the 232 km Parkway.' },
-    { cat: 'road', id: 'sep27_fuel', title: 'Sep 27: full tank before Lake Louise / Icefields Parkway', detail: 'Do not depend on cellular service to find fuel.' },
+    { cat: 'road', id: 'sep27_fuel', title: 'Sep 27: full tank before Minnewanka / Icefields Parkway', detail: 'Do not depend on cellular service to find fuel.' },
     { cat: 'road', id: 'sep29_fuel', title: 'Sep 29: fill in Hinton/Jasper before southbound Parkway', detail: 'Treat Jasper as the operational fuel reset.' },
     { cat: 'road', id: 'wildlife_drive', title: 'Review wildlife driving rule: never stop in a live lane', detail: 'Expect wildlife traffic on Maligne Road / Parkway; use legal pullouts only.' },
 
@@ -542,7 +542,7 @@
     { cat: 'final', id: 'banff_bulletins_24h', title: '24h before Banff: recheck Banff bulletins + trail conditions', detail: 'Especially Bow Valley Parkway access and the current Lake Minnewanka bear warning.', due: 'Sep 25' },
     { cat: 'final', id: 'jasper_bulletins_24h', title: 'Before Jasper/Parkway: recheck Jasper open/closed + trail conditions', detail: 'Current data is a Sep 1 snapshot; closures/wildlife warnings may change.', due: 'Sep 27–29' },
     { cat: 'final', id: 'gondola_visibility', title: 'Check Banff Gondola summit weather / visibility for Sep 29', detail: 'Clear summit → Gondola; cloud/fog → Natural Bridge + Emerald Lake. Do not buy the Gondola for Sep 26.', due: 'Sep 28 evening / Sep 29 morning' },
-    { cat: 'final', id: 'maligne_departure_confirmed', title: 'Confirm exact Maligne departure + arrival buffer', detail: 'Operator recommends pre-purchase and at least 30 min early; planner route must match the exact sailing.', due: 'After booking' },
+    { cat: 'final', id: 'maligne_departure_confirmed', title: 'Maligne 12:00 PM departure + arrival buffer confirmed', detail: 'Booked Classic sailing: target Maligne Lake around 10:45–11:00 AM and be at the dock by 11:45 AM.', due: 'Sep 28' },
     { cat: 'final', id: 'layers_ready', title: 'Put warm layers / rain shell in the car cabin', detail: 'Not buried in luggage.' },
     { cat: 'final', id: 'snacks_ready', title: 'Load water + snacks into car', detail: 'Especially Sep 27 and Sep 29 Parkway days.' },
     { cat: 'final', id: 'departure_walkaround', title: 'Rental pickup/return photo walkaround', detail: 'Photograph existing condition at pickup and final condition/fuel at return.' },
@@ -689,7 +689,7 @@
       globalTask('tickets_saved'),
       task('place:maligne:arrive', 'Arrive at Maligne Lake around 10:45–11:00 AM and be at the dock by 11:45 AM for the 12:00 PM sailing'),
       task('place:maligne:bearspray', 'Leave bear spray safely secured before boarding — operator does not permit it on the cruise'),
-      task('place:maligne:classicpremium', 'Confirm booked product: Classic 1.5h or Premium 2h', 'Premium is adults-only 16+ and adds Pincushion Bay + 30 min near Spirit Island.')
+      task('place:maligne:classicpremium', 'Booked product: Classic 1.5h at 12:00 PM', 'Paid booking is fixed; Premium is not an active itinerary decision.')
     ],
     annette: [globalTask('pass'), task('place:annette:onlyif', 'Only activate Annette/Edith if the Maligne day is clearly ahead')],
     valley5: [globalTask('pass'), globalTask('bear_spray'), globalTask('shoes'), task('place:valley5:trailcheck', 'Recheck Valley of Five Lakes trail/wildlife status'), task('place:valley5:choice', 'Confirm Valley is the single Sep 29 big bonus before starting')],
