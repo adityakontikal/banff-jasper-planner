@@ -494,8 +494,8 @@
     { cat: 'bookings', id: 'auto_h29', title: 'Sep 29 Holiday Inn Calgary-Airport paid / locked', detail: 'Final trip-night hotel.', auto: function () { return bookingDone('h29'); } },
     { cat: 'bookings', id: 'auto_park', title: 'Parks Canada 3-day Family/Group pass paid', detail: 'C$73.50 paid; printing/display is a separate task.', auto: function () { return bookingDone('park'); } },
     { cat: 'bookings', id: 'shuttle_booked', title: 'Sep 26 Lake Louise + Moraine shuttle paid / locked', detail: '8:00–9:00 AM Park & Ride check-in • 3 adults • Lake Louise first, then Lake Connector to Moraine.', auto: function () { return bookingDone('shuttle'); }, link: 'https://reservation.pc.gc.ca/' },
-    { cat: 'bookings', id: 'maligne_ticket', title: 'Book Maligne Lake cruise for Sep 28', detail: 'Choose Classic vs Premium and lock an exact departure time; save the confirmation offline.', due: 'Before availability tightens', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/tickets/' },
-    { cat: 'bookings', id: 'gondola_ticket', title: 'Buy Banff Gondola only after visibility check', detail: 'Strong YES if visibility is good. Tickets are nonrefundable, so make the weather call 24–48h before.', due: 'Sep 24–25', link: 'https://www.banffjaspercollection.com/attractions/banff-gondola/' },
+    { cat: 'bookings', id: 'maligne_ticket', title: 'Maligne Lake Classic Cruise booked — save confirmation offline', detail: 'Sep 28 • 12:00 PM • Classic 1.5h • 3 adults • paid. Keep the confirmation available offline.', due: 'Before departure', link: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/tickets/' },
+    { cat: 'bookings', id: 'gondola_ticket', title: 'Buy Banff Gondola only if Sep 29 visibility is good', detail: 'This is Sep 29 Option A, not a Sep 26 stop. If summit visibility is poor, use Natural Bridge + Emerald Lake instead.', due: 'Sep 28–29', link: 'https://www.banffjaspercollection.com/attractions/banff-gondola/' },
 
     { cat: 'documents', id: 'pass', title: 'PRINT the official Parks Canada receipt and DISPLAY it in the vehicle', detail: 'Receipt instruction: place it on the left-hand side of the vehicle dashboard with the date visible while travelling in the park. Do not rely only on a phone copy.', due: 'Before entering Banff' },
     { cat: 'documents', id: 'park_dates_verified', title: 'Verify the printed pass dates cover all planned park time', detail: 'Daily passes are valid until 4 PM the following day. Confirm whether any Sep 29 park travel after 4 PM needs another day.', due: 'Before Sep 26' },
@@ -541,7 +541,7 @@
     { cat: 'final', id: 'rerun_official_audit', title: 'Re-run this complete official-info analysis', detail: 'Recheck every Parks Canada bulletin/closure, Jasper open/closed status, 511, Maligne hours, Gondola hours/visibility, shuttle details and Yoho access. Update the planner if anything changed.', due: 'Sep 23–24' },
     { cat: 'final', id: 'banff_bulletins_24h', title: '24h before Banff: recheck Banff bulletins + trail conditions', detail: 'Especially Bow Valley Parkway access and the current Lake Minnewanka bear warning.', due: 'Sep 25' },
     { cat: 'final', id: 'jasper_bulletins_24h', title: 'Before Jasper/Parkway: recheck Jasper open/closed + trail conditions', detail: 'Current data is a Sep 1 snapshot; closures/wildlife warnings may change.', due: 'Sep 27–29' },
-    { cat: 'final', id: 'gondola_visibility', title: 'Check Banff Gondola summit weather / visibility before buying', detail: 'MUST if visibility is good; skip for cloud/fog because tickets are nonrefundable.', due: '24–48h before Sep 26' },
+    { cat: 'final', id: 'gondola_visibility', title: 'Check Banff Gondola summit weather / visibility for Sep 29', detail: 'Clear summit → Gondola; cloud/fog → Natural Bridge + Emerald Lake. Do not buy the Gondola for Sep 26.', due: 'Sep 28 evening / Sep 29 morning' },
     { cat: 'final', id: 'maligne_departure_confirmed', title: 'Confirm exact Maligne departure + arrival buffer', detail: 'Operator recommends pre-purchase and at least 30 min early; planner route must match the exact sailing.', due: 'After booking' },
     { cat: 'final', id: 'layers_ready', title: 'Put warm layers / rain shell in the car cabin', detail: 'Not buried in luggage.' },
     { cat: 'final', id: 'snacks_ready', title: 'Load water + snacks into car', detail: 'Especially Sep 27 and Sep 29 Parkway days.' },
@@ -608,7 +608,7 @@
     minnewanka: [
       globalTask('pass'),
       globalTask('bear_spray'),
-      task('place:minnewanka:bear_recheck', 'Recheck Lake Minnewanka bear warning / trail conditions that morning', 'Sep 1 snapshot has an active bear warning.'),
+      task('place:minnewanka:bear_recheck', 'Recheck Lake Minnewanka bear warning / trail conditions that morning', 'Sep 1 snapshot has an active bear warning; recheck before the Sep 27 visit.'),
       task('place:minnewanka:road_recheck', 'Recheck Minnewanka Loop road construction / traffic notice')
     ],
     twojack: [globalTask('pass'), task('place:twojack:parking', 'Use legal designated parking only; skip if full')],
@@ -687,7 +687,7 @@
       globalTask('maligne_ticket'),
       globalTask('maligne_departure_confirmed'),
       globalTask('tickets_saved'),
-      task('place:maligne:arrive', 'Arrive onsite at least 30 min before sailing and be at the dock at least 15 min before departure'),
+      task('place:maligne:arrive', 'Arrive at Maligne Lake around 10:45–11:00 AM and be at the dock by 11:45 AM for the 12:00 PM sailing'),
       task('place:maligne:bearspray', 'Leave bear spray safely secured before boarding — operator does not permit it on the cruise'),
       task('place:maligne:classicpremium', 'Confirm booked product: Classic 1.5h or Premium 2h', 'Premium is adults-only 16+ and adds Pincushion Bay + 30 min near Spirit Island.')
     ],
