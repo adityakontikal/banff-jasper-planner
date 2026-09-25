@@ -394,14 +394,14 @@
     },
     sunwapta: {
       time: '20–30 min planning dwell',
-      desc: 'Strong waterfall but NICE northbound because the lake-shuttle block can consume much of Sep 27. Keep it if daylight is healthy.',
+      desc: 'Strong waterfall and a NICE northbound stop. Keep it if the Sep 27 scenery day is running on time; Mistaya is the first cut if late.',
       todo: 'Use the paved main-falls route for a quick look; do not add Lower Sunwapta hike on this schedule.',
       reviews: 'Current 2026 Jasper trail report lists the main Sunwapta Falls route open/good; treat the 25 min dwell as a planning estimate, not an official duration.',
       official: 'https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/etat-sentiers-trail-conditions'
     },
     athfalls: {
       time: '30–40 min planning dwell',
-      desc: 'Protected first-timer MUST, moved to Sep 29 so Sep 27 does not pretend every major waterfall fits after a long shuttle morning.',
+      desc: 'Protected Sep 29 MUST, intentionally left off Sep 27 so the long scenery day stays practical.',
       todo: 'Walk the paved viewpoints around the gorge and falls. Stay behind railings and use designated paths.',
       reviews: 'Current 2026 Jasper trail report lists Athabasca Falls open/good with a paved trail; 35 min is the preset planning dwell.',
       official: 'https://parks.canada.ca/pn-np/ab/jasper/activ/experience/sentiers-trails/etat-sentiers-trail-conditions'
@@ -421,10 +421,10 @@
       official: 'https://www.parks.canada.ca/pn-np/ab/jasper/activ/itineraires-itineraries/medicine'
     },
     maligne: {
-      time: '150 min protected trip block',
-      timingOptions: [{ label: 'Shoreline only — if cruise cancelled', min: 60 }, { label: 'Classic Cruise + arrival/check-in buffer', min: 150 }, { label: 'Premium Cruise + arrival/check-in buffer', min: 150 }],
-      desc: 'Your protected paid cruise anchor. Spirit Island is 14 km up-lake with no road or trail access, which makes the cruise meaningfully different from simply stopping at another viewpoint. Banff Gondola is tracked separately as a weather-gated MUST.',
-      todo: 'Choose Classic vs Premium when booking the exact Sep 28 sailing. Arrive onsite at least 30 min early and be at the dock at least 15 min before departure. Keep fuel/snacks handled in Jasper before Maligne Road.',
+      time: '195 min selected trip block',
+      timingOptions: [{ label: 'BOOKED Classic Cruise + early arrival / post-cruise buffer', min: 195 }, { label: 'Shoreline only — only if booking is intentionally changed', min: 60 }],
+      desc: 'Your protected paid anchor is the booked Sep 28 12:00 PM Classic Cruise. Spirit Island is 14 km up-lake with no road or trail access. Banff Gondola is a separate Sep 29 weather option.',
+      todo: 'Arrive at Maligne Lake around 10:45–11:00 AM and be at the dock by 11:45 AM for the booked 12:00 PM Classic sailing. Handle fuel and breakfast in Jasper before Maligne Road.',
       cut: 'If the cruise is booked, cut Patricia and Annette/Edith before risking the reservation.',
       reviews: 'Verified Sep 1, 2026: Classic ~1.5h with 15 min near Spirit Island; Premium 2h, adults 16+, adds Pincushion Bay and 30 min near Spirit Island. Sep 7–Oct 3 window is 9 AM–5:30 PM.',
       official: 'https://www.banffjaspercollection.com/attractions/maligne-lake-cruise/location-hours/'
@@ -749,7 +749,7 @@
       '<div class="lock-metrics"><div><small>Core bookings</small><b>' + booked + '/' + coreBookings.length + '</b></div><div><small>Decisions resolved</small><b>' + answered + '/' + DECISION_FLOW.length + '</b></div><div class="' + budgetClass + '"><small>Selected estimate</small><b>' + money(totalNow) + '</b><span>Comfort target C$3k–3.5k</span></div></div></div>' +
       '<div class="lock-grid"><div class="glass panel"><div class="ph"><div><div class="ey">Timeline decision tree</div><h2>Answer these as the trip gets locked</h2></div></div><div class="lock-timeline">' + cards + '</div></div>' +
       '<div><div class="glass panel"><div class="ph"><div><div class="ey">Final lock</div><h2>What must be true before departure</h2></div></div><div class="final-lock-list">' + hardHtml + '</div></div>' +
-      '<div class="glass panel"><div class="ph"><div><div class="ey">Budget rule</div><h2>Keep paid extras intentional</h2></div></div><div class="note"><b>Hotels:</b> all nights are resolved and locked. Do not revive alternate-hotel comparisons in presets or saved-state recovery.</div><div class="note" style="margin-top:8px"><b>Paid attractions:</b> Maligne is protected. Gondola is a weather-gated MUST; Icefield Adventure remains NICE/conditional. Pursuit stays off by default.</div><div class="note warn" style="margin-top:8px"><b>Sep 29:</b> Valley Five Lakes, Icefield Adventure and Yoho are alternatives. Pick one big bonus; Athabasca Falls remains core.</div></div></div></div>';
+      '<div class="glass panel"><div class="ph"><div><div class="ey">Budget rule</div><h2>Keep paid extras intentional</h2></div></div><div class="note"><b>Hotels:</b> all nights are resolved and locked. Do not revive alternate-hotel comparisons in presets or saved-state recovery.</div><div class="note" style="margin-top:8px"><b>Paid attractions:</b> Maligne Classic is booked and protected. Gondola is only the Sep 29 clear-weather option; Icefield Adventure stays off by default.</div><div class="note warn" style="margin-top:8px"><b>Sep 29:</b> clear summit → Gondola; poor summit visibility → Natural Bridge + Emerald Lake. Do not stack both.</div></div></div></div>';
   }
 
   function injectUi() {
@@ -767,7 +767,7 @@
     if (settings && !document.getElementById('presetPanel')) {
       settings.insertAdjacentHTML('afterbegin',
         '<div class="glass panel" id="presetPanel"><div class="ph"><div><div class="ey">Presets / recovery</div><h2>Reset the route without losing booking progress</h2><p>The verified preset is the plan agreed in chat. Core-only strips paid attractions. Pursuit-aware is only for a later bundle decision.</p></div></div>' +
-        '<div class="preset-cards"><button class="preset-card primary" onclick="applyVerifiedPlannerPreset(\'verified\')"><b>Verified budget-first</b><small>Maligne protected • Gondola weather-gated MUST • Icefield NICE</small></button>' +
+        '<div class="preset-cards"><button class="preset-card primary" onclick="applyVerifiedPlannerPreset(\'verified\')"><b>Verified budget-first</b><small>Maligne booked • Sep 29 Gondola/Yoho weather choice • Icefield off</small></button>' +
         '<button class="preset-card" onclick="applyVerifiedPlannerPreset(\'core\')"><b>Core scenery only</b><small>No paid attractions • cheapest recovery mode</small></button>' +
         '<button class="preset-card" onclick="applyVerifiedPlannerPreset(\'pursuit\')"><b>Pursuit-aware</b><small>Only use if you later buy the pass; expect harder day loads</small></button></div></div>');
     }
