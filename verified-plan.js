@@ -7,93 +7,93 @@
   const VERIFIED_DAYS = [
     {
       date: 'Sep 25', label: 'Toronto → Calgary → Rental pickup • no hotel', start: '00:44', drive: 'Arrival logistics', sleep: 'No hotel — overnight transition',
-      note: 'LOCKED: WestJet arrives YYC at 12:44 AM Sep 26 and Ascent pickup is 1:30 AM. No Sep 25 hotel by choice. Current south→north→south route remains unchanged.',
+      note: 'LOCKED: WestJet arrives YYC at 12:44 AM Sep 26 and Ascent pickup is 1:30 AM. Rest near YYC after pickup; protect the 5:45 AM departure.',
       hotel: null,
       stops: [
         { id: 'yyc25', name: 'YYC arrival 12:44 AM → Ascent rental pickup 1:30 AM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 15, notBefore: '01:30' }
       ]
     },
     {
-      date: 'Sep 26', label: 'YYC → Lake Louise / Moraine → Banff Highlights → Cochrane', start: '05:45', drive: 'Shuttle booking fixed • rest of day to re-plan', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
-      note: 'LOCKED FIRST: Parks Canada shuttle is booked for 8:00–9:00 AM. Check in at Lake Louise Park & Ride, travel to Lake Louise first, then use the Lake Connector to Moraine Lake and return to Park & Ride. Other Sep 26 stops are intentionally left in their prior order until the day is re-planned around this fixed block.',
+      date: 'Sep 26', label: 'YYC → Lake Louise / Moraine → Johnston → Banff → Cochrane', start: '05:45', drive: 'Booked shuttle + weather-safe canyon day', sleep: 'Super 8 by Wyndham Cochrane (BOOKED)',
+      note: 'FINAL ROUTE (weather-aware Sep 25 snapshot): Banff/Louise forecast is cloudy/cool, so keep the booked lake shuttle first, then Johnston Canyon and short Banff-town viewpoints. Minnewanka, Two Jack and Gondola are intentionally moved off this crowded day.',
       hotel: { name: 'Super 8 by Wyndham Cochrane', lat: 51.189327, lng: -114.488785 },
       stops: [
         { id: 'cochrane26_dep', name: 'YYC / Ascent rental — Depart 05:45', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 0 },
-        { id: 'parkride', name: 'Lake Louise Park & Ride — 8–9 AM booked check-in', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30 },
-        { id: 'louise', name: 'Lake Louise Lakeshore — FIRST destination (includes connector wait)', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 90 },
-        { id: 'moraine', name: 'Moraine Lake + Rockpile (includes return-shuttle wait)', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 105 },
-        { id: 'parkride_return', name: 'Park & Ride — Back to Car / Gear Reset', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 10 },
-        { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 40 },
-        { id: 'twojack', name: 'Two Jack Lake', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
-        { id: 'banff', name: 'Banff Town (Fast Lunch + Short Walk)', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 45 },
-        { id: 'bowfalls', name: 'Bow Falls', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 15 },
-        { id: 'surprise', name: 'Surprise Corner Viewpoint', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 10 },
-        { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' },
-        { id: 'castlejunction26_in', name: 'Castle Junction — Johnston legal-access waypoint', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: '2026 ROUTE: use Castle Junction to reach Johnston Canyon by personal vehicle during the Sep 1–Oct 6 east Bow Valley Parkway restriction.' },
-        { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120, note: '2026 ACCESS: personal vehicles must reach Johnston Canyon via Castle Junction. East Bow Valley Parkway vehicle access is restricted Sep 1–Oct 6. Recheck Parks Canada bulletin before Sep 26.' },
-        { id: 'castlejunction26_out', name: 'Castle Junction — return to Hwy 1', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: 'Return via Castle Junction; do not continue east on the restricted Bow Valley Parkway.' },
+        { id: 'parkride', name: 'Lake Louise Park & Ride — 8–9 AM booked check-in', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 30, notBefore: '08:00' },
+        { id: 'louise', name: 'Lake Louise Lakeshore — FIRST destination', lat: 51.4167, lng: -116.2120, priority: 'must', stayMin: 105 },
+        { id: 'moraine', name: 'Moraine Lake + Rockpile', lat: 51.3217, lng: -116.1860, priority: 'must', stayMin: 105 },
+        { id: 'parkride_return', name: 'Park & Ride — Back to Car / Gear Reset', lat: 51.4403, lng: -116.1626, priority: 'must', stayMin: 20 },
+        { id: 'castlejunction26_in', name: 'Castle Junction — Johnston legal-access waypoint', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0, note: '2026 ROUTE: use Castle Junction to reach Johnston Canyon during the Sep 1–Oct 6 east Bow Valley Parkway restriction.' },
+        { id: 'johnston', name: 'Johnston Canyon — Lower + Upper Falls', lat: 51.2450, lng: -115.8400, priority: 'must', stayMin: 120, note: 'Target about 2:15–4:15 PM. If the shuttle block runs very late, downgrade to Lower Falls before cutting the stop.' },
+        { id: 'castlejunction26_out', name: 'Castle Junction — return to Hwy 1', lat: 51.26876, lng: -115.91833, priority: 'must', stayMin: 0 },
+        { id: 'bowfalls', name: 'Bow Falls — quick stop', lat: 51.1683, lng: -115.5608, priority: 'nice', stayMin: 20 },
+        { id: 'surprise', name: 'Surprise Corner Viewpoint — quick stop', lat: 51.1663, lng: -115.5560, priority: 'nice', stayMin: 15 },
+        { id: 'banff', name: 'Banff Town — dinner + short walk', lat: 51.1784, lng: -115.5708, priority: 'nice', stayMin: 45 },
         { id: 'cochrane26_ret', name: 'Super 8 by Wyndham Cochrane (Booked • Check-in)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 27', label: 'Cochrane → Icefields Parkway → Hinton', start: '06:00', drive: 'Route to re-plan after Sep 26 lake move', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
-      note: 'Lake Louise and Moraine Lake are now locked on Sep 26 and removed from this day. The remaining Sep 27 stops are intentionally not re-optimized yet; use this as the starting point for the next planning pass.',
+      date: 'Sep 27', label: 'Cochrane → Minnewanka / Two Jack → Icefields Parkway → Hinton', start: '06:00', drive: 'Long scenic day • best-weather priority', sleep: 'Hinton Lodge (Night 1 of 2 • BOOKED)',
+      note: 'FINAL ROUTE: protect this day for scenery because the Sep 25 Environment Canada snapshot makes Sep 27 the clearest Banff/Jasper day. Two Jack and Minnewanka move here from Sep 26. Mistaya is the first cut if late.',
       hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
         { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart 06:00)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'bowlake', name: 'Bow Lake & Crowfoot Glacier', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 20 },
-        { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 40 },
-        { id: 'mistaya', name: 'Mistaya Canyon', lat: 51.9460, lng: -116.7200, priority: 'nice', stayMin: 30 },
-        { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Rest / Snack)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 15 },
+        { id: 'twojack', name: 'Two Jack Lake — sunrise-area stop', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 20 },
+        { id: 'minnewanka', name: 'Lake Minnewanka', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 35 },
+        { id: 'bowlake', name: 'Bow Lake & Crowfoot Glacier', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 25 },
+        { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 50 },
+        { id: 'mistaya', name: 'Mistaya Canyon — FIRST CUT IF LATE', lat: 51.9460, lng: -116.7200, priority: 'nice', stayMin: 25 },
+        { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Rest / Snack)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 30 },
         { id: 'icefield', name: 'Columbia Icefield — Free Athabasca Glacier Stop', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 45 },
-        { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'nice', stayMin: 25 },
+        { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'nice', stayMin: 30 },
         { id: 'hinton27', name: 'Hinton Lodge (Booked • Check-in)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 28', label: 'Hinton → Jasper / Maligne Valley → Hinton', start: '07:00', drive: '~270 km', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
-      note: 'Maligne Lake Cruise is the premium anchor. Pyramid is the worthwhile lake/photo stop; Patricia is cut-first. Jasper is fuel/fast food only. Medicine Lake is on-route. Annette/Edith stay cut unless the cruise day is running early.',
+      date: 'Sep 28', label: 'Hinton → Pyramid → Medicine → Maligne Cruise → Hinton', start: '07:00', drive: 'Booked 12:00 PM cruise day', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
+      note: 'LOCKED: Maligne Classic Cruise is booked for 12:00 PM. Pursuit asks guests to arrive around one hour early; target Maligne Lake by about 10:45–11:00 AM. Keep the morning simple and protect the sailing.',
       hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
         { id: 'hinton28a', name: 'Hinton Lodge (Depart 07:00)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'pyramid', name: 'Pyramid Lake & Pyramid Island', lat: 52.9210, lng: -118.1040, priority: 'must', stayMin: 40 },
-        { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 15 },
-        { id: 'jasper', name: 'Jasper Town (Fuel + Fast Food / Grab-and-Go)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 35 },
+        { id: 'jasper', name: 'Jasper Town — fuel / breakfast', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 20 },
         { id: 'medicine', name: 'Medicine Lake Viewpoint', lat: 52.8640, lng: -117.8000, priority: 'must', stayMin: 20 },
-        { id: 'maligne', name: 'Maligne Lake + Spirit Island Cruise (Classic/Premium TBD)', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 150 },
+        { id: 'maligne', name: 'Maligne Lake — 12:00 PM Classic Cruise (BOOKED)', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 195, notBefore: '10:45', note: 'Arrive about 10:45–11:00; boarding dock at least 15 min before sailing. Cruise is 1.5h; keep post-cruise buffer.' },
+        { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 15 },
         { id: 'annette', name: 'Lake Annette & Lake Edith', lat: 52.8840, lng: -118.0450, priority: 'cut', stayMin: 25 },
         { id: 'hinton28b', name: 'Hinton Lodge (Return & Sleep)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 29', label: 'Hinton → Jasper / Parkway South → Yoho Option → Calgary Airport Hotel', start: '06:30', drive: '~540 km', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
-      note: 'Second-chance + choice day. The southbound Parkway plan stays intact; after the final scenic/Yoho choice, continue to the booked Holiday Inn Calgary-Airport. This adds some driving tonight but removes the Cochrane→Calgary transfer on flight day.',
+      date: 'Sep 29', label: 'Hinton → Athabasca Falls → Parkway South → weather bonus → Calgary', start: '06:30', drive: 'Southbound + ONE weather-based bonus', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
+      note: 'FINAL ROUTE: Athabasca Falls is protected. After Waterfowl, choose ONE bonus only: Banff Gondola if summit visibility is good, otherwise Natural Bridge + Emerald Lake. Valley of Five Lakes and paid Icefield Adventure stay off unless the day is unexpectedly far ahead.',
       hotel: { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 },
       stops: [
         { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'jasper29', name: 'Jasper (Southbound Fuel + Snacks)', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 25 },
-        { id: 'valley5', name: 'Valley of the Five Lakes — Emerald Loop Option', lat: 52.8450, lng: -118.0550, priority: 'nice', stayMin: 110, choiceGroup: 'sep29bonus' },
-        { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 35 },
-        { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 10 },
-        { id: 'icefield29', name: 'Columbia Icefield — Second Chance / Adventure Option', lat: 52.2203, lng: -117.2249, priority: 'nice', stayMin: 45, choiceGroup: 'sep29bonus' },
-        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 10 },
-        { id: 'bowlake29', name: 'Bow Lake (Repeat only if Sep 27 weather was poor)', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
-        { id: 'naturalbridge', name: 'Natural Bridge — Kicking Horse River (Yoho Option)', lat: 51.381632, lng: -116.530455, priority: 'nice', stayMin: 20, choiceGroup: 'sep29bonus' },
-        { id: 'emerald', name: 'Emerald Lake (Yoho Option)', lat: 51.44321, lng: -116.53153, priority: 'nice', stayMin: 60, choiceGroup: 'sep29bonus' },
+        { id: 'jasper29', name: 'Jasper — southbound fuel + snacks', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 20 },
+        { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 40 },
+        { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15 },
+        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15 },
+        { id: 'gondola', name: 'Banff Gondola — choose if summit visibility is good', lat: 51.14821, lng: -115.55614, priority: 'nice', stayMin: 135, choiceGroup: 'sep29bonus', note: 'Weather choice: use this instead of Yoho when summit visibility is good.' },
+        { id: 'naturalbridge', name: 'Natural Bridge — cloudy-weather alternative', lat: 51.381632, lng: -116.530455, priority: 'nice', stayMin: 25, choiceGroup: 'sep29bonus' },
+        { id: 'emerald', name: 'Emerald Lake — cloudy-weather alternative', lat: 51.44321, lng: -116.53153, priority: 'nice', stayMin: 60, choiceGroup: 'sep29bonus' },
+        { id: 'valley5', name: 'Valley of the Five Lakes — only if far ahead', lat: 52.8450, lng: -118.0550, priority: 'cut', stayMin: 110 },
+        { id: 'icefield29', name: 'Columbia Icefield Adventure — only if deliberately substituted', lat: 52.2203, lng: -117.2249, priority: 'cut', stayMin: 165 },
+        { id: 'bowlake29', name: 'Bow Lake repeat only if Sep 27 visibility was poor', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
         { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 30', label: 'Calgary Airport Hotel → Calgary Optional → YYC → Toronto', start: '10:00', drive: '~30 km', sleep: 'Home',
-      note: 'Wake up already in Calgary at the booked Holiday Inn Calgary-Airport. Calgary sightseeing remains optional. Keep the 4:45 PM Ascent rental-return target for the booked 7:10 PM WestJet flight.',
+      date: 'Sep 30', label: 'Calgary Airport Hotel → Calgary → YYC → Toronto', start: '10:00', drive: 'Easy final day', sleep: 'Home',
+      note: 'Calgary is flexible. Protect the 4:45 PM rental-return target for the booked 7:10 PM WestJet flight; do not add a Rockies detour.',
       hotel: null,
       stops: [
         { id: 'cochrane30', name: 'Holiday Inn Calgary-Airport by IHG (Depart 10:00)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island (Only if flight timing leaves room)', lat: 51.0550, lng: -114.0700, priority: 'cut', stayMin: 90 },
+        { id: 'canmore', name: 'Calgary Downtown / Prince\'s Island — flexible', lat: 51.0550, lng: -114.0700, priority: 'nice', stayMin: 150 },
         { id: 'yyc30', name: 'YYC — Rental Return 4:45 PM + WestJet 7:10 PM', lat: 51.1315, lng: -114.0106, priority: 'must', stayMin: 145, notBefore: '16:45' }
       ]
     }
-  ];
+  ]
 
   const VERIFIED_DECISIONS = {
     lakeLouise: 'shoreline',
@@ -116,24 +116,7 @@
 
     const d26 = state.days.find(function (d) { return d.date === 'Sep 26'; });
     if (d26) {
-      let gondolaStop = d26.stops.find(function (s) { return s.id === 'gondola'; });
-      const gondolaData = {
-        id: 'gondola',
-        name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)',
-        lat: 51.14821,
-        lng: -115.55614,
-        priority: 'must',
-        stayMin: 120,
-        note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.'
-      };
-      if (!gondolaStop) {
-        gondolaStop = gondolaData;
-        const johnstonIndex = d26.stops.findIndex(function (s) { return s.id === 'johnston'; });
-        d26.stops.splice(johnstonIndex >= 0 ? johnstonIndex : Math.max(0, d26.stops.length - 1), 0, gondolaStop);
-      } else {
-        Object.assign(gondolaStop, gondolaData);
-      }
-
+      // Gondola intentionally moved off Sep 26; do not auto-reinsert it here.
       const castleDataIn = {
         id: 'castlejunction26_in',
         name: 'Castle Junction — Johnston legal-access waypoint',
@@ -172,6 +155,25 @@
 
     const d29 = state.days.find(function (d) { return d.date === 'Sep 29'; });
     if (d29) {
+      let gondola29 = d29.stops.find(function (s) { return s.id === 'gondola'; });
+      const gondola29Data = {
+        id: 'gondola',
+        name: 'Banff Gondola — choose if summit visibility is good',
+        lat: 51.14821,
+        lng: -115.55614,
+        priority: 'nice',
+        stayMin: 135,
+        choiceGroup: 'sep29bonus',
+        note: 'Weather choice: use this instead of Yoho when summit visibility is good.'
+      };
+      if (!gondola29) {
+        gondola29 = gondola29Data;
+        const bridgeIdx = d29.stops.findIndex(function (s) { return s.id === 'naturalbridge'; });
+        d29.stops.splice(bridgeIdx >= 0 ? bridgeIdx : Math.max(0, d29.stops.length - 1), 0, gondola29);
+      } else {
+        Object.assign(gondola29, gondola29Data);
+      }
+
       let emerald = d29.stops.find(function (s) { return s.id === 'emerald'; });
       if (emerald) {
         Object.assign(emerald, {
@@ -225,8 +227,8 @@
       }
     } else {
       state.decisions.gondola = 'no';
-      if (d26) {
-        const coreGondolaStop = d26.stops.find(function (s) { return s.id === 'gondola'; });
+      if (d29) {
+        const coreGondolaStop = d29.stops.find(function (s) { return s.id === 'gondola'; });
         if (coreGondolaStop) coreGondolaStop.priority = 'cut';
       }
       if (gondolaAtt) gondolaAtt.selected = false;
@@ -246,10 +248,10 @@
   }
 
   function patchBase() {
-    BASE.presetVersion = 'verified-2026-09-25-v4';
+    BASE.presetVersion = 'verified-2026-09-25-v5';
     BASE.activePreset = 'verified';
     BASE.settings.title = 'Banff → Jasper Road Trip — Verified Budget-First';
-    BASE.settings.globalNote = 'Verified Sep 1, 2026. Official-source audit active. Budget target C$3,000–3,500 comfortable; C$4,000–4,500 hard ceiling. Protect sleep and first-timer core; follow current Parks Canada access/closure rules. Must = core; Nice = consider/choose; Cut = sacrifice first.';
+    BASE.settings.globalNote = 'Final route pass Sep 25, 2026: fixed bookings protected and non-booked stops redistributed around the latest forecast. Sep 26 stays focused on Louise/Moraine + Johnston; Sep 27 protects the best scenic-weather window; Sep 28 protects the 12 PM Maligne cruise; Sep 29 uses one weather-based bonus only.';
     BASE.settings.lunchMin = 30;
     BASE.settings.bufferMin = 8;
     BASE.costs.food = 360;
@@ -266,7 +268,7 @@
 
     // NICE classification is permanent; enabled only controls whether it participates
     // in the live route. Never promote a selected NICE stop to MUST.
-    const niceOnByDefault = new Set(['banff', 'jasper', 'jasper29']);
+    const niceOnByDefault = new Set(['bowfalls', 'surprise', 'banff', 'jasper', 'jasper29', 'stutfield', 'waterfowl', 'canmore']);
     BASE.days.forEach(function (day) {
       day.stops.forEach(function (st) {
         if (st.priority === 'nice') st.enabled = niceOnByDefault.has(st.id);
@@ -278,7 +280,7 @@
       maligne.selected = true;
       maligne.time = 2.5;
       maligne.rec = 'LOCKED #1 PAID PICK';
-      maligne.desc = 'Spirit Island cruise is protected; exact Classic vs Premium product and departure remain to be booked.';
+      maligne.desc = 'Classic Spirit Island cruise is BOOKED for Sep 28 at 12:00 PM. Target Maligne Lake around 10:45–11:00 AM and be at the dock at least 15 minutes before departure.';
     }
     const ice = BASE.attractions.find(function (a) { return a.id === 'icefieldAdventure'; });
     if (ice) {
