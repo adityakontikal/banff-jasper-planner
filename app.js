@@ -719,7 +719,7 @@ const CATALOG = [
   { id: 'crowfoot', name: 'Crowfoot Glacier Viewpoint', lat: 51.6630, lng: -116.4810, stayMin: 12, priority: 'nice' },
   { id: 'herbert', name: 'Herbert Lake', lat: 51.4520, lng: -116.2150, stayMin: 12, priority: 'nice' },
   { id: 'vermilion', name: 'Vermilion Lakes', lat: 51.1810, lng: -115.5950, stayMin: 25, priority: 'nice' },
-  { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain', lat: 51.14821, lng: -115.55614, stayMin: 120, priority: 'must' },
+  { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (Sep 29 weather option)', lat: 51.14821, lng: -115.55614, stayMin: 135, priority: 'nice' },
   { id: 'hotspringsloc', name: 'Banff Upper Hot Springs', lat: 51.1683, lng: -115.5715, stayMin: 60, priority: 'cut' },
   { id: 'malignecanyon', name: 'Maligne Canyon', lat: 52.9203, lng: -118.0108, stayMin: 50, priority: 'nice' },
   { id: 'valley5', name: 'Valley of the Five Lakes', lat: 52.8450, lng: -118.0550, stayMin: 80, priority: 'nice' },
@@ -2514,17 +2514,25 @@ function toggleAtt(id, v) {
     if (st) st.stayMin = v ? 150 : 60;
   }
   if (id === 'banffGondola') {
-    const day = S.days.find(d => d.date === 'Sep 26');
+    const day = S.days.find(d => d.date === 'Sep 29');
     if (day) {
-      let st = day.stops.find(s => s.id === 'gondola');
-      if (!st && v) {
-        st = { id: 'gondola', name: 'Banff Gondola — Sulphur Mountain (weather-gated MUST)', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, note: 'Strong yes when summit visibility is good. Check forecast/webcam 24–48h before; skip only for poor cloud/visibility.' };
-        const johnstonIndex = day.stops.findIndex(s => s.id === 'johnston');
-        day.stops.splice(johnstonIndex >= 0 ? johnstonIndex : day.stops.length - 1, 0, st);
+      const st = day.stops.find(s => s.id === 'gondola');
+      if (st) {
+        st.priority = 'nice';
+        st.enabled = !!v;
       }
-      if (st) st.priority = v ? 'must' : 'cut';
+      if (v) {
+        ['naturalbridge', 'emerald'].forEach(stopId => {
+          const other = day.stops.find(s => s.id === stopId);
+          if (other) other.enabled = false;
+        });
+      }
     }
-    if (S.decisions) S.decisions.gondola = v ? 'yes' : 'no';
+    if (S.decisions) {
+      S.decisions.gondola = v ? 'yes' : 'no';
+      if (v) S.decisions.sep29bonus = 'gondola';
+      else if (S.decisions.sep29bonus === 'gondola') S.decisions.sep29bonus = 'pending';
+    }
   }
   save();
 }
@@ -3278,7 +3286,7 @@ function renderPlan() {
           <div class="ph"><div><div class="ey">Rules that save the trip</div><h2>Do not negotiate these</h2></div></div>
           <div class="note"><b>Hotels:</b> 1 room • 3 adults • 2 Queen Beds on the checkout screen. Walk away from “assigned at check-in.”</div>
           <div class="note" style="margin-top:8px"><b>Moraine Lake:</b> no private cars. Shuttle from Lake Louise Park &amp; Ride. One reservation covers both lakes + the connector.</div>
-          <div class="note warn" style="margin-top:8px"><b>Sep 26:</b> Lake Louise + Moraine are now the fixed first block around the 8–9 AM shuttle. <b>Sep 27:</b> lakes are removed; re-plan the remaining Parkway day next.</div>
+          <div class="note warn" style="margin-top:8px"><b>Sep 26:</b> booked Lake Louise + Moraine first, then Johnston Canyon and Banff. <b>Sep 27:</b> Two Jack + Minnewanka + Icefields Parkway; Mistaya is the first cut if late.</div>
         </div>
       </div>
     </div>
