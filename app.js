@@ -45,34 +45,34 @@ const SPOT_INFO = {
     official: 'https://parks.canada.ca/pn-np/ab/banff', tag: 'Lake • Quick stop'
   },
   banff: {
-    title: 'Banff Town (Lunch & Stroll)', photoQuery: 'Banff Alberta town mountains', time: '45–90 min', rating: '8.9/10',
-    timingOptions: [{ label: 'Quick Lunch Grab', min: 45 }, { label: 'Standard Lunch & Walk', min: 60 }, { label: 'Relaxed Stroll & Shops', min: 90 }],
+    title: 'Banff Town (Dinner & Short Stroll)', photoQuery: 'Banff Alberta town mountains', time: '30–45 min', rating: '8.9/10',
+    timingOptions: [{ label: 'Quick Dinner / Food Stop', min: 30 }, { label: 'Dinner + Short Walk', min: 45 }, { label: 'Relaxed Stroll', min: 60 }],
     parking: 'Banff Train Station Public Lot (500+ free stalls, 10 min walk to town). Avoid circling downtown.',
-    parkingRating: 'Train Station: Easy / Downtown: Very Busy', bestWindow: '11:00 AM – 01:30 PM (Ideal lunch & resupply stop)',
+    parkingRating: 'Train Station: Easy / Downtown: Very Busy', bestWindow: 'Late afternoon / early evening after Johnston Canyon',
     restrooms: 'Banff Visitor Centre / Town Hall / Public restrooms on Bear St.', cell: 'Excellent (5G)', effort: 'Paved pedestrian avenues',
     desc: 'The historic mountain town hub nestled beneath Cascade Mountain and Mount Norquay, packed with bakeries, cafes, and mountain culture.',
-    todo: 'Park at the Train Station, walk Banff Avenue toward Cascade Mountain, grab lunch or coffee, and pick up any forgotten warm layers.',
+    todo: 'Park at the Train Station, walk Banff Avenue toward Cascade Mountain, grab dinner or coffee, then continue to the Cochrane hotel.',
     reviews: '"Park at the free train station lot and walk across the pedestrian bridge! Saves 20 minutes of circling crowded downtown streets." — Local Guide Tip',
-    cut: 'Trim shopping/wandering time first if Johnston Canyon or daylight is at risk.',
+    cut: 'If the lakes or Johnston Canyon ran late, shorten this to food only or continue directly to Cochrane.'
     official: 'https://banff.ca/', tag: 'Town • Food & Rest'
   },
   bowfalls: {
     title: 'Bow Falls', photoQuery: 'Bow Falls Banff Alberta', time: '15–25 min', rating: '8.2/10',
     timingOptions: [{ label: 'Quick Look & Photo', min: 15 }, { label: 'Riverbank Stroll', min: 25 }],
     parking: 'Dedicated Bow Falls parking lot on River Avenue (~40 stalls).',
-    parkingRating: 'Easy to Moderate', bestWindow: 'Mid-morning or early afternoon',
+    parkingRating: 'Easy to Moderate', bestWindow: 'Late afternoon after Johnston Canyon if Sep 26 is on time',
     restrooms: 'Flush washrooms at parking lot', cell: 'Good (LTE / 5G)', effort: 'Flat paved walkway (< 100m)',
     desc: 'A roaring, wide cascade where the Bow River crashes over limestone ledges just below the Fairmont Banff Springs Hotel.',
     todo: 'Walk along the river railing to the wooden viewing platforms, watch the rapids, and look up at the Banff Springs area.',
     reviews: '"Super accessible stop right in town with dramatic rushing glacial water. Very easy 15-minute photo stop." — Traveler Review',
-    cut: 'Safe to shorten to a 10-minute photo stop before sacrificing Johnston Canyon.',
+    cut: 'Optional on Sep 26; shorten or skip if the booked lakes or Johnston Canyon ran late.'
     official: 'https://www.banfflakelouise.com/experiences/bow-falls', tag: 'Falls • Quick stop'
   },
   surprise: {
     title: 'Surprise Corner Viewpoint', photoQuery: 'Surprise Corner Banff Springs Alberta', time: '10–15 min', rating: '8.4/10',
     timingOptions: [{ label: 'Quick Viewpoint Photo', min: 10 }, { label: 'Deck Photo & Look', min: 15 }],
     parking: 'Small dedicated pullout (~15 stalls) on Tunnel Mountain Road.',
-    parkingRating: 'Limited pullout stalls', bestWindow: 'Early afternoon (Sun lights the castle facade)',
+    parkingRating: 'Limited pullout stalls', bestWindow: 'Quick late-afternoon stop after Bow Falls if Sep 26 is on time',
     restrooms: 'None at viewpoint', cell: 'Good (LTE)', effort: 'Small wooden observation deck (steps)',
     desc: 'The world-famous elevated viewpoint revealing the Fairmont Banff Springs Hotel rising like a Scottish castle above dense pine forests.',
     todo: 'Step onto the wooden viewing platform to capture the classic panorama of the "Castle in the Rockies" with Sulphur Mountain behind it.',
@@ -108,7 +108,7 @@ const SPOT_INFO = {
     title: 'Moraine Lake & Valley of the Ten Peaks', photoQuery: 'Moraine Lake Valley of Ten Peaks Alberta', time: '60–90 min', rating: '10/10',
     timingOptions: [{ label: 'Rockpile Panorama', min: 45 }, { label: 'Rockpile + Shoreline Trail', min: 75 }, { label: 'Consolation Lakes Hike', min: 150 }],
     parking: 'No personal vehicle access. Accessible strictly by Parks Canada Shuttle / licensed buses.',
-    parkingRating: 'Shuttle Required', bestWindow: 'Morning (07:30–10:30 AM) when sunlight illuminates the Ten Peaks',
+    parkingRating: 'Shuttle Required', bestWindow: 'Late morning after Lake Louise via the Lake Connector on Sep 26',
     restrooms: 'Vault toilets near lodge and shuttle drop-off', cell: 'No Cell Service', effort: 'Rockpile: 300m stairs/switchbacks (Easy-Moderate); Shoreline: Flat',
     desc: 'Widely hailed as the most magnificent alpine vista in North America—intense cyan glacial water surrounded by the towering jagged summits of the Ten Peaks.',
     todo: 'Climb the stone stairs up the Rockpile trail to the classic $20 bill viewpoint. Then walk along the lakeshore path near the wooden canoe docks.',
@@ -119,13 +119,13 @@ const SPOT_INFO = {
   louise: {
     title: 'Lake Louise Lakeshore', photoQuery: 'Lake Louise Alberta turquoise lake Victoria Glacier', time: '45–75 min', rating: '9.8/10',
     timingOptions: [{ label: 'Chateau & Lakeshore Panorama', min: 45 }, { label: 'Full Shoreline Walk (4 km)', min: 75 }, { label: 'Lake Agnes Teahouse Hike', min: 150 }],
-    parking: 'Connected directly via the free Lake Connector Shuttle from Moraine Lake.',
-    parkingRating: 'Connector Shuttle', bestWindow: 'Midday to early afternoon',
+    parking: 'Use the booked Parks Canada shuttle from Lake Louise Park & Ride; Lake Louise is first, then use the Lake Connector to Moraine Lake.'
+    parkingRating: 'Shuttle / Connector', bestWindow: 'First lake after the booked 8–9 AM Park & Ride check-in window',
     restrooms: 'Public washrooms near the lakeshore promenade', cell: 'Moderate (LTE)', effort: 'Flat paved lakeshore promenade',
     desc: 'The iconic turquoise glacial lake backed by Mount Victoria and Victoria Glacier, overlooked by the historic Fairmont Chateau Lake Louise.',
     todo: 'Walk the wide promenade past the Chateau, take photos of the glacier reflection in the emerald water, and watch canoes glide across the bay.',
     reviews: '"The Lake Connector shuttle drops you right at the front! Walk 5 minutes past the Chateau crowds to the right along the shoreline for quiet, uninterrupted photos." — Traveler Tip',
-    cut: 'Do not skip. Shorten the shoreline walk to 30 min if the Parkway drive is waiting.',
+    cut: 'Do not skip. Shorten the shoreline walk if shuttle waits threaten the later Moraine + Johnston sequence.'
     official: 'https://parks.canada.ca/pn-np/ab/banff/visit/les10-top10/louise', tag: 'Lake • World Famous'
   },
   bowlake: {
