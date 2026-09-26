@@ -314,6 +314,25 @@
   }
 
   const VERIFIED_INFO = {
+    banff: {
+      title: 'Banff Town — dinner + short walk',
+      time: '45 min planned',
+      timingOptions: [{ label: 'Dinner / food stop', min: 30 }, { label: 'Dinner + short Banff Avenue walk', min: 45 }],
+      bestWindow: 'After Bow Falls / Surprise Corner, roughly 5:30 PM on Sep 26',
+      desc: 'Optional end-of-day Banff stop after the booked lakes and Johnston Canyon. Use it for dinner and a short walk, not as a long sightseeing block.',
+      todo: 'Grab dinner, take a short Banff Avenue walk if energy/time is good, then leave for the Cochrane hotel.',
+      cut: 'If the shuttle or Johnston Canyon ran late, shorten this to food only or leave for Cochrane. Do not sacrifice the booked lakes or Johnston to protect town time.'
+    },
+    bowfalls: {
+      bestWindow: 'After Johnston Canyon, roughly 4:45 PM on Sep 26 if the day is on time',
+      todo: 'Treat this as a quick riverside viewpoint stop after Johnston Canyon; keep it compact.',
+      cut: 'Optional on Sep 26. Skip it if the lakes/shuttle/Johnston block ran late.'
+    },
+    surprise: {
+      bestWindow: 'After Bow Falls, roughly 5:10 PM on Sep 26 if still on time',
+      todo: 'Quick viewpoint photo only, then continue to Banff town.',
+      cut: 'One of the first Sep 26 stops to drop if the booked lakes or Johnston Canyon ran late.'
+    },
     johnston: {
       time: '2 hr to Upper Falls (official)',
       timingOptions: [{ label: 'Lower Falls only — official ~1h', min: 60 }, { label: 'Lower + Upper Falls — official ~2h', min: 120 }],
@@ -329,7 +348,7 @@
     parkride: {
       time: '30–60+ min check-in / wait',
       parking: 'Free parking for reservation holders at Lake Louise Park & Ride, 1 Whitehorn Road. The trip must begin and end here for regular Parks Canada shuttles.',
-      desc: 'Mandatory transit node for the budget-first Moraine + Louise plan. Reservation holders check in here during their 1-hour departure window.',
+      desc: 'Mandatory transit node for the booked Sep 26 Lake Louise → Moraine plan. Reservation holders check in here during their 1-hour departure window.',
       todo: 'Arrive during the booked 8:00–9:00 AM window, check in, screenshot tickets on every phone, use washroom, then board toward Lake Louise first.',
       cut: 'Never compress this below the time you actually need to check in. Parks Canada warns waits of at least 30 min and up to 1h during high ridership.',
       reviews: 'Verified 2026: 60% of seats release at 8:00 AM MDT two days before departure; regular shuttles run 6:30 AM–5 PM; last return 7:30 PM.',
@@ -340,11 +359,12 @@
       timingOptions: [{ label: 'Rockpile only', min: 75 }, { label: 'Rockpile + extra shoreline / connector buffer', min: 105 }],
       parking: 'Personal vehicles are prohibited year-round. Use Parks Canada shuttle, Roam Super Pass, or a licensed commercial operator.',
       parkingRating: 'Shuttle only',
+      bestWindow: 'After Lake Louise via the Lake Connector, roughly late morning on Sep 26',
       cell: 'No cell / Wi-Fi at the lake (official)',
       effort: 'Short Rockpile climb + easy shoreline',
       desc: 'Top-tier first-timer must. The Rockpile gives the classic Valley of the Ten Peaks view and is worth protecting even on the hardest day.',
       todo: 'Go straight to Rockpile, enjoy the viewpoint, then use remaining time for a short shoreline look. Do not add a long hike on this day.',
-      cut: 'Never cut Moraine. If the day is late, remove Mistaya, Sunwapta and other nice stops first.',
+      cut: 'Never cut Moraine. If Sep 26 runs late, drop Surprise Corner/Bow Falls and shorten the Banff-town stop first; if needed, downgrade Johnston to Lower Falls only.',
       reviews: 'Verified 2026: Moraine regular shuttles run every 30 min from 6:30 AM–5 PM; the Lake Connector runs 7 AM–6 PM. No personal-car access.',
       official: 'https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise'
     },
@@ -352,9 +372,12 @@
       time: '60 min full Lakeshore Trail (official)',
       timingOptions: [{ label: 'Chateau + short lakeshore look', min: 40 }, { label: 'Full Lakeshore Trail — official ~1h', min: 60 }, { label: 'Lake Agnes — official 2.5–3h (not recommended this day)', min: 165 }],
       effort: 'Lakeshore 2.3 km one way • minimal elevation',
-      desc: 'First-timer must. The verified preset intentionally keeps Lake Louise to the flat lakeshore so the Icefields Parkway still has useful daylight.',
-      todo: 'Walk enough of the lakeshore to get beyond the Chateau crowd; do not start Lake Agnes or Plain of Six Glaciers on Sep 27.',
-      cut: 'Shorten to 40 min if shuttle waits run long; do not remove the lake itself.',
+      parking: 'Use the booked Parks Canada shuttle from Lake Louise Park & Ride. Lake Louise is the first lake; then use the Lake Connector to Moraine Lake.',
+      parkingRating: 'Shuttle / connector',
+      bestWindow: 'First lake after the booked 8–9 AM Park & Ride check-in window on Sep 26',
+      desc: 'First-timer must. On Sep 26, keep Lake Louise to the lakeshore so Moraine Lake and the afternoon Johnston Canyon block stay on schedule.',
+      todo: 'Walk enough of the lakeshore to get beyond the Chateau crowd; do not start Lake Agnes or Plain of Six Glaciers on Sep 26.',
+      cut: 'Shorten the lakeshore visit if shuttle waits run long, but keep the lake itself and protect the Moraine + Johnston sequence.',
       reviews: 'Verified: Parks Canada lists Lakeshore at 2.3 km one way / ~1h round trip; Lake Agnes is 2.5–3h and Plain of Six Glaciers ~4h.',
       official: 'https://parks.canada.ca/-/media/pn-np/ab/banff/wet4/visit/depliants-brochures/2025-maps-of-the-lake-louise-area.pdf'
     },
@@ -467,12 +490,12 @@
         rating: 'Operational',
         parking: 'Return to the same free Park & Ride lot where you checked in.',
         parkingRating: 'Mandatory return point',
-        restrooms: 'Use facilities before starting the Icefields Parkway',
+        restrooms: 'Use facilities before leaving for Johnston Canyon',
         cell: 'Variable',
         effort: 'Easy',
         desc: 'Explicitly models the return-to-car step that the old itinerary forgot. Regular Parks Canada shuttle trips must begin and end at the Park & Ride.',
-        todo: 'Restroom, layers, snacks, offline map check, then start Hwy 93N.',
-        cut: 'Do not skip the operational reset; you need the car for the Parkway.',
+        todo: 'Restroom, layers, snacks, offline map check, then drive toward Johnston Canyon via Castle Junction.',
+        cut: 'Do not skip the operational reset; you need the car for Johnston Canyon, Banff, and the Cochrane hotel.',
         reviews: 'Verified 2026: Parks Canada regular shuttle reservations include return to the Park & Ride.',
         official: 'https://parks.canada.ca/pn-np/ab/banff/visit/parkbus/louise',
         tag: 'Transit • Mandatory'
