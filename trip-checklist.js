@@ -188,9 +188,9 @@
       facts: [
         'The regular shuttle trip must begin and end at the Park & Ride.',
         'The reservation includes the initial lake, unlimited Lake Connector use, return to Park & Ride and free parking.',
-        'Do not start the Icefields Parkway until everyone is back at the car with tickets/gear accounted for.'
+        'Once everyone is back at the car with tickets/gear accounted for, Sep 26 continues to Johnston Canyon via Castle Junction.'
       ],
-      patch: { parking: 'Return to the same Lake Louise Park & Ride at 1 Whitehorn Rd; this is the explicit return-to-car step.', bestWindow: 'After the lakes: restroom, layers, snacks, offline map and fuel check.' }
+      patch: { parking: 'Return to the same Lake Louise Park & Ride at 1 Whitehorn Rd; this is the explicit return-to-car step.', bestWindow: 'After the lakes: restroom, layers, snacks and offline-map check, then Johnston Canyon via Castle Junction.' }
     },
     moraine: {
       kind: 'Parks Canada shuttle',
@@ -210,7 +210,7 @@
         'Unlimited Lake Connector use between the two lakes is included after Park & Ride check-in.',
         'The connector requires the valid boarding pass obtained at check-in.'
       ],
-      patch: { parking: 'Use the shuttle/connector plan; do not add lakeshore parking to the regular Park & Ride itinerary.', bestWindow: 'After Moraine using the included Lake Connector; protect return-to-Park-&-Ride time.' }
+      patch: { parking: 'Use the booked Park & Ride shuttle; Lake Louise is the first lake, then use the included Lake Connector to Moraine.', bestWindow: 'First lake after Park & Ride check-in on Sep 26; protect the later Moraine and return-to-Park-&-Ride timing.' }
     },
     bowlake: {
       kind: 'Parks Canada / Icefields Parkway',
