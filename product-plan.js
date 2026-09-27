@@ -6,6 +6,71 @@
   const VIEW_KEY = 'bj-last-view-v1';
   let openDecisionId = null;
 
+  // Sep 27 live trip update: booked Gondola today; move all remaining Sep 27
+  // Parkway stops except Columbia Icefield to Sep 29, and finish Sep 29 at
+  // Vermilion Lakes for sunset. This intentionally overrides older browser
+  // localStorage so the deployed planner reflects the live trip.
+  function applySep27LiveRouteUpdate() {
+    if (!S || !Array.isArray(S.days)) return;
+
+    const d27 = S.days.find(function (d) { return d.date === 'Sep 27'; });
+    if (d27) {
+      d27.label = 'Cochrane → Minnewanka / Two Jack → Banff Gondola → Columbia Icefield → Hinton';
+      d27.drive = 'Booked Gondola + Icefield transfer to Hinton';
+      d27.note = 'LIVE UPDATE Sep 27: Minnewanka and Two Jack completed. Banff Gondola is booked today (1:10 PM upload / 3:10 PM download). After the Gondola, keep only the Columbia Icefield / free Athabasca Glacier stop before Hinton. Bow Lake, Peyto, Mistaya, Saskatchewan Crossing and Sunwapta move to Sep 29.';
+      d27.stops = [
+        { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'twojack', name: 'Two Jack Lake — DONE', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 0 },
+        { id: 'minnewanka', name: 'Lake Minnewanka — DONE', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 0 },
+        { id: 'gondola27', name: 'Banff Gondola — BOOKED 1:10 PM up / 3:10 PM down', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, notBefore: '13:10', note: 'Admission by Shuttle booked for 3 adults. Upload 1:10 PM; download 3:10 PM.' },
+        { id: 'icefield', name: 'Columbia Icefield — Free Athabasca Glacier Stop', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 30 },
+        { id: 'hinton27', name: 'Hinton Lodge (Booked • Check-in)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
+      ];
+    }
+
+    const d29 = S.days.find(function (d) { return d.date === 'Sep 29'; });
+    if (d29) {
+      d29.label = 'Hinton → Parkway South scenic stops → Vermilion sunset → Calgary';
+      d29.drive = 'Southbound Parkway scenic day + Banff sunset';
+      d29.note = 'LIVE UPDATE Sep 27: scenic stops moved from Sep 27 are now the priority on the southbound drive. Gondola is already done on Sep 27. Finish at Vermilion Lakes for sunset, then drive to the Calgary Airport hotel.';
+      d29.stops = [
+        { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
+        { id: 'jasper29', name: 'Jasper — southbound fuel + snacks', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 20, enabled: true },
+        { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 40 },
+        { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'must', stayMin: 30 },
+        { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15, enabled: true },
+        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15, enabled: true },
+        { id: 'mistaya', name: 'Mistaya Canyon', lat: 51.9460, lng: -116.7200, priority: 'must', stayMin: 25 },
+        { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Rest / Snack)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 30 },
+        { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 50 },
+        { id: 'bowlake', name: 'Bow Lake & Crowfoot Glacier', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 25 },
+        { id: 'vermilion', name: 'Vermilion Lakes — SUNSET', lat: 51.1810, lng: -115.5950, priority: 'must', stayMin: 35, note: 'Sunset target before continuing to Calgary.' },
+        { id: 'naturalbridge', name: 'Natural Bridge — BONUS ONLY if ahead', lat: 51.381632, lng: -116.530455, priority: 'cut', stayMin: 20 },
+        { id: 'emerald', name: 'Emerald Lake — BONUS ONLY if ahead', lat: 51.44321, lng: -116.53153, priority: 'cut', stayMin: 60 },
+        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
+      ];
+    }
+
+    if (Array.isArray(S.attractions)) {
+      const gondola = S.attractions.find(function (a) { return a.id === 'banffGondola'; });
+      if (gondola) {
+        gondola.day = 'Sep 27';
+        gondola.selected = true;
+        gondola.rec = 'BOOKED • SEP 27';
+        gondola.desc = 'Booked for Sep 27: 1:10 PM upload / 3:10 PM download.';
+        gondola.skip = 'Already booked for today.';
+      }
+      const peyto = S.attractions.find(function (a) { return a.id === 'peytoLake'; });
+      if (peyto) peyto.day = 'Sep 29';
+    }
+
+    S.decisions = S.decisions || {};
+    S.decisions.sep29bonus = 'core';
+    try { persist(); } catch (_) {}
+  }
+
+  applySep27LiveRouteUpdate();
+
   const DECISIONS = [
     {
       id: 'shuttle', when: 'Sep 26 • 8:00–9:00 AM', title: 'Lake Louise + Moraine shuttle — BOOKED',
@@ -23,9 +88,9 @@
       options: [['book', 'Booked • 12:00 PM Classic'], ['skip', 'Change/cancel booking']]
     },
     {
-      id: 'sep29bonus', when: 'Sep 29 • ~11:30', title: 'Weather choice: Gondola or Yoho',
-      detail: 'Clear summit → Banff Gondola. Cloud/fog → Natural Bridge + Emerald Lake. Choose only one; Valley of Five Lakes is only an exception if significantly ahead.',
-      options: [['pending', 'Decide from visibility that morning'], ['gondola', 'Banff Gondola — clear summit'], ['yoho', 'Natural Bridge + Emerald Lake — poor summit visibility'], ['core', 'No bonus — continue to Calgary']]
+      id: 'sep29bonus', when: 'Sep 29', title: 'Parkway stops + Vermilion sunset',
+      detail: 'Gondola is already booked/done on Sep 27. Sep 29 now carries the scenic Parkway stops moved from Sep 27, then Vermilion Lakes for sunset before Calgary.',
+      options: [['core', 'Parkway stops + Vermilion sunset'], ['yoho', 'Add Natural Bridge + Emerald Lake only if time allows']]
     }
   ];
 
