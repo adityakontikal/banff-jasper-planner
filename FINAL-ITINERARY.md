@@ -1,13 +1,13 @@
 # Banff–Jasper Final Field Itinerary
 **Trip:** Sep 25–30, 2026 • 3 adults  
-**Route pass:** Sep 25, 2026  
+**Route pass:** Updated Sep 27, 2026  
 **Rule:** Fixed bookings win. Non-booked stops move with weather and fatigue.
 
 ## Weather snapshot used
 - Sep 26 Banff/Lake Louise: cloudy/cool — use for booked lakes + canyon/town stops.
-- Sep 27 Banff/Jasper corridor: best scenery window in the current official forecast — protect this day for the Parkway.
+- Sep 27 Banff: clear enough to use the Gondola today; keep the transfer to Hinton simple after that.
 - Sep 28 Jasper/Maligne: workable; cruise is the hard anchor.
-- Sep 29: choose the final bonus from visibility that morning.
+- Sep 29: use the southbound Parkway day for the scenic stops moved from Sep 27.
 - Sep 30 Calgary: flexible final day.
 
 ## Sep 26 — YYC → Lake Louise / Moraine → Johnston → Banff → Cochrane
@@ -27,19 +27,17 @@
 - 17:30–18:15 — Banff dinner / short walk
 - ~19:30 — Cochrane hotel
 
-**Do not add:** Gondola, Minnewanka, Two Jack.
+## Sep 27 — Cochrane → Minnewanka / Two Jack → Banff Gondola → Columbia Icefield → Hinton
+- Early morning — Lake Minnewanka + Two Jack Lake **DONE**
+- ~12:00 — Banff Train Station shuttle to Gondola
+- **13:10 — BOOKED Gondola upload**
+- **15:10 — BOOKED Gondola download**
+- ~15:20–15:50 — shuttle / return to car
+- After Banff — drive north on Icefields Parkway
+- Columbia Icefield / free Athabasca Glacier viewpoint stop
+- Continue to Hinton; evening arrival is acceptable
 
-## Sep 27 — Cochrane → Two Jack / Minnewanka → Icefields Parkway → Hinton
-- 06:00 — leave Cochrane
-- ~07:15–07:35 — Two Jack Lake
-- ~07:40–08:15 — Lake Minnewanka
-- ~09:35–10:00 — Bow Lake / Crowfoot
-- ~10:10–11:00 — Peyto Lake
-- ~11:35–12:00 — Mistaya Canyon **optional / first cut**
-- ~12:10–12:40 — Saskatchewan Crossing fuel + food
-- ~13:35–14:20 — Columbia Icefield / free Athabasca Glacier stop
-- ~15:10–15:40 — Sunwapta Falls
-- ~17:30–18:00 — Hinton Lodge
+**Moved to Sep 29:** Bow Lake / Crowfoot, Peyto Lake, Mistaya Canyon, Saskatchewan Crossing scenic/food stop, Sunwapta Falls.
 
 ## Sep 28 — Hinton → Pyramid → Medicine → Maligne Cruise → Hinton
 - 07:00 — leave Hinton
@@ -54,26 +52,22 @@
 - ~15:15 — Jasper
 - ~16:15–16:30 — Hinton
 
-## Sep 29 — Hinton → Athabasca Falls → Parkway South → ONE bonus → Calgary
+## Sep 29 — Hinton → Parkway South scenic stops → Calgary
 - 06:30 — leave Hinton
 - ~07:30–07:50 — Jasper fuel / food
 - ~08:20–09:00 — Athabasca Falls
-- ~10:00–10:15 — Stutfield Glacier viewpoint
-- ~11:15–11:30 — Waterfowl Lakes
-- ~11:30 — make weather choice
+- Sunwapta Falls
+- Stutfield Glacier viewpoint
+- Waterfowl Lakes
+- Mistaya Canyon
+- Saskatchewan Crossing — fuel / food
+- Peyto Lake
+- Bow Lake / Crowfoot Glacier viewpoint
+- Continue south to Calgary Airport hotel
 
-### Option A — summit visibility is good
-- ~13:00–15:15 — Banff Gondola / summit
-- ~15:15 — leave Banff
-- ~16:45–17:00 — Calgary Airport hotel
+**If time remains:** Natural Bridge / Emerald Lake can still be considered, but the moved Parkway stops take priority.
 
-### Option B — summit visibility is poor
-- ~12:50–13:15 — Natural Bridge
-- ~13:30–14:30 — Emerald Lake
-- ~14:30 — leave Yoho
-- ~16:45–17:15 — Calgary Airport hotel
-
-**Do not add by default:** Valley of Five Lakes, paid Icefield Adventure, repeat Bow Lake.
+**Do not add by default:** Valley of Five Lakes, paid Icefield Adventure, repeat Columbia Icefield stop.
 
 ## Sep 30 — Calgary → YYC → Toronto
 - 10:00 — leave hotel
@@ -87,8 +81,8 @@
 
 ## Field rules
 1. Fixed bookings are never sacrificed for optional sightseeing.
-2. Sep 27: if >30 min late, cut Mistaya first.
-3. Sep 29: choose only one large bonus.
-4. Gondola is visibility-gated; Yoho is the fallback.
+2. Sep 27: after the Gondola, prioritize Columbia Icefield and the Hinton transfer.
+3. Sep 29: the scenic Parkway stops moved from Sep 27 now take priority.
+4. Natural Bridge / Emerald Lake are bonus-only if time remains on Sep 29.
 5. Keep rain layers and warm layers accessible in the car.
-6. Download this file, all tickets/vouchers and offline maps before leaving Calgary.
+6. Keep all tickets/vouchers and offline maps downloaded.
