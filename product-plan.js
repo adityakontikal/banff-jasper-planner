@@ -17,12 +17,12 @@
     if (d27) {
       d27.label = 'Cochrane → Minnewanka / Two Jack → Banff Gondola → Columbia Icefield → Hinton';
       d27.drive = 'Booked Gondola + Icefield transfer to Hinton';
-      d27.note = 'LIVE UPDATE Sep 27: Minnewanka and Two Jack completed. Banff Gondola is booked today (1:10 PM upload / 3:10 PM download). After the Gondola, keep only the Columbia Icefield / free Athabasca Glacier stop before Hinton. Bow Lake, Peyto, Mistaya, Saskatchewan Crossing and Sunwapta move to Sep 29.';
+      d27.note = 'LIVE UPDATE Sep 27: Minnewanka and Two Jack completed. Banff Gondola is booked today (1:10 PM upload / 3:10 PM download). The 3:10 PM time is the start of the download, not car departure: allow the gondola descent plus shuttle/Roam return to the Banff Train Station and use about 4:00 PM as the practical road-departure time. After the Gondola, keep only the Columbia Icefield / free Athabasca Glacier stop before Hinton. Bow Lake, Peyto, Mistaya, Saskatchewan Crossing and Sunwapta move to Sep 29.';
       d27.stops = [
         { id: 'cochrane27', name: 'Super 8 by Wyndham Cochrane (Depart)', lat: 51.189327, lng: -114.488785, priority: 'must', stayMin: 0, isHotel: true },
         { id: 'twojack', name: 'Two Jack Lake — DONE', lat: 51.2281, lng: -115.4926, priority: 'must', stayMin: 0 },
         { id: 'minnewanka', name: 'Lake Minnewanka — DONE', lat: 51.2483, lng: -115.4979, priority: 'must', stayMin: 0 },
-        { id: 'gondola27', name: 'Banff Gondola — BOOKED 1:10 PM up / 3:10 PM down', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 120, notBefore: '13:10', note: 'Admission by Shuttle booked for 3 adults. Upload 1:10 PM; download 3:10 PM.' },
+        { id: 'gondola27', name: 'Banff Gondola — BOOKED 1:10 PM up / 3:10 PM down', lat: 51.14821, lng: -115.55614, priority: 'must', stayMin: 170, notBefore: '13:10', note: 'Admission by Shuttle booked for 3 adults. Upload 1:10 PM; download 3:10 PM. Allow roughly 50 min after the 3:10 PM download for the 8-min gondola descent plus shuttle/Roam transfer back to the Banff Train Station car. Treat ~4:00 PM as the practical road-departure time.' },
         { id: 'icefield', name: 'Columbia Icefield — Free Athabasca Glacier Stop', lat: 52.2203, lng: -117.2249, priority: 'must', stayMin: 30 },
         { id: 'hinton27', name: 'Hinton Lodge (Booked • Check-in)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ];
