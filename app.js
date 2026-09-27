@@ -53,7 +53,7 @@ const SPOT_INFO = {
     desc: 'The historic mountain town hub nestled beneath Cascade Mountain and Mount Norquay, packed with bakeries, cafes, and mountain culture.',
     todo: 'Park at the Train Station, walk Banff Avenue toward Cascade Mountain, grab dinner or coffee, then continue to the Cochrane hotel.',
     reviews: '"Park at the free train station lot and walk across the pedestrian bridge! Saves 20 minutes of circling crowded downtown streets." — Local Guide Tip',
-    cut: 'If the lakes or Johnston Canyon ran late, shorten this to food only or continue directly to Cochrane.'
+    cut: 'If the lakes or Johnston Canyon ran late, shorten this to food only or continue directly to Cochrane.',
     official: 'https://banff.ca/', tag: 'Town • Food & Rest'
   },
   bowfalls: {
@@ -65,7 +65,7 @@ const SPOT_INFO = {
     desc: 'A roaring, wide cascade where the Bow River crashes over limestone ledges just below the Fairmont Banff Springs Hotel.',
     todo: 'Walk along the river railing to the wooden viewing platforms, watch the rapids, and look up at the Banff Springs area.',
     reviews: '"Super accessible stop right in town with dramatic rushing glacial water. Very easy 15-minute photo stop." — Traveler Review',
-    cut: 'Optional on Sep 26; shorten or skip if the booked lakes or Johnston Canyon ran late.'
+    cut: 'Optional on Sep 26; shorten or skip if the booked lakes or Johnston Canyon ran late.',
     official: 'https://www.banfflakelouise.com/experiences/bow-falls', tag: 'Falls • Quick stop'
   },
   surprise: {
@@ -119,13 +119,13 @@ const SPOT_INFO = {
   louise: {
     title: 'Lake Louise Lakeshore', photoQuery: 'Lake Louise Alberta turquoise lake Victoria Glacier', time: '45–75 min', rating: '9.8/10',
     timingOptions: [{ label: 'Chateau & Lakeshore Panorama', min: 45 }, { label: 'Full Shoreline Walk (4 km)', min: 75 }, { label: 'Lake Agnes Teahouse Hike', min: 150 }],
-    parking: 'Use the booked Parks Canada shuttle from Lake Louise Park & Ride; Lake Louise is first, then use the Lake Connector to Moraine Lake.'
+    parking: 'Use the booked Parks Canada shuttle from Lake Louise Park & Ride; Lake Louise is first, then use the Lake Connector to Moraine Lake.',
     parkingRating: 'Shuttle / Connector', bestWindow: 'First lake after the booked 8–9 AM Park & Ride check-in window',
     restrooms: 'Public washrooms near the lakeshore promenade', cell: 'Moderate (LTE)', effort: 'Flat paved lakeshore promenade',
     desc: 'The iconic turquoise glacial lake backed by Mount Victoria and Victoria Glacier, overlooked by the historic Fairmont Chateau Lake Louise.',
     todo: 'Walk the wide promenade past the Chateau, take photos of the glacier reflection in the emerald water, and watch canoes glide across the bay.',
     reviews: '"The Lake Connector shuttle drops you right at the front! Walk 5 minutes past the Chateau crowds to the right along the shoreline for quiet, uninterrupted photos." — Traveler Tip',
-    cut: 'Do not skip. Shorten the shoreline walk if shuttle waits threaten the later Moraine + Johnston sequence.'
+    cut: 'Do not skip. Shorten the shoreline walk if shuttle waits threaten the later Moraine + Johnston sequence.',
     official: 'https://parks.canada.ca/pn-np/ab/banff/visit/les10-top10/louise', tag: 'Lake • World Famous'
   },
   bowlake: {
