@@ -52,7 +52,7 @@
 - ~15:15 — Jasper
 - ~16:15–16:30 — Hinton
 
-## Sep 29 — Hinton → Parkway South scenic stops → Calgary
+## Sep 29 — Hinton → Parkway South scenic stops → Banff sunset → Calgary
 - 06:30 — leave Hinton
 - ~07:30–07:50 — Jasper fuel / food
 - ~08:20–09:00 — Athabasca Falls
@@ -63,9 +63,10 @@
 - Saskatchewan Crossing — fuel / food
 - Peyto Lake
 - Bow Lake / Crowfoot Glacier viewpoint
-- Continue south to Calgary Airport hotel
+- **Sunset — Vermilion Lakes**
+- Continue to Calgary Airport hotel after sunset
 
-**If time remains:** Natural Bridge / Emerald Lake can still be considered, but the moved Parkway stops take priority.
+**If time remains:** Natural Bridge / Emerald Lake can still be considered, but the moved Parkway stops and Vermilion Lakes sunset take priority.
 
 **Do not add by default:** Valley of Five Lakes, paid Icefield Adventure, repeat Columbia Icefield stop.
 
@@ -83,6 +84,7 @@
 1. Fixed bookings are never sacrificed for optional sightseeing.
 2. Sep 27: after the Gondola, prioritize Columbia Icefield and the Hinton transfer.
 3. Sep 29: the scenic Parkway stops moved from Sep 27 now take priority.
-4. Natural Bridge / Emerald Lake are bonus-only if time remains on Sep 29.
-5. Keep rain layers and warm layers accessible in the car.
-6. Keep all tickets/vouchers and offline maps downloaded.
+4. Vermilion Lakes is the Sep 29 sunset target before driving to Calgary.
+5. Natural Bridge / Emerald Lake are bonus-only if time remains on Sep 29.
+6. Keep rain layers and warm layers accessible in the car.
+7. Keep all tickets/vouchers and offline maps downloaded.
