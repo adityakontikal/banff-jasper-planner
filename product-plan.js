@@ -30,23 +30,23 @@
 
     const d29 = S.days.find(function (d) { return d.date === 'Sep 29'; });
     if (d29) {
-      d29.label = 'Hinton → Parkway South scenic stops → Vermilion sunset → Calgary';
-      d29.drive = 'Southbound Parkway scenic day + Banff sunset';
-      d29.note = 'LIVE UPDATE Sep 27: scenic stops moved from Sep 27 are now the priority on the southbound drive. Gondola is already done on Sep 27. Finish at Vermilion Lakes for sunset, then drive to the Calgary Airport hotel.';
+      d29.label = 'Hinton → Sunwapta → Parkway South → Yoho → Vermilion sunset → Calgary';
+      d29.drive = 'Locked southbound scenic route + Yoho + Banff sunset';
+      d29.note = 'LOCKED Sep 29: Athabasca Falls moved to Sep 28. Natural Bridge + Emerald Lake are planned stops. Finish at Vermilion Lakes for the 7:24 PM sunset, then drive to the Calgary Airport hotel.';
       d29.stops = [
         { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'jasper29', name: 'Jasper — southbound fuel + snacks', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 20, enabled: true },
-        { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 40 },
-        { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'must', stayMin: 30 },
+        { id: 'jasper29', name: 'Jasper — fuel / food / washroom', lat: 52.8734, lng: -118.0814, priority: 'must', stayMin: 20 },
+        { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'must', stayMin: 35 },
         { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15, enabled: true },
-        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15, enabled: true },
-        { id: 'mistaya', name: 'Mistaya Canyon', lat: 51.9460, lng: -116.7200, priority: 'must', stayMin: 25 },
-        { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Rest / Snack)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 30 },
-        { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 50 },
-        { id: 'bowlake', name: 'Bow Lake & Crowfoot Glacier', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 25 },
-        { id: 'vermilion', name: 'Vermilion Lakes — SUNSET', lat: 51.1810, lng: -115.5950, priority: 'must', stayMin: 35, note: 'Sunset target before continuing to Calgary.' },
-        { id: 'naturalbridge', name: 'Natural Bridge — BONUS ONLY if ahead', lat: 51.381632, lng: -116.530455, priority: 'cut', stayMin: 20 },
-        { id: 'emerald', name: 'Emerald Lake — BONUS ONLY if ahead', lat: 51.44321, lng: -116.53153, priority: 'cut', stayMin: 60 },
+        { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Food)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 30 },
+        { id: 'mistaya', name: 'Mistaya Canyon', lat: 51.9460, lng: -116.7200, priority: 'must', stayMin: 45 },
+        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 20, enabled: true },
+        { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 55 },
+        { id: 'bowlake', name: 'Bow Lake', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 30 },
+        { id: 'crowfoot', name: 'Crowfoot Glacier Viewpoint', lat: 51.6630, lng: -116.4810, priority: 'must', stayMin: 10 },
+        { id: 'naturalbridge', name: 'Natural Bridge — LOCKED', lat: 51.381632, lng: -116.530455, priority: 'must', stayMin: 20 },
+        { id: 'emerald', name: 'Emerald Lake — LOCKED', lat: 51.44321, lng: -116.53153, priority: 'must', stayMin: 45 },
+        { id: 'vermilion', name: 'Vermilion Lakes — SUNSET ~7:24 PM', lat: 51.1810, lng: -115.5950, priority: 'must', stayMin: 65 },
         { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ];
     }
@@ -88,9 +88,9 @@
       options: [['book', 'Booked • 12:00 PM Classic'], ['skip', 'Change/cancel booking']]
     },
     {
-      id: 'sep29bonus', when: 'Sep 29', title: 'Parkway stops + Vermilion sunset',
-      detail: 'Gondola is already booked/done on Sep 27. Sep 29 now carries the scenic Parkway stops moved from Sep 27, then Vermilion Lakes for sunset before Calgary.',
-      options: [['core', 'Parkway stops + Vermilion sunset'], ['yoho', 'Add Natural Bridge + Emerald Lake only if time allows']]
+      id: 'sep29bonus', when: 'Sep 29', title: 'Locked Parkway + Yoho + Vermilion route',
+      detail: 'Athabasca Falls is moved to Sep 28. Sep 29 is locked as Sunwapta → Parkway scenic stops → Natural Bridge → Emerald Lake → Vermilion Lakes sunset → Calgary.',
+      options: [['core', 'Locked route: Parkway + Yoho + Vermilion sunset']]
     }
   ];
 
