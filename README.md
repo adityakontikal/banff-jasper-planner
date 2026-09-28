@@ -89,9 +89,9 @@ The new **Lock** tab turns the remaining choices into time-ordered MCQs:
 1. Sep 26 Lake Louise/Moraine transport: **locked** — Parks Canada shuttle, 8:00–9:00 AM, Lake Louise first.
 2. Lake Louise: lakeshore only; do not add Lake Agnes on the Parkway day.
 3. Maligne Lake Cruise: protected paid highlight.
-4. Sep 29 weather choice: **clear summit → Banff Gondola; cloud/fog → Natural Bridge + Emerald Lake**.
+4. Sep 29 route is **locked**: Athabasca Falls moves to Sep 28; Natural Bridge + Emerald Lake are planned on Sep 29.
 5. Icefield Adventure: not part of the selected default plan; deliberate substitution only.
-6. Sep 29: choose **one** weather bonus — Gondola if the summit is clear, otherwise Emerald Lake / Natural Bridge. Valley of Five Lakes is only reconsidered if significantly ahead.
+6. Sep 29 finishes at **Vermilion Lakes for sunset (~7:24 PM)** before the Calgary Airport hotel. Valley of Five Lakes stays off the default route.
 
 The tab also shows booking readiness, unresolved decisions, budget position, and a final-lock checklist.
 
@@ -99,8 +99,8 @@ The tab also shows booking readiness, unresolved decisions, budget position, and
 
 - **Sep 26:** 5:45 AM YYC departure → 8–9 AM booked Park & Ride window → Lake Louise → Moraine Lake → Johnston Canyon → Bow Falls / Surprise Corner / Banff dinner → Cochrane. **Minnewanka, Two Jack and Gondola are removed from this day.**
 - **Sep 27:** 6:00 AM Cochrane → Two Jack → Minnewanka → Bow Lake → Peyto → Mistaya optional → Saskatchewan Crossing → free Athabasca Glacier stop → Sunwapta → Hinton. This is the protected scenery day; cut Mistaya first if late.
-- **Sep 28:** 7:00 AM Hinton → Pyramid → Jasper fuel → Medicine Lake → **Maligne Lake by about 10:45–11:00 AM → BOOKED 12:00 PM Classic Cruise** → Hinton.
-- **Sep 29:** 6:30 AM Hinton → Jasper fuel → Athabasca Falls → Stutfield → Waterfowl → **ONE bonus only**: Banff Gondola if summit visibility is good, otherwise Natural Bridge + Emerald Lake → Calgary Airport hotel.
+- **Sep 28:** 7:00 AM Hinton → Pyramid → Jasper fuel → Medicine Lake → **Maligne Lake by about 10:45–11:00 AM → BOOKED 12:00 PM Classic Cruise** → **Athabasca Falls ~3:40–4:20 PM** → Hinton ~5:40–6:00 PM.
+- **Sep 29:** 6:30 AM Hinton → Jasper fuel → Sunwapta → Stutfield → Saskatchewan Crossing → Mistaya → Waterfowl → Peyto → Bow Lake/Crowfoot → **Natural Bridge → Emerald Lake → Vermilion Lakes sunset (~7:24 PM)** → Calgary Airport hotel.
 - **Sep 30:** Calgary-only flexible morning/afternoon → **4:45 PM rental return target** → 7:10 PM WestJet.
 
 Weather snapshot used for this route pass: Sep 26 is the weaker Banff/Louise weather day, while Sep 27 is the scenery-priority day; later non-booked choices remain weather-gated. Recheck conditions the morning of each flexible stop.
