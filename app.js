@@ -823,8 +823,8 @@ const BASE = {
       ]
     },
     {
-      date: 'Sep 28', label: 'Hinton → Pyramid → Medicine → Maligne Cruise → Hinton', start: '07:00', drive: 'Booked 12:00 PM cruise day', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
-      note: 'LOCKED: Maligne Classic Cruise is booked for 12:00 PM. Pursuit asks guests to arrive around one hour early; target Maligne Lake by about 10:45–11:00 AM. Keep the morning simple and protect the sailing.',
+      date: 'Sep 28', label: 'Hinton → Pyramid → Medicine → Maligne Cruise → Athabasca Falls → Hinton', start: '07:00', drive: 'Booked 12:00 PM cruise + Athabasca Falls', sleep: 'Hinton Lodge (Night 2 of 2 • BOOKED)',
+      note: 'LOCKED Sep 28: protect the 12:00 PM Maligne Classic Cruise, then visit Athabasca Falls on the return side before Hinton. Target Athabasca Falls about 3:40–4:20 PM and Hinton about 5:40–6:00 PM.',
       hotel: { name: 'Hinton Lodge', lat: 53.38816, lng: -117.61821 },
       stops: [
         { id: 'hinton28a', name: 'Hinton Lodge (Depart 07:00)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
@@ -832,28 +832,29 @@ const BASE = {
         { id: 'jasper', name: 'Jasper Town — fuel / breakfast', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 20 },
         { id: 'medicine', name: 'Medicine Lake Viewpoint', lat: 52.8640, lng: -117.8000, priority: 'must', stayMin: 20 },
         { id: 'maligne', name: 'Maligne Lake — 12:00 PM Classic Cruise (BOOKED)', lat: 52.7300, lng: -117.6420, priority: 'must', stayMin: 195, notBefore: '10:45', note: 'Arrive about 10:45–11:00; boarding dock at least 15 min before sailing. Cruise is 1.5h; keep post-cruise buffer.' },
-        { id: 'patricia', name: 'Patricia Lake', lat: 52.9120, lng: -118.0950, priority: 'cut', stayMin: 15 },
-        { id: 'annette', name: 'Lake Annette & Lake Edith', lat: 52.8840, lng: -118.0450, priority: 'cut', stayMin: 25 },
+        { id: 'athfalls', name: 'Athabasca Falls — LOCKED AFTER CRUISE', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 40, note: 'Target about 3:40–4:20 PM; this move frees Sep 29 for Yoho.' },
         { id: 'hinton28b', name: 'Hinton Lodge (Return & Sleep)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
-      date: 'Sep 29', label: 'Hinton → Athabasca Falls → Parkway South → weather bonus → Calgary', start: '06:30', drive: 'Southbound + ONE weather-based bonus', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
-      note: 'FINAL ROUTE: Athabasca Falls is protected. After Waterfowl, choose ONE bonus only: Banff Gondola if summit visibility is good, otherwise Natural Bridge + Emerald Lake. Valley of Five Lakes and paid Icefield Adventure stay off unless the day is unexpectedly far ahead.',
+      date: 'Sep 29', label: 'Hinton → Sunwapta → Parkway South → Yoho → Vermilion sunset → Calgary', start: '06:30', drive: 'Locked southbound scenic route + Yoho + Banff sunset', sleep: 'Holiday Inn Calgary-Airport by IHG (BOOKED)',
+      note: 'LOCKED Sep 29: Athabasca Falls moved to Sep 28. Run south through Sunwapta, Stutfield, Saskatchewan Crossing, Mistaya, Waterfowl, Peyto, Bow/Crowfoot, then Natural Bridge + Emerald Lake, finish at Vermilion Lakes for the 7:24 PM sunset, then Calgary.',
       hotel: { name: 'Holiday Inn Calgary-Airport by IHG', lat: 51.06593, lng: -114.01186 },
       stops: [
         { id: 'hinton29', name: 'Hinton Lodge (Depart 06:30)', lat: 53.38816, lng: -117.61821, priority: 'must', stayMin: 0, isHotel: true },
-        { id: 'jasper29', name: 'Jasper — southbound fuel + snacks', lat: 52.8734, lng: -118.0814, priority: 'nice', stayMin: 20 },
-        { id: 'athfalls', name: 'Athabasca Falls', lat: 52.6634, lng: -117.8830, priority: 'must', stayMin: 40 },
-        { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15 },
-        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 15 },
-        { id: 'gondola', name: 'Banff Gondola — choose if summit visibility is good', lat: 51.14821, lng: -115.55614, priority: 'nice', stayMin: 135, choiceGroup: 'sep29bonus', note: 'Weather choice: use this instead of Yoho when summit visibility is good.' },
-        { id: 'naturalbridge', name: 'Natural Bridge — cloudy-weather alternative', lat: 51.381632, lng: -116.530455, priority: 'nice', stayMin: 25, choiceGroup: 'sep29bonus' },
-        { id: 'emerald', name: 'Emerald Lake — cloudy-weather alternative', lat: 51.44321, lng: -116.53153, priority: 'nice', stayMin: 60, choiceGroup: 'sep29bonus' },
-        { id: 'valley5', name: 'Valley of the Five Lakes — only if far ahead', lat: 52.8450, lng: -118.0550, priority: 'cut', stayMin: 110 },
-        { id: 'icefield29', name: 'Columbia Icefield Adventure — only if deliberately substituted', lat: 52.2203, lng: -117.2249, priority: 'cut', stayMin: 165 },
-        { id: 'bowlake29', name: 'Bow Lake repeat only if Sep 27 visibility was poor', lat: 51.6827, lng: -116.4650, priority: 'cut', stayMin: 15 },
-        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
+        { id: 'jasper29', name: 'Jasper — fuel / food / washroom', lat: 52.8734, lng: -118.0814, priority: 'must', stayMin: 20 },
+        { id: 'sunwapta', name: 'Sunwapta Falls', lat: 52.5324, lng: -117.6450, priority: 'must', stayMin: 35 },
+        { id: 'stutfield', name: 'Stutfield Glacier Viewpoint', lat: 52.2620, lng: -117.2860, priority: 'nice', stayMin: 15, enabled: true },
+        { id: 'saskcrossing', name: 'Saskatchewan Crossing (Fuel / Food)', lat: 51.9744, lng: -116.7456, priority: 'must', stayMin: 30 },
+        { id: 'mistaya', name: 'Mistaya Canyon', lat: 51.9460, lng: -116.7200, priority: 'must', stayMin: 45 },
+        { id: 'waterfowl', name: 'Waterfowl Lakes', lat: 51.8450, lng: -116.6390, priority: 'nice', stayMin: 20, enabled: true },
+        { id: 'peyto', name: 'Peyto Lake Lookout', lat: 51.7177, lng: -116.5060, priority: 'must', stayMin: 55 },
+        { id: 'bowlake', name: 'Bow Lake', lat: 51.6827, lng: -116.4650, priority: 'must', stayMin: 30 },
+        { id: 'crowfoot', name: 'Crowfoot Glacier Viewpoint', lat: 51.6630, lng: -116.4810, priority: 'must', stayMin: 10 },
+        { id: 'naturalbridge', name: 'Natural Bridge — LOCKED', lat: 51.381632, lng: -116.530455, priority: 'must', stayMin: 20 },
+        { id: 'emerald', name: 'Emerald Lake — LOCKED', lat: 51.44321, lng: -116.53153, priority: 'must', stayMin: 45 },
+        { id: 'vermilion', name: 'Vermilion Lakes — SUNSET ~7:24 PM', lat: 51.1810, lng: -115.5950, priority: 'must', stayMin: 65, note: 'Target arrival about 6:15 PM; sunset about 7:24 PM; leave about 7:40 PM.' },
+        { id: 'cochrane29', name: 'Holiday Inn Calgary-Airport by IHG (Booked • Check-in ~9:15–9:30 PM)', lat: 51.06593, lng: -114.01186, priority: 'must', stayMin: 0, isHotel: true }
       ]
     },
     {
