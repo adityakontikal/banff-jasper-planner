@@ -1,6 +1,6 @@
 # Banff–Jasper Final Field Itinerary
 **Trip:** Sep 25–30, 2026 • 3 adults  
-**Route pass:** Updated Sep 27, 2026  
+**Route pass:** Updated Sep 28, 2026  
 **Rule:** Fixed bookings win. Non-booked stops move with weather and fatigue.
 
 ## Weather snapshot used
@@ -39,7 +39,7 @@
 
 **Moved to Sep 29:** Bow Lake / Crowfoot, Peyto Lake, Mistaya Canyon, Saskatchewan Crossing scenic/food stop, Sunwapta Falls.
 
-## Sep 28 — Hinton → Pyramid → Medicine → Maligne Cruise → Hinton
+## Sep 28 — Hinton → Pyramid → Medicine → Maligne Cruise → Athabasca Falls → Hinton
 - 07:00 — leave Hinton
 - ~08:10–08:50 — Pyramid Lake + Island
 - 09:00–09:20 — Jasper fuel / breakfast
@@ -50,25 +50,32 @@
 - 13:30–14:00 — buffer / lakeshore
 - ~14:00 — leave Maligne
 - ~15:15 — Jasper
-- ~16:15–16:30 — Hinton
+- **~15:40–16:20 — Athabasca Falls**
+- ~16:20 — leave Athabasca Falls
+- **~17:40–18:00 — Hinton**
 
-## Sep 29 — Hinton → Parkway South scenic stops → Banff sunset → Calgary
-- 06:30 — leave Hinton
-- ~07:30–07:50 — Jasper fuel / food
-- ~08:20–09:00 — Athabasca Falls
-- Sunwapta Falls
-- Stutfield Glacier viewpoint
-- Waterfowl Lakes
-- Mistaya Canyon
-- Saskatchewan Crossing — fuel / food
-- Peyto Lake
-- Bow Lake / Crowfoot Glacier viewpoint
-- **Sunset — Vermilion Lakes**
-- Continue to Calgary Airport hotel after sunset
+## Sep 29 — Hinton → Parkway South → Yoho → Vermilion sunset → Calgary
+- **06:30 — leave Hinton**
+- ~07:25–07:45 — Jasper fuel / food / washroom
+- ~08:30–09:05 — Sunwapta Falls
+- ~09:40–09:55 — Stutfield Glacier viewpoint
+- ~10:45–11:15 — Saskatchewan Crossing — fuel / food
+- ~11:25–12:10 — Mistaya Canyon
+- ~12:25–12:45 — Waterfowl Lakes
+- ~13:05–14:00 — Peyto Lake
+- ~14:10–14:40 — Bow Lake
+- ~14:45–14:55 — Crowfoot Glacier viewpoint
+- ~15:35 — Lake Louise / Hwy 1 area
+- ~16:00–16:20 — Natural Bridge
+- ~16:30–17:15 — Emerald Lake
+- ~17:15 — leave Emerald Lake
+- **~18:15 — arrive Vermilion Lakes / Banff**
+- 18:15–19:20 — dinner / rest / sunset setup
+- **~19:24 — sunset at Vermilion Lakes**
+- ~19:40 — leave for Calgary
+- **~21:15–21:30 — Calgary Airport hotel**
 
-**If time remains:** Natural Bridge / Emerald Lake can still be considered, but the moved Parkway stops and Vermilion Lakes sunset take priority.
-
-**Do not add by default:** Valley of Five Lakes, paid Icefield Adventure, repeat Columbia Icefield stop.
+**Locked Sep 29 route:** Athabasca Falls is moved to Sep 28. Natural Bridge + Emerald Lake are now planned stops, not bonus-only. Keep Valley of Five Lakes, paid Icefield Adventure, and a repeat Columbia Icefield stop off the default route.
 
 ## Sep 30 — Calgary → YYC → Toronto
 - 10:00 — leave hotel
@@ -83,8 +90,8 @@
 ## Field rules
 1. Fixed bookings are never sacrificed for optional sightseeing.
 2. Sep 27: after the Gondola, prioritize Columbia Icefield and the Hinton transfer.
-3. Sep 29: the scenic Parkway stops moved from Sep 27 now take priority.
-4. Vermilion Lakes is the Sep 29 sunset target before driving to Calgary.
-5. Natural Bridge / Emerald Lake are bonus-only if time remains on Sep 29.
+3. Sep 28: Athabasca Falls is locked after the Maligne cruise.
+4. Sep 29: Sunwapta onward is the southbound scenic sequence; Natural Bridge + Emerald Lake are planned stops.
+5. Vermilion Lakes remains the Sep 29 sunset target before driving to Calgary.
 6. Keep rain layers and warm layers accessible in the car.
 7. Keep all tickets/vouchers and offline maps downloaded.
