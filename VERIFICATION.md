@@ -113,7 +113,6 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 
 - Lake Minnewanka
 - Two Jack Lake
-- Banff Gondola **on Sep 29 only when summit visibility is good** (weather option A)
 - Johnston Canyon to Upper Falls **via Castle Junction vehicle access**
 - Moraine Lake + Rockpile
 - Lake Louise lakeshore
@@ -150,16 +149,26 @@ That is why the mountain-area hotel is only recommended when its final exact **1
 
 Nothing needs to be deleted from the planner simply because it is CUT.
 
-## Sep 29 choice rule
+## Sep 29 locked route rule
 
-The selected plan makes the decision at roughly **11:30 AM after Waterfowl Lakes**:
+Athabasca Falls is moved to **Sep 28 after the Maligne Lake cruise**, which removes the early Sep 29 stop and creates room for the Yoho detour.
 
-1. **Clear summit visibility → Banff Gondola** (~13:00–15:15)
-2. **Cloud/fog on Sulphur Mountain → Natural Bridge + Emerald Lake** (~12:50–14:30)
-3. If neither is attractive or the day is late, continue directly toward Calgary.
+The locked Sep 29 order is:
 
-Do **not** add Valley of Five Lakes by default; reconsider it only if significantly ahead. The paid Icefield Adventure is also off by default because the free Athabasca Glacier stop is already protected on Sep 27.
+1. Hinton → Jasper fuel / food
+2. Sunwapta Falls
+3. Stutfield Glacier viewpoint
+4. Saskatchewan Crossing
+5. Mistaya Canyon
+6. Waterfowl Lakes
+7. Peyto Lake
+8. Bow Lake + Crowfoot Glacier viewpoint
+9. Natural Bridge
+10. Emerald Lake
+11. Vermilion Lakes for the **~19:24 Banff sunset**
+12. Calgary Airport hotel
 
+Natural Bridge + Emerald Lake are now **planned**, not a weather-only bonus. Do **not** add Valley of Five Lakes, paid Icefield Adventure, or a repeat Columbia Icefield stop by default.
 
 ## Current 2026 closures / restrictions / recheck requirement
 
